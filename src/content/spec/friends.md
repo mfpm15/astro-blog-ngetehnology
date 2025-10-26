@@ -1,55 +1,42 @@
 ---
-title: "友情链接"
-description: "与优秀的朋友们一起成长"
+title: "Tautan Teman"
+description: "Bertumbuh bersama teman-teman yang luar biasa"
 ---
 
 ---
 
-## 🍀本站信息
+## 🍀 Informasi Situs Ini
 
-申请友链前请先在自己网站添加本站友链，请使用以下信息：
+Jika Anda ingin bertukar tautan, silakan tambahkan informasi situs ini ke website Anda terlebih dahulu:
 
 ```yaml
-站点名称: 夏夜流萤
-站点描述: 总有一场相遇，是互相喜欢的！
-站点链接: https://blog.cuteleaf.cn
-头像链接: https://q.qlogo.cn/headimg_dl?dst_uin=7618557&spec=640&img_type=jpg
+Nama Situs: NgetehNology
+Deskripsi Situs: Panduan Keamanan Siber untuk Pemula
+URL Situs: (URL Netlify Anda akan muncul di sini setelah deploy)
+URL Avatar: (URL ke avatar/logo Anda)
 
 ```
 
-## ✉️申请友链
+## ✉️ Pengajuan Tautan Teman
 
-请将您的网站信息发送邮件至：`xxx@xxx.com`
-
-**邮件标题**：`友链申请 - [您的站点名称]`
-
-**邮件内容模板**：
-
-```
-站点信息：
-- 站点名称：[您的站点名称]
-- 站点描述：[您的站点描述]
-- 站点链接：[您的站点链接]
-- 头像链接：[您的头像链接]
-```
+Anda dapat mengedit file ini secara langsung untuk menambahkan teman Anda atau membuat sistem pengajuan sendiri (misalnya melalui email atau formulir kontak).
 
 
-## ⚠️注意事项 
+## ⚠️ Catatan Penting
 
-1. **互换原则**：请先将本站添加到您的友链页面，我会在确认后添加您的友链
-2. **链接维护**：如发现友链网站长期无法访问或内容违规，将会移除友链
-3. **网站要求**：
-   - 网站内容积极向上，无违法违规信息
-   - 不允许含有病毒、木马、恶意代码、弹出广告以及任何危害他人计算机安全的内容。
-   - 不能有任何含色情/反动/暴力等不法内容。
-   - 网站能够正常访问，加载速度合理
-   - 网站有持续的内容更新，不是废弃站点
-   - 网站支持HTTPS访问
-   - 网站以原创内容为主，非纯采集站
+1.  **Prinsip Timbal Balik**: Mohon tambahkan tautan situs ini ke halaman Anda terlebih dahulu, dan saya akan menambahkan tautan Anda setelah konfirmasi.
+2.  **Pemeliharaan Tautan**: Jika sebuah situs tidak dapat diakses untuk waktu yang lama atau berisi konten yang tidak pantas, tautan tersebut akan dihapus.
+3.  **Persyaratan Situs**:
+    *   Konten situs harus positif dan tidak melanggar hukum.
+    *   Tidak boleh mengandung virus, malware, atau kode berbahaya lainnya.
+    *   Situs harus dapat diakses dengan normal dan memiliki kecepatan muat yang wajar.
+    *   Situs memiliki konten yang terus diperbarui.
+    *   Situs mendukung akses HTTPS.
+    *   Konten mayoritas orisinal.
 ---
 
 <div class="tips">
-💡 <strong>小贴士</strong>：友链不仅是网站间的连接，更是博主间的情谊纽带。让我们一起在这个数字世界中相遇、成长！
+💡 <strong>Tips</strong>: Tautan teman bukan hanya koneksi antar situs, tetapi juga ikatan persahabatan antar blogger. Mari kita bertemu dan bertumbuh bersama di dunia digital ini!
 </div>
 
 <style>

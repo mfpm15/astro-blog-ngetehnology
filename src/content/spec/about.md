@@ -1,82 +1,27 @@
-# 关于我 / About Me
+# Tentang NgetehNology
 
-你好！我是 **夏叶** ，一个在数字世界中默默无闻的一片叶子。
+Selamat datang di NgetehNology! Blog ini didedikasikan untuk berbagi pengetahuan, tutorial, dan wawasan seputar dunia keamanan siber dan teknologi.
 
-## 🛠️ 关于本站
+## 🛠️ Tentang Situs Ini
 
-这个网站使用 **Astro** 框架构建，采用了 [Firefly](https://github.com/CuteLeaf/Firefly)模板
+Situs ini dibangun menggunakan kerangka kerja **Astro** dan didasarkan pada template [Firefly](https://github.com/CuteLeaf/Firefly) yang luar biasa.
 
+**Firefly** adalah tema blog pribadi yang modern dan indah, dirancang untuk para penggemar teknologi. Tema ini menggabungkan tumpukan teknologi web modern, menyediakan modul fungsional yang kaya dan antarmuka yang sangat dapat disesuaikan.
 
-**Firefly** 是一款基于 Astro 框架开发的清新美观且现代化个人博客主题，专为技术爱好者和内容创作者设计。该主题融合了现代 Web 技术栈，提供了丰富的功能模块和高度可定制的界面，让您能够轻松打造出专业且美观的个人博客网站。
+## 🚀 Arsitektur Teknologi
 
+- **Pembuatan Situs Statis**: Berbasis Astro, memberikan kecepatan muat yang sangat cepat dan optimisasi SEO yang luar biasa.
+- **Dukungan TypeScript**: Keamanan tipe penuh, meningkatkan pengalaman pengembangan dan kualitas kode.
+- **Desain Responsif**: Dibangun dengan Tailwind CSS, beradaptasi sempurna untuk desktop dan perangkat seluler.
+- **Pengembangan Berbasis Komponen**: Mendukung komponen Astro dan Svelte, fleksibel dan dapat diperluas.
 
-**🖥️在线预览： [Firefly - Demo site](https://demo-firefly.netlify.app/)**
+## 📫 Kontak
 
-**🏠我的博客： [https://blog.cuteleaf.cn](https://blog.cuteleaf.cn/)**
+Jika Anda ingin berdiskusi, berbagi ide, atau sekadar menyapa, jangan ragu untuk menghubungi melalui:
 
-**📝Firefly使用文档： [https://docs-firefly.cuteleaf.cn](https://docs-firefly.cuteleaf.cn/)**
-
-**⭐Firefly开源地址：https://github.com/CuteLeaf/Firefly** 
-
-::github{repo="CuteLeaf/Firefly"}
-
-<img src="/assets/images/firefly.png" />
-
-
-## 🚀 技术架构
-
-- **静态站点生成**: 基于 Astro ，提供极快的加载速度和优秀的 SEO 优化
-- **TypeScript 支持**: 完整的类型安全，提升开发体验和代码质量
-- **响应式设计**: 使用 Tailwind CSS 构建，完美适配桌面端和移动端
-- **组件化开发**: 支持 Astro、Svelte 组件，灵活可扩展
-
-
-## 🎨 界面与主题模块
-
-- **主题色彩系统**: 0-360度色相调节、主题色固定、三种默认模式
-- **背景壁纸系统**: Banner/覆盖双模式、响应式图片、图片定位、打字机效果
-- **看板娘系统**: Spine/Live2D双引擎、交互功能、动画配置
-- **字体系统**: 多字体支持、预加载优化、字体回退
-
-## 🧭 导航与布局模块
-
-- **导航栏配置**: 多级菜单、图标支持、预设/自定义链接
-- **侧边栏系统**: 模块化组件、布局控制、响应式行为
-
-## 📢 内容展示模块
-
-- **公告系统**: 内容配置、交互功能、显示控制
-- **友链系统**: 权重排序、启用控制、标签分类
-- **广告系统**: 多种广告类型、配置选项、广告位管理
-- **目录大纲**：移动端和桌面端均支持目录大纲，方便快速浏览
-
-## 🎛️ 高级配置模块
-
-- **特效系统**: 樱花特效、动画参数、循环控制
-- **统计系统**: Twikoo文章访问量统计、独立开关控制、多语言支持
-- **开发工具**: 代码高亮、主题支持、插件支持
-- **许可证系统**: 许可证显示、链接配置、开关控制
-- **SEO优化**: OpenGraph、站点信息、关键词、语言设置
-
-## ⚙️ 配置系统详解
-
-- **模块化配置**: 每个功能模块都有独立的配置文件，便于管理和维护
-- **站点配置**：网站基础信息、主题色彩、图标、语言设置
-- **用户资料配置**：头像、姓名、简介、社交链接
-- **功能配置**：评论系统、公告、许可证、页脚、统计
-- **样式配置**：代码高亮、樱花特效、字体管理
-- **布局配置**：侧边栏、导航栏组件管理
-- **组件配置**：音乐播放器、看板娘、广告、友链
-- **页脚HTML**：自定义HTML内容注入
-
-## 📫 联系方式
-
-如果你想和我交流技术问题，分享有趣的想法，或者只是想打个招呼，欢迎通过以下方式联系我：
-
-- 💻 **GitHub**: [CuteLeaf](https://github.com/CuteLeaf)
-- ✉️ **Email**: [xiaye@msn.com](mailto:xiaye@msn.com)
+- 💻 **GitHub**: [mfpm15](https://github.com/mfpm15)
+- 💼 **LinkedIn**: [Faiz Pratama](https://www.linkedin.com/in/faizpratama15/)
 
 ---
 
-*感谢你的来访！希望在这里能找到对你有用的内容。Firefly博客系统完全开源，如果喜欢的话，不妨给个GitHub点个Star ⭐ 支持一下！*
-
+*Terima kasih atas kunjungan Anda! Semoga Anda menemukan konten yang bermanfaat di sini.*
