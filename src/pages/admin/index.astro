@@ -18,10 +18,10 @@ const configPath = "/admin/config.yml";
   <body>
     <!-- Include the script that builds the page and powers Decap CMS -->
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
-    <script is:inline>
+    <script>
       window.addEventListener("load", () => {
         if (window.CMS) {
-          window.CMS.init({ configPath: ${JSON.stringify(configPath)} });
+          window.CMS.init({ configPath: "/admin/config.yml" });
         }
       });
     </script>
