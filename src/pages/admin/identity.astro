@@ -14,6 +14,12 @@
         const identity = window.netlifyIdentity;
         if (!identity) return;
 
+        identity.on("init", (user) => {
+          if (!user) {
+            identity.open();
+          }
+        });
+
         identity.on("login", () => {
           identity.close();
           window.location.replace("/admin/");
