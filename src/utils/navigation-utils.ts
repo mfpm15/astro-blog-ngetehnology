@@ -1,12 +1,12 @@
 /**
- * 导航工具函数
- * 提供统一的页面导航功能，支持 Swup 无刷新跳转
+ * Fungsi utilitas navigasi
+ * Menyediakan fungsionalitas navigasi halaman terpadu, mendukung navigasi tanpa refresh dengan Swup
  */
 
 /**
- * 导航到指定页面
- * @param url 目标页面URL
- * @param options 导航选项
+ * Navigasi ke halaman yang ditentukan
+ * @param url URL halaman tujuan
+ * @param options Opsi navigasi
  */
 export function navigateToPage(
 	url: string,
@@ -15,13 +15,13 @@ export function navigateToPage(
 		force?: boolean;
 	},
 ): void {
-	// 检查 URL 是否有效
+	// Periksa apakah URL valid
 	if (!url || typeof url !== "string") {
-		console.warn("navigateToPage: Invalid URL provided");
+		console.warn("navigateToPage: URL yang diberikan tidak valid");
 		return;
 	}
 
-	// 如果是外部链接，直接跳转
+	// Jika ini adalah tautan eksternal, buka di tab baru
 	if (
 		url.startsWith("http://") ||
 		url.startsWith("https://") ||
@@ -31,7 +31,7 @@ export function navigateToPage(
 		return;
 	}
 
-	// 如果是锚点链接，滚动到对应位置
+	// Jika ini adalah tautan jangkar, gulir ke elemen yang sesuai
 	if (url.startsWith("#")) {
 		const element = document.getElementById(url.slice(1));
 		if (element) {
@@ -40,29 +40,29 @@ export function navigateToPage(
 		return;
 	}
 
-	// 检查 Swup 是否可用
+	// Periksa apakah Swup tersedia
 	if (typeof window !== "undefined" && (window as any).swup) {
 		try {
-			// 使用 Swup 进行无刷新跳转
+			// Gunakan Swup untuk navigasi tanpa refresh
 			if (options?.replace) {
 				(window as any).swup.navigate(url, { history: false });
 			} else {
 				(window as any).swup.navigate(url);
 			}
 		} catch (error) {
-			console.error("Swup navigation failed:", error);
-			// 降级到普通跳转
+			console.error("Navigasi Swup gagal:", error);
+			// Fallback ke navigasi normal
 			fallbackNavigation(url, options);
 		}
 	} else {
-		// Swup 不可用时的降级处理
+		// Penanganan fallback saat Swup tidak tersedia
 		fallbackNavigation(url, options);
 	}
 }
 
 /**
- * 降级导航函数
- * 当 Swup 不可用时使用普通的页面跳转
+ * Fungsi navigasi fallback
+ * Gunakan navigasi halaman normal saat Swup tidak tersedia
  */
 function fallbackNavigation(
 	url: string,
@@ -79,15 +79,15 @@ function fallbackNavigation(
 }
 
 /**
- * 检查 Swup 是否已准备就绪
+ * Periksa apakah Swup sudah siap
  */
 export function isSwupReady(): boolean {
 	return typeof window !== "undefined" && !!(window as any).swup;
 }
 
 /**
- * 等待 Swup 准备就绪
- * @param timeout 超时时间（毫秒）
+ * Tunggu hingga Swup siap
+ * @param timeout Waktu habis (ms)
  */
 export function waitForSwup(timeout: number = 5000): Promise<boolean> {
 	return new Promise((resolve) => {
@@ -106,10 +106,10 @@ export function waitForSwup(timeout: number = 5000): Promise<boolean> {
 			}
 		};
 
-		// 监听 Swup 启用事件
+		// Dengarkan event enable Swup
 		document.addEventListener("swup:enable", checkSwup);
 
-		// 设置超时
+		// Atur waktu habis
 		timeoutId = setTimeout(() => {
 			document.removeEventListener("swup:enable", checkSwup);
 			resolve(false);
@@ -118,33 +118,33 @@ export function waitForSwup(timeout: number = 5000): Promise<boolean> {
 }
 
 /**
- * 预加载页面
- * @param url 要预加载的页面URL
+ * Pramuat halaman
+ * @param url URL halaman yang akan dimuat sebelumnya
  */
 export function preloadPage(url: string): void {
 	if (!url || typeof url !== "string") {
 		return;
 	}
 
-	// 如果 Swup 可用，使用其预加载功能
+	// Jika Swup tersedia, gunakan fungsionalitas pramuatnya
 	if (isSwupReady() && (window as any).swup.preload) {
 		try {
 			(window as any).swup.preload(url);
 		} catch (error) {
-			console.warn("Failed to preload page:", error);
+			console.warn("Gagal memuat halaman sebelumnya:", error);
 		}
 	}
 }
 
 /**
- * 获取当前页面路径
+ * Dapatkan path halaman saat ini
  */
 export function getCurrentPath(): string {
 	return typeof window !== "undefined" ? window.location.pathname : "";
 }
 
 /**
- * 检查是否为首页
+ * Periksa apakah ini halaman beranda
  */
 export function isHomePage(): boolean {
 	const path = getCurrentPath();
@@ -152,7 +152,7 @@ export function isHomePage(): boolean {
 }
 
 /**
- * 检查是否为文章页面
+ * Periksa apakah ini halaman postingan
  */
 export function isPostPage(): boolean {
 	const path = getCurrentPath();
@@ -160,10 +160,10 @@ export function isPostPage(): boolean {
 }
 
 /**
- * 检查两个路径是否相等
+ * Periksa apakah dua path sama
  */
 export function pathsEqual(path1: string, path2: string): boolean {
-	// 标准化路径（移除末尾斜杠）
+	// Normalisasi path (hapus garis miring di akhir)
 	const normalize = (path: string) => {
 		return path.endsWith("/") && path.length > 1 ? path.slice(0, -1) : path;
 	};

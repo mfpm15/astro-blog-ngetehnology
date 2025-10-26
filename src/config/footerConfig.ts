@@ -1,7 +1,7 @@
 import type { FooterConfig } from "../types/config";
 
 export const footerConfig: FooterConfig = {
-  enable: false, // 是否启用Footer HTML注入功能
+  enable: false, // Apakah akan mengaktifkan injeksi HTML di Footer
 };
 
-// 直接编辑 config/FooterConfig.html 文件来添加备案号等自定义内容
+// Edit langsung file config/FooterConfig.html untuk menambahkan konten kustom seperti nomor备案

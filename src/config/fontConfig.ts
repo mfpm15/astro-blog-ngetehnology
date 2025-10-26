@@ -1,14 +1,14 @@
-// 字体配置
+// Konfigurasi Font
 export const fontConfig = {
-  enable: true, // 启用自定义字体功能
-  preload: true, // 预加载字体文件以提高性能
-  selected: ["system"], // 当前选择的字体，支持多个字体组合
+  enable: true, // Aktifkan fitur font kustom
+  preload: true, // Pramuat file font untuk meningkatkan kinerja
+  selected: ["system"], // Font yang saat ini dipilih, mendukung beberapa kombinasi font
   fonts: {
-    // 系统字体
+    // Font Sistem
     system: {
       id: "system",
-      name: "系统字体",
-      src: "", // 系统字体无需 src
+      name: "Font Sistem",
+      src: "", // Font sistem tidak memerlukan src
       family:
         "system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif",
     },
@@ -28,7 +28,7 @@ export const fontConfig = {
       family: "Inter",
       display: "swap" as const,
     },
-    // 小米字体 - MiSans Normal
+    // Font Xiaomi - MiSans Normal
     "misans-normal": {
       id: "misans-normal",
       name: "MiSans Normal",
@@ -37,7 +37,7 @@ export const fontConfig = {
       weight: 400,
       display: "swap" as const,
     },
-    // 小米字体 - MiSans Semibold
+    // Font Xiaomi - MiSans Semibold
     "misans-semibold": {
       id: "misans-semibold",
       name: "MiSans Semibold",
@@ -54,5 +54,5 @@ export const fontConfig = {
     "Segoe UI",
     "Roboto",
     "sans-serif",
-  ], // 全局字体回退
+  ], // Cadangan font global
 };

@@ -46,15 +46,15 @@ export function setHue(hue: number): void {
 }
 
 export function applyThemeToDocument(theme: LIGHT_DARK_MODE) {
-  // 解析主题，如果是系统模式则获取系统偏好
+  // Uraikan tema, jika mode sistem, dapatkan preferensi sistem
   const resolvedTheme = resolveTheme(theme);
 
-  // 获取当前主题状态的完整信息
+  // Dapatkan informasi status tema saat ini secara lengkap
   const currentIsDark = document.documentElement.classList.contains("dark");
   const currentTheme = document.documentElement.getAttribute("data-theme");
 
-  // 计算目标主题状态
-  let targetIsDark: boolean = false; // 初始化默认值
+  // Hitung status tema target
+  let targetIsDark: boolean = false; // Inisialisasi nilai default
   switch (resolvedTheme) {
     case LIGHT_MODE:
       targetIsDark = false;
@@ -63,31 +63,31 @@ export function applyThemeToDocument(theme: LIGHT_DARK_MODE) {
       targetIsDark = true;
       break;
     default:
-      // 处理默认情况，使用当前主题状态
+      // Tangani kasus default, gunakan status tema saat ini
       targetIsDark = currentIsDark;
       break;
   }
 
-  // 检测是否真的需要主题切换：
-  // 1. dark类状态是否改变
-  // 2. expressiveCode主题是否需要更新
+  // Deteksi apakah pergantian tema benar-benar diperlukan:
+  // 1. Apakah status kelas gelap berubah
+  // 2. Apakah tema expressiveCode perlu diperbarui
   const needsThemeChange = currentIsDark !== targetIsDark;
   const expectedTheme = targetIsDark ? "github-dark" : "github-light";
   const needsCodeThemeUpdate = currentTheme !== expectedTheme;
 
-  // 如果既不需要主题切换也不需要代码主题更新，直接返回
+  // Jika tidak perlu pergantian tema atau pembaruan tema kode, langsung kembali
   if (!needsThemeChange && !needsCodeThemeUpdate) {
     return;
   }
 
-  // 只在需要主题切换时添加过渡保护
+  // Hanya tambahkan perlindungan transisi saat pergantian tema diperlukan
   if (needsThemeChange) {
     document.documentElement.classList.add("is-theme-transitioning");
   }
 
-  // 使用 requestAnimationFrame 确保在下一帧执行，避免闪屏
+  // Gunakan requestAnimationFrame untuk memastikan eksekusi pada frame berikutnya, menghindari kedipan
   requestAnimationFrame(() => {
-    // 应用主题变化
+    // Terapkan perubahan tema
     if (needsThemeChange) {
       if (targetIsDark) {
         document.documentElement.classList.add("dark");
@@ -96,21 +96,21 @@ export function applyThemeToDocument(theme: LIGHT_DARK_MODE) {
       }
     }
 
-    // Set the theme for Expressive Code based on current mode
+    // Atur tema untuk Expressive Code berdasarkan mode saat ini
     const expressiveTheme = targetIsDark ? "github-dark" : "github-light";
     document.documentElement.setAttribute("data-theme", expressiveTheme);
 
-    // 强制重新渲染代码块 - 解决从首页进入文章页面时的渲染问题
+    // Paksa render ulang blok kode - mengatasi masalah rendering saat masuk ke halaman artikel dari beranda
     if (needsCodeThemeUpdate) {
-      // 触发 expressice code 重新渲染
+      // Picu render ulang expressive code
       setTimeout(() => {
         window.dispatchEvent(new CustomEvent("theme-change"));
       }, 0);
     }
 
-    // 在下一帧快速移除保护类，使用微任务确保DOM更新完成
+    // Hapus kelas perlindungan dengan cepat pada frame berikutnya, gunakan microtask untuk memastikan pembaruan DOM selesai
     if (needsThemeChange) {
-      // 使用 requestAnimationFrame 确保在下一帧移除过渡保护类
+      // Gunakan requestAnimationFrame untuk memastikan penghapusan kelas perlindungan transisi pada frame berikutnya
       requestAnimationFrame(() => {
         document.documentElement.classList.remove("is-theme-transitioning");
       });
@@ -122,26 +122,26 @@ export function setTheme(theme: LIGHT_DARK_MODE): void {
   localStorage.setItem("theme", theme);
   applyThemeToDocument(theme);
 
-  // 如果设置为系统模式，监听系统偏好变化
+  // Jika diatur ke mode sistem, dengarkan perubahan preferensi sistem
   if (theme === SYSTEM_MODE && typeof window !== "undefined") {
     setupSystemThemeListener();
   }
 }
 
-// 设置系统主题变化监听器
+// Atur pendengar perubahan tema sistem
 let systemThemeListener: ((e: MediaQueryListEvent) => void) | null = null;
 
 export function setupSystemThemeListener(): void {
   if (typeof window === "undefined") return;
 
-  // 移除之前的监听器
+  // Hapus pendengar sebelumnya
   if (systemThemeListener) {
     window
       .matchMedia("(prefers-color-scheme: dark)")
       .removeListener(systemThemeListener);
   }
 
-  // 添加新的监听器
+  // Tambahkan pendengar baru
   systemThemeListener = (e: MediaQueryListEvent) => {
     const currentTheme = getStoredTheme();
     if (currentTheme === SYSTEM_MODE) {

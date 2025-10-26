@@ -2,47 +2,41 @@ import type { NavBarConfig, NavBarLink } from "../types/config";
 import { LinkPreset } from "../types/config";
 import { siteConfig } from "./siteConfig";
 
-// 根据页面开关动态生成导航栏配置
+// Hasilkan konfigurasi bilah navigasi secara dinamis berdasarkan sakelar halaman
 const getDynamicNavBarConfig = (): NavBarConfig => {
   const links: (NavBarLink | LinkPreset)[] = [
     LinkPreset.Home,
     LinkPreset.Archive,
   ];
 
-  // 根据配置决定是否添加追番页面
+  // Tentukan apakah akan menambahkan halaman anime berdasarkan konfigurasi
   if (siteConfig.pages.anime) {
     links.push(LinkPreset.Anime);
   }
 
-  // 支持自定义导航栏链接,并且支持多级菜单
+  // Mendukung tautan bilah navigasi kustom dan menu multi-level
   links.push({
-    name: "链接",
+    name: "Tautan",
     url: "/links/",
     icon: "material-symbols:link",
     children: [
       {
         name: "GitHub",
-        url: "https://github.com/CuteLeaf/Firefly",
+        url: "https://github.com/mfpm15/astro-blog-ngetehnology",
         external: true,
         icon: "fa6-brands:github",
-      },
-      {
-        name: "Bilibili",
-        url: "https://space.bilibili.com/38932988",
-        external: true,
-        icon: "fa6-brands:bilibili",
       },
     ],
   });
 
   links.push(LinkPreset.Friends);
 
-  // 根据config的页面开关动态生成项目、技能、经历菜单项
+  // Hasilkan item menu Proyek, Keahlian, Pengalaman secara dinamis berdasarkan sakelar halaman di config
   const otherChildren: NavBarLink[] = [];
 
   if (siteConfig.pages.projects) {
     otherChildren.push({
-      name: "我的项目",
+      name: "Proyek Saya",
       url: "/projects/",
       icon: "material-symbols:work",
     });
@@ -50,7 +44,7 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 
   if (siteConfig.pages.skills) {
     otherChildren.push({
-      name: "我的技能",
+      name: "Keahlian Saya",
       url: "/skills/",
       icon: "material-symbols:psychology",
     });
@@ -58,14 +52,14 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 
   if (siteConfig.pages.timeline) {
     otherChildren.push({
-      name: "我的经历",
+      name: "Pengalaman Saya",
       url: "/timeline/",
       icon: "material-symbols:timeline",
     });
   }
 
   links.push({
-    name: "关于",
+    name: "Tentang",
     url: "/content/",
     icon: "material-symbols:info",
     children: [LinkPreset.About, ...otherChildren],

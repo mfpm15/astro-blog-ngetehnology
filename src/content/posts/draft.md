@@ -1,22 +1,23 @@
 ---
-title: 草稿示例
+title: Contoh Draf
 published: 2022-07-01
-tags: [Markdown, 博客, 演示]
-category: 文章示例
+tags: [Markdown, Blog, Demo]
+category: Contoh Postingan
 draft: true
 ---
 
-# 这篇文章是草稿
+# Postingan ini adalah Draf
 
-这篇文章目前处于草稿状态，尚未发布。因此，它不会对普通读者可见。内容仍在进行中，可能需要进一步编辑和审查。
+Postingan ini saat ini dalam status draf dan belum dipublikasikan. Oleh karena itu, tidak akan terlihat oleh pembaca biasa. Konten masih dalam proses pengerjaan dan mungkin memerlukan penyuntingan dan peninjauan lebih lanjut.
 
-当文章准备发布时，您可以在 Frontmatter 中将 "draft" 字段更新为 "false"：
+Ketika postingan siap untuk dipublikasikan, Anda dapat memperbarui bidang "draft" menjadi "false" di Frontmatter:
 
 ```markdown
 ---
-title: 草稿示例
+title: Contoh Draf
 published: 2024-01-11T04:40:26.381Z
-tags: [Markdown, 博客, 演示]
-category: 示例
+tags: [Markdown, Blog, Demo]
+category: Contoh
 draft: false
 ---
+```

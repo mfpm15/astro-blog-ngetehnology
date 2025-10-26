@@ -1,17 +1,17 @@
 ---
-title: 在文章中嵌入视频
+title: Menyematkan Video dalam Postingan
 published: 2022-08-01
-description: 这篇文章演示如何在博客文章中嵌入视频。
-tags: [示例, 视频, Firefly]
-category: 文章示例
+description: Postingan ini mendemonstrasikan cara menyematkan video dalam postingan blog.
+tags: [Contoh, Video, Firefly]
+category: Contoh Postingan
 draft: false
 ---
 
-只需从 YouTube 或其他平台复制嵌入代码，然后将其粘贴到 markdown 文件中。
+Cukup salin kode sematan dari YouTube atau platform lain, lalu tempelkan ke dalam file markdown Anda.
 
 ```yaml
 ---
-title: 在文章中嵌入视频
+title: Menyematkan Video dalam Postingan
 published: 2023-10-19
 // ...
 ---

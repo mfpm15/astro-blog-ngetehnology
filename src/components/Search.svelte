@@ -18,17 +18,17 @@ const fakeResult: SearchResult[] = [
 	{
 		url: url("/"),
 		meta: {
-			title: "This Is a Fake Search Result",
+			title: "Ini adalah Hasil Pencarian Palsu",
 		},
 		excerpt:
-			"Because the search cannot work in the <mark>dev</mark> environment.",
+			"Karena pencarian tidak dapat berfungsi di lingkungan <mark>pengembangan</mark>.",
 	},
 	{
 		url: url("/"),
 		meta: {
-			title: "If You Want to Test the Search",
+			title: "Jika Anda Ingin Menguji Pencarian",
 		},
-		excerpt: "Try running <mark>npm build && npm preview</mark> instead.",
+		excerpt: "Coba jalankan <mark>pnpm build && pnpm preview</mark> sebagai gantinya.",
 	},
 ];
 
@@ -53,7 +53,7 @@ const closeSearchPanel = (): void => {
 	if (panel) {
 		panel.classList.add("float-panel-closed");
 	}
-	// 清空搜索关键词和结果
+	// Hapus kata kunci pencarian dan hasil
 	keywordDesktop = "";
 	keywordMobile = "";
 	result = [];
@@ -90,13 +90,13 @@ const search = async (keyword: string, isDesktop: boolean): Promise<void> => {
 			searchResults = fakeResult;
 		} else {
 			searchResults = [];
-			console.error("Pagefind is not available in production environment.");
+			console.error("Pagefind tidak tersedia di lingkungan produksi.");
 		}
 
 		result = searchResults;
 		setPanelVisibility(result.length > 0, isDesktop);
 	} catch (error) {
-		console.error("Search error:", error);
+		console.error("Kesalahan pencarian:", error);
 		result = [];
 		setPanelVisibility(false, isDesktop);
 	} finally {
@@ -111,35 +111,35 @@ onMount(() => {
 			typeof window !== "undefined" &&
 			!!window.pagefind &&
 			typeof window.pagefind.search === "function";
-		console.log("Pagefind status on init:", pagefindLoaded);
+		console.log("Status Pagefind saat inisialisasi:", pagefindLoaded);
 		if (keywordDesktop) search(keywordDesktop, true);
 		if (keywordMobile) search(keywordMobile, false);
 	};
 
 	if (import.meta.env.DEV) {
 		console.log(
-			"Pagefind is not available in development mode. Using mock data.",
+			"Pagefind tidak tersedia dalam mode pengembangan. Menggunakan data tiruan.",
 		);
 		initializeSearch();
 	} else {
 		document.addEventListener("pagefindready", () => {
-			console.log("Pagefind ready event received.");
+			console.log("Event Pagefind ready diterima.");
 			initializeSearch();
 		});
 		document.addEventListener("pagefindloaderror", () => {
 			console.warn(
-				"Pagefind load error event received. Search functionality will be limited.",
+				"Event kesalahan pemuatan Pagefind diterima. Fungsionalitas pencarian akan terbatas.",
 			);
-			initializeSearch(); // Initialize with pagefindLoaded as false
+			initializeSearch(); // Inisialisasi dengan pagefindLoaded sebagai false
 		});
 
-		// Fallback in case events are not caught or pagefind is already loaded by the time this script runs
+		// Fallback jika event tidak tertangkap atau pagefind sudah dimuat saat skrip ini berjalan
 		setTimeout(() => {
 			if (!initialized) {
-				console.log("Fallback: Initializing search after timeout.");
+				console.log("Fallback: Menginisialisasi pencarian setelah waktu habis.");
 				initializeSearch();
 			}
-		}, 2000); // Adjust timeout as needed
+		}, 2000); // Sesuaikan waktu habis jika perlu
 	}
 });
 
@@ -156,7 +156,7 @@ $: if (initialized && keywordMobile) {
 }
 </script>
 
-<!-- search bar for desktop view -->
+<!-- bilah pencarian untuk tampilan desktop -->
 <div id="search-bar" class="hidden lg:flex transition-all items-center h-11 mr-2 rounded-lg
       bg-black/[0.04] hover:bg-black/[0.06] focus-within:bg-black/[0.06]
       dark:bg-white/5 dark:hover:bg-white/10 dark:focus-within:bg-white/10
@@ -168,29 +168,29 @@ $: if (initialized && keywordMobile) {
     >
 </div>
 
-<!-- toggle btn for phone/tablet view -->
-<button on:click={togglePanel} aria-label="Search Panel" id="search-switch"
+<!-- tombol toggle untuk tampilan ponsel/tablet -->
+<button on:click={togglePanel} aria-label="Panel Pencarian" id="search-switch"
         class="btn-plain scale-animation lg:!hidden rounded-lg w-11 h-11 active:scale-90">
     <Icon icon="material-symbols:search" class="text-[1.25rem]"></Icon>
 </button>
 
-<!-- search panel -->
+<!-- panel pencarian -->
 <div id="search-panel" class="float-panel float-panel-closed search-panel absolute md:w-[30rem]
 top-20 left-4 md:left-[unset] right-4 shadow-2xl rounded-2xl p-2">
 
-    <!-- search bar inside panel for phone/tablet -->
+    <!-- bilah pencarian di dalam panel untuk ponsel/tablet -->
     <div id="search-bar-inside" class="flex relative lg:hidden transition-all items-center h-11 rounded-xl
       bg-black/[0.04] hover:bg-black/[0.06] focus-within:bg-black/[0.06]
       dark:bg-white/5 dark:hover:bg-white/10 dark:focus-within:bg-white/10
   ">
         <Icon icon="material-symbols:search" class="absolute text-[1.25rem] pointer-events-none ml-3 transition my-auto text-black/30 dark:text-white/30"></Icon>
-        <input placeholder="Search" bind:value={keywordMobile}
+        <input placeholder="Cari" bind:value={keywordMobile}
                class="pl-10 absolute inset-0 text-sm bg-transparent outline-0
                focus:w-60 text-black/50 dark:text-white/50"
         >
     </div>
 
-    <!-- search results -->
+    <!-- hasil pencarian -->
     {#each result as item}
         <a href={item.url}
            on:click={(e) => handleResultClick(e, item.url)}

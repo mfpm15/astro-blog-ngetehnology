@@ -1,42 +1,42 @@
 ---
-title: Firefly 字体配置指南
+title: Panduan Konfigurasi Font Firefly
 published: 2025-10-24
 pinned: false
-description: 详细介绍如何在 Firefly 博客主题中配置和管理字体，包括系统字体、Google Fonts、自定义字体等多种配置方式，以及字体优化和性能提升技巧。
-tags: [Firefly, 字体配置, 博客, 使用指南]
-category: 博客指南
+description: Pengenalan terperinci tentang cara mengkonfigurasi dan mengelola font di tema blog Firefly, termasuk berbagai metode konfigurasi seperti font sistem, Google Fonts, dan font kustom, serta teknik optimisasi font dan peningkatan kinerja.
+tags: [Firefly, Konfigurasi Font, Blog, Panduan Pengguna]
+category: Panduan Blog
 draft: false
 ---
 
-# Firefly 字体配置完全指南
+# Panduan Lengkap Konfigurasi Font Firefly
 
-Firefly 提供了强大而灵活的字体管理系统，支持多种字体来源和配置方式。本文将详细介绍如何在 Firefly 中配置字体，包括系统字体、Google Fonts、自定义字体等，以及字体优化和性能提升的最佳实践。
+Firefly menyediakan sistem manajemen font yang kuat dan fleksibel, mendukung berbagai sumber font dan metode konfigurasi. Artikel ini akan menjelaskan secara rinci cara mengkonfigurasi font di Firefly, termasuk font sistem, Google Fonts, dan font kustom, serta praktik terbaik untuk optimisasi font dan peningkatan kinerja.
 
-## 📋 目录
+## 📋 Daftar Isi
 
-- [字体配置基础](#字体配置基础)
-- [配置文件结构](#配置文件结构)
-- [字体类型详解](#字体类型详解)
-- [配置示例](#配置示例)
-- [字体优化技巧](#字体优化技巧)
-- [常见问题解答](#常见问题解答)
-- [最佳实践建议](#最佳实践建议)
+- [Dasar Konfigurasi Font](#dasar-konfigurasi-font)
+- [Struktur File Konfigurasi](#struktur-file-konfigurasi)
+- [Detail Jenis Font](#detail-jenis-font)
+- [Contoh Konfigurasi](#contoh-konfigurasi)
+- [Teknik Optimisasi Font](#teknik-optimisasi-font)
+- [Pertanyaan yang Sering Diajukan](#pertanyaan-yang-sering-diajukan)
+- [Saran Praktik Terbaik](#saran-praktik-terbaik)
 
-## 字体配置基础
+## Dasar Konfigurasi Font
 
-Firefly 的字体配置位于 `src/config/fontConfig.ts` 文件中，通过模块化的配置方式，您可以轻松管理网站的所有字体设置。
+Konfigurasi font Firefly terletak di file `src/config/fontConfig.ts`. Melalui pendekatan konfigurasi modular, Anda dapat dengan mudah mengelola semua pengaturan font situs web Anda.
 
-### 基本配置结构
+### Struktur Konfigurasi Dasar
 
 ```typescript
 export const fontConfig = {
-  enable: true,           // 启用自定义字体功能
-  preload: true,         // 预加载字体文件以提高性能
-  selected: ["system"],  // 当前选择的字体
-  fonts: {               // 字体定义
-    // 字体配置...
+  enable: true,           // Aktifkan fitur font kustom
+  preload: true,         // Pramuat file font untuk meningkatkan kinerja
+  selected: ["system"],  // Font yang saat ini dipilih
+  fonts: {               // Definisi font
+    // Konfigurasi font...
   },
-  fallback: [            // 全局字体回退
+  fallback: [            // Cadangan font global
     "system-ui",
     "-apple-system",
     "BlinkMacSystemFont",
@@ -47,59 +47,59 @@ export const fontConfig = {
 };
 ```
 
-## 配置文件结构
+## Struktur File Konfigurasi
 
-### 主要配置项说明
+### Penjelasan Opsi Konfigurasi Utama
 
-| 配置项 | 类型 | 说明 |
+| Opsi | Tipe | Penjelasan |
 |--------|------|------|
-| `enable` | `boolean` | 是否启用自定义字体功能 |
-| `preload` | `boolean` | 是否预加载字体文件 |
-| `selected` | `string[]` | 当前选中的字体ID数组 |
-| `fonts` | `object` | 字体定义对象 |
-| `fallback` | `string[]` | 字体回退列表 |
+| `enable` | `boolean` | Apakah akan mengaktifkan fitur font kustom |
+| `preload` | `boolean` | Apakah akan memuat file font terlebih dahulu |
+| `selected` | `string[]` | Array ID font yang saat ini dipilih |
+| `fonts` | `object` | Objek definisi font |
+| `fallback` | `string[]` | Daftar cadangan font |
 
-### 字体对象结构
+### Struktur Objek Font
 
-每个字体对象包含以下属性：
+Setiap objek font berisi properti berikut:
 
 ```typescript
 {
-  id: "font-id",                    // 字体唯一标识
-  name: "字体显示名称",              // 字体在界面中的显示名称
-  src: "字体源地址",                 // 字体文件URL或CSS链接
-  family: "字体族名称",              // CSS font-family 值
-  weight?: 400,                     // 字体粗细（可选）
-  style?: "normal",                 // 字体样式（可选）
-  display?: "swap",                 // 字体显示策略（可选）
-  format?: "woff2",                 // 字体格式（可选）
-  unicodeRange?: "U+0000-00FF",     // Unicode范围（可选）
+  id: "font-id",                    // Pengenal unik font
+  name: "Nama Tampilan Font",      // Nama tampilan font di antarmuka
+  src: "Sumber Font",               // URL file font atau tautan CSS
+  family: "Nama Keluarga Font",     // Nilai CSS font-family
+  weight?: 400,                     // Ketebalan font (opsional)
+  style?: "normal",                 // Gaya font (opsional)
+  display?: "swap",                 // Strategi tampilan font (opsional)
+  format?: "woff2",                 // Format font (opsional)
+  unicodeRange?: "U+0000-00FF",     // Rentang Unicode (opsional)
 }
 ```
 
-## 字体类型详解
+## Detail Jenis Font
 
-### 1. 系统字体
+### 1. Font Sistem
 
-系统字体无需外部加载，直接使用操作系统默认字体：
+Font sistem tidak memerlukan pemuatan eksternal, langsung menggunakan font default sistem operasi:
 
 ```typescript
 system: {
   id: "system",
-  name: "系统字体",
-  src: "", // 系统字体无需 src
+  name: "Font Sistem",
+  src: "", // Font sistem tidak memerlukan src
   family: "system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif",
 }
 ```
 
-**特点：**
-- 加载速度快，无需网络请求
-- 在不同操作系统上显示效果一致
-- 适合追求性能的场景
+**Fitur:**
+- Kecepatan muat cepat, tidak ada permintaan jaringan
+- Tampilan konsisten di berbagai sistem operasi
+- Cocok untuk skenario yang mengutamakan kinerja
 
 ### 2. Google Fonts
 
-通过 Google Fonts CDN 加载的字体：
+Font yang dimuat melalui CDN Google Fonts:
 
 ```typescript
 "zen-maru-gothic": {
@@ -111,17 +111,17 @@ system: {
 }
 ```
 
-**特点：**
-- 字体库丰富，质量高
-- CDN 分发，加载速度快
-- 支持多种字重和样式
-- 自动优化字体加载
+**Fitur:**
+- Pustaka font yang kaya, kualitas tinggi
+- Distribusi CDN, kecepatan muat cepat
+- Mendukung berbagai ketebalan dan gaya
+- Optimisasi pemuatan font otomatis
 
-### 3. 第三方字体库
+### 3. Pustaka Font Pihak Ketiga
 
-使用其他 CDN 提供的字体：
+Menggunakan font yang disediakan oleh CDN lain:
 
-比如小米的MiSans字体
+Misalnya font MiSans dari Xiaomi
 
 ```typescript
 "misans-normal": {
@@ -134,14 +134,14 @@ system: {
 }
 ```
 
-### 4. 本地字体
+### 4. Font Lokal
 
-使用本地字体文件：
+Menggunakan file font lokal:
 
 ```typescript
 "custom-font": {
   id: "custom-font",
-  name: "自定义字体",
+  name: "Font Kustom",
   src: "/assets/fonts/custom-font.woff2",
   family: "Custom Font",
   format: "woff2",
@@ -149,20 +149,20 @@ system: {
 }
 ```
 
-## 配置示例
+## Contoh Konfigurasi
 
-### 基础配置示例
+### Contoh Konfigurasi Dasar
 
 ```typescript
 export const fontConfig = {
   enable: true,
   preload: true,
-  selected: ["inter"], // 选择 Inter 字体
+  selected: ["inter"], // Pilih font Inter
   fonts: {
-    // 系统字体
+    // Font sistem
     system: {
       id: "system",
-      name: "系统字体",
+      name: "Font Sistem",
       src: "",
       family: "system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif",
     },
@@ -186,17 +186,17 @@ export const fontConfig = {
 };
 ```
 
-### 多字体组合配置
+### Konfigurasi Kombinasi Multi-Font
 
 ```typescript
 export const fontConfig = {
   enable: true,
   preload: true,
-  selected: ["inter", "zen-maru-gothic"], // 多字体组合
+  selected: ["inter", "zen-maru-gothic"], // Kombinasi multi-font
   fonts: {
     system: {
       id: "system",
-      name: "系统字体",
+      name: "Font Sistem",
       src: "",
       family: "system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif",
     },
@@ -226,62 +226,28 @@ export const fontConfig = {
 };
 ```
 
-### 中文字体配置示例
+## Teknik Optimisasi Font
+
+### 1. Pramuat Font
+
+Mengaktifkan pramuat font dapat secara signifikan meningkatkan kinerja pemuatan font:
 
 ```typescript
 export const fontConfig = {
   enable: true,
-  preload: true,
-  selected: ["noto-sans-sc"],
-  fonts: {
-    "noto-sans-sc": {
-      id: "noto-sans-sc",
-      name: "思源黑体",
-      src: "https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap",
-      family: "Noto Sans SC",
-      display: "swap",
-    },
-    "source-han-sans": {
-      id: "source-han-sans",
-      name: "思源黑体（本地）",
-      src: "/assets/fonts/SourceHanSansCN-Regular.woff2",
-      family: "Source Han Sans CN",
-      format: "woff2",
-      display: "swap",
-    },
-  },
-  fallback: [
-    "PingFang SC",
-    "Hiragino Sans GB",
-    "Microsoft YaHei",
-    "WenQuanYi Micro Hei",
-    "sans-serif",
-  ],
+  preload: true, // Aktifkan pramuat
+  // ... konfigurasi lainnya
 };
 ```
 
-## 字体优化技巧
+**Mekanisme Pramuat:**
+- Secara otomatis menambahkan tautan `preload` untuk file font lokal
+- Mengoptimalkan urutan pemuatan font
+- Mengurangi kedipan font (FOUT)
 
-### 1. 字体预加载
+### 2. Strategi Tampilan Font
 
-启用字体预加载可以显著提升字体加载性能：
-
-```typescript
-export const fontConfig = {
-  enable: true,
-  preload: true, // 启用预加载
-  // ... 其他配置
-};
-```
-
-**预加载机制：**
-- 自动为本地字体文件添加 `preload` 链接
-- 优化字体加载顺序
-- 减少字体闪烁（FOUT）
-
-### 2. 字体显示策略
-
-使用 `font-display: swap` 优化字体加载体验：
+Gunakan `font-display: swap` untuk mengoptimalkan pengalaman pemuatan font:
 
 ```typescript
 "inter": {
@@ -289,57 +255,57 @@ export const fontConfig = {
   name: "Inter",
   src: "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap",
   family: "Inter",
-  display: "swap", // 字体交换策略
+  display: "swap", // Strategi pertukaran font
 }
 ```
 
-**显示策略说明：**
-- `swap`: 立即显示回退字体，字体加载完成后交换
-- `block`: 等待字体加载完成再显示文本
-- `fallback`: 短时间等待后显示回退字体
-- `optional`: 仅在字体快速加载时使用
+**Penjelasan Strategi Tampilan:**
+- `swap`: Segera tampilkan font cadangan, tukar setelah font selesai dimuat
+- `block`: Tunggu hingga font selesai dimuat sebelum menampilkan teks
+- `fallback`: Tampilkan font cadangan setelah menunggu sebentar
+- `optional`: Hanya gunakan font jika dimuat dengan cepat
 
-### 3. 字体子集化
+### 3. Subset Font
 
-对于中文字体，建议使用子集化字体：
+Untuk font CJK, disarankan untuk menggunakan font subset:
 
 ```typescript
 "custom-chinese": {
   id: "custom-chinese",
-  name: "自定义中文字体",
+  name: "Font Cina Kustom",
   src: "/assets/fonts/chinese-subset.woff2",
   family: "Custom Chinese",
   format: "woff2",
-  unicodeRange: "U+4E00-9FFF, U+3400-4DBF, U+20000-2A6DF", // 中文字符范围
+  unicodeRange: "U+4E00-9FFF, U+3400-4DBF, U+20000-2A6DF", // Rentang karakter Cina
   display: "swap",
 }
 ```
 
-### 4. 字体回退优化
+### 4. Optimisasi Cadangan Font
 
-合理配置字体回退顺序：
+Konfigurasikan urutan cadangan font dengan benar:
 
 ```typescript
 fallback: [
-  "system-ui",           // 现代系统字体
-  "-apple-system",       // macOS 系统字体
-  "BlinkMacSystemFont",  // macOS 备用字体
-  "Segoe UI",            // Windows 系统字体
-  "Roboto",              // Android 系统字体
-  "sans-serif",          // 通用无衬线字体
+  "system-ui",           // Font sistem modern
+  "-apple-system",       // Font sistem macOS
+  "BlinkMacSystemFont",  // Font cadangan macOS
+  "Segoe UI",            // Font sistem Windows
+  "Roboto",              // Font sistem Android
+  "sans-serif",          // Font sans-serif generik
 ]
 ```
 
-## 常见问题解答
+## Pertanyaan yang Sering Diajukan
 
-### Q: 如何添加自定义字体？
+### T: Bagaimana cara menambahkan font kustom?
 
-A: 将字体文件放置在 `public/assets/fonts/` 目录下，然后在配置中添加：
+J: Tempatkan file font di direktori `public/assets/fonts/`, lalu tambahkan di konfigurasi:
 
 ```typescript
 "my-custom-font": {
   id: "my-custom-font",
-  name: "我的自定义字体",
+  name: "Font Kustom Saya",
   src: "/assets/fonts/my-custom-font.woff2",
   family: "My Custom Font",
   format: "woff2",
@@ -347,91 +313,91 @@ A: 将字体文件放置在 `public/assets/fonts/` 目录下，然后在配置�
 }
 ```
 
-### Q: 字体加载失败怎么办？
+### T: Bagaimana jika font gagal dimuat?
 
-A: Firefly 会自动使用回退字体，确保网站正常显示。您也可以：
+J: Firefly akan secara otomatis menggunakan font cadangan untuk memastikan situs web ditampilkan dengan benar. Anda juga dapat:
 
-1. 检查字体文件路径是否正确
-2. 确认字体文件格式是否支持
-3. 检查网络连接和CDN可用性
+1. Memeriksa apakah path file font sudah benar
+2. Memastikan format file font didukung
+3. Memeriksa koneksi jaringan dan ketersediaan CDN
 
-### Q: 如何优化字体加载性能？
+### T: Bagaimana cara mengoptimalkan kinerja pemuatan font?
 
-A: 建议采用以下策略：
+J: Disarankan untuk mengadopsi strategi berikut:
 
-1. 启用字体预加载
-2. 使用 `font-display: swap`
-3. 选择字体子集
-4. 合理配置回退字体
-5. 使用现代字体格式（WOFF2）
+1. Aktifkan pramuat font
+2. Gunakan `font-display: swap`
+3. Pilih subset font
+4. Konfigurasikan font cadangan dengan benar
+5. Gunakan format font modern (WOFF2)
 
-### Q: 支持哪些字体格式？
+### T: Format font apa yang didukung?
 
-A: Firefly 支持以下字体格式：
+J: Firefly mendukung format font berikut:
 
-- WOFF2（推荐）
+- WOFF2 (disarankan)
 - WOFF
 - TTF
 - OTF
-- EOT（IE兼容）
+- EOT (kompatibel dengan IE)
 
-### Q: 如何实现字体切换功能？
+### T: Bagaimana cara mengimplementasikan fungsionalitas pergantian font?
 
-A: 修改 `selected` 数组即可：
+J: Cukup ubah array `selected`:
 
 ```typescript
-// 切换到系统字体
+// Beralih ke font sistem
 selected: ["system"]
 
-// 切换到 Inter 字体
+// Beralih ke font Inter
 selected: ["inter"]
 
-// 使用多字体组合
+// Gunakan kombinasi multi-font
 selected: ["inter", "zen-maru-gothic"]
 ```
 
-## 最佳实践建议
+## Saran Praktik Terbaik
 
-### 1. 字体选择原则
+### 1. Prinsip Pemilihan Font
 
-- **可读性优先**：选择易读性好的字体
-- **性能考虑**：优先使用系统字体或轻量字体
-- **品牌一致性**：保持网站整体视觉风格统一
-- **多语言支持**：考虑中英文混排效果
+- **Prioritaskan Keterbacaan**: Pilih font yang mudah dibaca
+- **Pertimbangan Kinerja**: Prioritaskan penggunaan font sistem atau font ringan
+- **Konsistensi Merek**: Jaga konsistensi gaya visual situs web secara keseluruhan
+- **Dukungan Multi-Bahasa**: Pertimbangkan efek campuran bahasa Inggris dan bahasa lainnya
 
-### 2. 性能优化建议
+### 2. Saran Optimisasi Kinerja
 
-- 启用字体预加载
-- 使用字体子集
-- 合理配置回退字体
-- 避免加载过多字体
-- 使用现代字体格式
+- Aktifkan pramuat font
+- Gunakan subset font
+- Konfigurasikan font cadangan dengan benar
+- Hindari memuat terlalu banyak font
+- Gunakan format font modern
 
-### 3. 用户体验优化
+### 3. Optimisasi Pengalaman Pengguna
 
-- 使用 `font-display: swap` 减少闪烁
-- 提供合适的回退字体
-- 考虑不同设备的显示效果
-- 测试字体在不同浏览器中的表现
+- Gunakan `font-display: swap` untuk mengurangi kedipan
+- Sediakan font cadangan yang sesuai
+- Pertimbangkan efek tampilan di berbagai perangkat
+- Uji kinerja font di berbagai browser
 
-### 4. 维护建议
+### 4. Saran Pemeliharaan
 
-- 定期检查字体CDN可用性
-- 监控字体加载性能
-- 及时更新字体版本
-- 备份重要字体文件
+- Periksa ketersediaan CDN font secara berkala
+- Pantau kinerja pemuatan font
+- Perbarui versi font secara tepat waktu
+- Cadangkan file font penting
 
-## 总结
+## Ringkasan
 
-Firefly 的字体配置系统提供了强大而灵活的字体管理能力。通过合理配置，您可以：
+Sistem konfigurasi font Firefly menyediakan kemampuan manajemen font yang kuat dan fleksibel. Dengan konfigurasi yang tepat, Anda dapat:
 
-- 轻松管理多种字体来源
-- 优化字体加载性能
-- 提升用户体验
-- 保持网站视觉一致性
+- Mengelola berbagai sumber font dengan mudah
+- Mengoptimalkan kinerja pemuatan font
+- Meningkatkan pengalaman pengguna
+- Menjaga konsistensi visual situs web
 
-希望本指南能帮助您更好地使用 Firefly 的字体功能，打造出更加美观和专业的博客网站！
+Semoga panduan ini membantu Anda menggunakan fitur font Firefly dengan lebih baik untuk membuat situs blog yang lebih indah dan profesional!
 
 ---
 
-> 💡 **提示**：更多 Firefly 配置信息，请参考 [Firefly 使用文档](https://docs-firefly.cuteleaf.cn/) 或访问 [GitHub 仓库](https://github.com/CuteLeaf/Firefly)。
+> 💡 **Tips**: Untuk informasi konfigurasi Firefly lebih lanjut, silakan merujuk ke [Dokumentasi Penggunaan Firefly](https://docs-firefly.cuteleaf.cn/) atau kunjungi [Repositori GitHub](https://github.com/CuteLeaf/Firefly).

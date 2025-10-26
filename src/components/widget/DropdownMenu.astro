@@ -11,7 +11,7 @@ interface Props {
 
 const { link, class: className } = Astro.props;
 
-// 转换子菜单中的LinkPreset为NavBarLink
+// Ubah LinkPreset di submenu menjadi NavBarLink
 const processedLink = {
 	...link,
 	children: link.children?.map((child: NavBarLink | LinkPreset): NavBarLink => {
@@ -110,7 +110,7 @@ const hasChildren = processedLink.children && processedLink.children.length > 0;
 		@apply rounded-b-[calc(var(--radius-large)-0.5rem)];
 	}
 
-	/* 移动端隐藏下拉菜单 */
+	/* Sembunyikan menu dropdown di seluler */
 	@media (max-width: 768px) {
 		.dropdown-container {
 			@apply hidden;
@@ -119,7 +119,7 @@ const hasChildren = processedLink.children && processedLink.children.length > 0;
 </style>
 
 <script>
-	// 键盘导航支持
+	// Dukungan navigasi keyboard
 	document.addEventListener('DOMContentLoaded', function() {
 		const dropdowns = document.querySelectorAll('[data-dropdown]');
 		
@@ -130,7 +130,7 @@ const hasChildren = processedLink.children && processedLink.children.length > 0;
 			
 			if (!trigger || !menu) return;
 			
-			// 键盘事件处理
+			// Penanganan event keyboard
 			trigger.addEventListener('keydown', function(e) {
 				if (e.key === 'Enter' || e.key === ' ') {
 					e.preventDefault();
@@ -146,7 +146,7 @@ const hasChildren = processedLink.children && processedLink.children.length > 0;
 				}
 			});
 			
-			// 菜单项键盘导航
+			// Navigasi keyboard item menu
 			items.forEach((item, index) => {
 				item.addEventListener('keydown', function(e) {
 					if (e.key === 'ArrowDown') {
@@ -165,7 +165,7 @@ const hasChildren = processedLink.children && processedLink.children.length > 0;
 			});
 		});
 		
-		// 点击外部关闭下拉菜单
+		// Klik di luar untuk menutup menu dropdown
 		document.addEventListener('click', function(e) {
 			dropdowns.forEach(dropdown => {
 				if (!dropdown.contains(e.target)) {

@@ -1,147 +1,147 @@
 import type { SidebarLayoutConfig } from "../types/config";
 
 /**
- * 侧边栏布局配置
- * 用于控制侧边栏组件的显示、排序、动画和响应式行为
+ * Konfigurasi Tata Letak Sidebar
+ * Digunakan untuk mengontrol tampilan, urutan, animasi, dan perilaku responsif komponen sidebar
  */
 export const sidebarLayoutConfig: SidebarLayoutConfig = {
-  // 是否启用侧边栏功能
+  // Apakah akan mengaktifkan fitur sidebar
   enable: true,
 
-  // 侧边栏位置：左侧或右侧
+  // Posisi sidebar: kiri atau kanan
   position: "left",
 
-  // 侧边栏组件配置列表
+  // Daftar konfigurasi komponen sidebar
   components: [
     {
-      // 组件类型：用户资料组件
+      // Jenis komponen: komponen profil pengguna
       type: "profile",
-      // 是否启用该组件
+      // Apakah akan mengaktifkan komponen ini
       enable: true,
-      // 组件显示顺序（数字越小越靠前）
+      // Urutan tampilan komponen (angka lebih kecil akan lebih dulu)
       order: 1,
-      // 组件位置："top" 表示固定在顶部
+      // Posisi komponen: "top" berarti tetap di atas
       position: "top",
-      // CSS 类名，用于应用样式和动画
+      // Nama kelas CSS untuk menerapkan gaya dan animasi
       class: "onload-animation",
-      // 动画延迟时间（毫秒），用于错开动画效果
+      // Waktu tunda animasi (ms), untuk efek animasi berurutan
       animationDelay: 0,
     },
     {
-      // 组件类型：公告组件
+      // Jenis komponen: komponen pengumuman
       type: "announcement",
-      // 是否启用该组件（现在通过统一配置控制）
+      // Apakah akan mengaktifkan komponen ini (sekarang dikontrol oleh konfigurasi terpadu)
       enable: true,
-      // 组件显示顺序
+      // Urutan tampilan
       order: 2,
-      // 组件位置："top" 表示固定在顶部
+      // Posisi komponen: "top" berarti tetap di atas
       position: "top",
-      // CSS 类名
+      // Nama kelas CSS
       class: "onload-animation",
-      // 动画延迟时间
+      // Waktu tunda animasi
       animationDelay: 50,
     },
     {
-      // 组件类型：分类组件
+      // Jenis komponen: komponen kategori
       type: "categories",
-      // 是否启用该组件
+      // Apakah akan mengaktifkan komponen ini
       enable: true,
-      // 组件显示顺序
+      // Urutan tampilan
       order: 3,
-      // 组件位置："sticky" 表示粘性定位，可滚动
+      // Posisi komponen: "sticky" berarti posisi lengket, dapat digulir
       position: "sticky",
-      // CSS 类名
+      // Nama kelas CSS
       class: "onload-animation",
-      // 动画延迟时间
+      // Waktu tunda animasi
       animationDelay: 150,
-      // 响应式配置
+      // Konfigurasi responsif
       responsive: {
-        // 折叠阈值：当分类数量超过5个时自动折叠
+        // Ambang batas lipat: otomatis melipat jika jumlah kategori melebihi 5
         collapseThreshold: 5,
       },
     },
     {
-      // 组件类型：标签组件
+      // Jenis komponen: komponen tag
       type: "tags",
-      // 是否启用该组件
+      // Apakah akan mengaktifkan komponen ini
       enable: true,
-      // 组件显示顺序
+      // Urutan tampilan
       order: 5,
-      // 组件位置："sticky" 表示粘性定位
+      // Posisi komponen: "sticky" berarti posisi lengket
       position: "sticky",
-      // CSS 类名
+      // Nama kelas CSS
       class: "onload-animation",
-      // 动画延迟时间
+      // Waktu tunda animasi
       animationDelay: 250,
-      // 响应式配置
+      // Konfigurasi responsif
       responsive: {
-        // 折叠阈值：当标签数量超过20个时自动折叠
+        // Ambang batas lipat: otomatis melipat jika jumlah tag melebihi 20
         collapseThreshold: 20,
       },
     },
     {
-      // 组件类型：广告栏组件 1
+      // Jenis komponen: komponen iklan 1
       type: "advertisement",
-      // 是否启用该组件
+      // Apakah akan mengaktifkan komponen ini
       enable: false,
-      // 组件显示顺序
+      // Urutan tampilan
       order: 6,
-      // 组件位置："sticky" 表示粘性定位
+      // Posisi komponen: "sticky" berarti posisi lengket
       position: "sticky",
-      // CSS 类名
+      // Nama kelas CSS
       class: "onload-animation",
-      // 动画延迟时间
+      // Waktu tunda animasi
       animationDelay: 300,
-      // 配置ID：使用第一个广告配置
+      // ID Konfigurasi: gunakan konfigurasi iklan pertama
       configId: "ad1",
     },
     {
-      // 组件类型：广告栏组件 2
+      // Jenis komponen: komponen iklan 2
       type: "advertisement",
-      // 是否启用该组件
+      // Apakah akan mengaktifkan komponen ini
       enable: false,
-      // 组件显示顺序
+      // Urutan tampilan
       order: 7,
-      // 组件位置："sticky" 表示粘性定位
+      // Posisi komponen: "sticky" berarti posisi lengket
       position: "sticky",
-      // CSS 类名
+      // Nama kelas CSS
       class: "onload-animation",
-      // 动画延迟时间
+      // Waktu tunda animasi
       animationDelay: 350,
-      // 配置ID：使用第二个广告配置
+      // ID Konfigurasi: gunakan konfigurasi iklan kedua
       configId: "ad2",
     },
   ],
 
-  // 默认动画配置
+  // Konfigurasi animasi default
   defaultAnimation: {
-    // 是否启用默认动画
+    // Apakah akan mengaktifkan animasi default
     enable: true,
-    // 基础延迟时间（毫秒）
+    // Waktu tunda dasar (ms)
     baseDelay: 0,
-    // 递增延迟时间（毫秒），每个组件依次增加的延迟
+    // Waktu tunda tambahan (ms), penambahan tunda untuk setiap komponen secara berurutan
     increment: 50,
   },
 
-  // 响应式布局配置
+  // Konfigurasi tata letak responsif
   responsive: {
-    // 断点配置（像素值）
+    // Konfigurasi breakpoint (nilai piksel)
     breakpoints: {
-      // 移动端断点：屏幕宽度小于768px
+      // Breakpoint seluler: lebar layar kurang dari 768px
       mobile: 768,
-      // 平板端断点：屏幕宽度小于1024px
+      // Breakpoint tablet: lebar layar kurang dari 1024px
       tablet: 1024,
-      // 桌面端断点：屏幕宽度小于1280px
+      // Breakpoint desktop: lebar layar kurang dari 1280px
       desktop: 1280,
     },
-    // 不同设备的布局模式
-    //hidden:不显示侧边栏(桌面端)   drawer:抽屉模式(移动端不显示)   sidebar:显示侧边栏
+    // Mode tata letak untuk perangkat yang berbeda
+    // hidden: tidak menampilkan sidebar (desktop)   drawer: mode laci (tidak ditampilkan di seluler)   sidebar: menampilkan sidebar
     layout: {
-      // 移动端：抽屉模式
+      // Seluler: mode sidebar
       mobile: "sidebar",
-      // 平板端：显示侧边栏
+      // Tablet: menampilkan sidebar
       tablet: "sidebar",
-      // 桌面端：显示侧边栏
+      // Desktop: menampilkan sidebar
       desktop: "sidebar",
     },
   },

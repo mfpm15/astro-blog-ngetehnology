@@ -1,5 +1,5 @@
-// 图标加载工具类
-// 提供可靠的Iconify图标加载解决方案
+// Kelas utilitas pemuat ikon
+// Menyediakan solusi pemuatan ikon Iconify yang andal
 
 interface IconifyLoadOptions {
 	timeout?: number;
@@ -24,17 +24,17 @@ class IconLoader {
 	}
 
 	/**
-	 * 加载Iconify图标库
+	 * Muat pustaka ikon Iconify
 	 */
 	async loadIconify(options: IconifyLoadOptions = {}): Promise<void> {
 		const { timeout = 10000, retryCount = 3, retryDelay = 1000 } = options;
 
-		// 如果已经加载完成，直接返回
+		// Jika sudah dimuat, langsung kembali
 		if (this.isLoaded) {
 			return Promise.resolve();
 		}
 
-		// 如果正在加载，返回现有的Promise
+		// Jika sedang memuat, kembalikan Promise yang ada
 		if (this.isLoading && this.loadPromise) {
 			return this.loadPromise;
 		}
@@ -47,7 +47,7 @@ class IconLoader {
 			this.isLoaded = true;
 			this.notifyObservers();
 		} catch (error) {
-			console.error("Failed to load Iconify after all retries:", error);
+			console.error("Gagal memuat Iconify setelah semua percobaan ulang:", error);
 			throw error;
 		} finally {
 			this.isLoading = false;
@@ -55,7 +55,7 @@ class IconLoader {
 	}
 
 	/**
-	 * 带重试机制的加载
+	 * Muat dengan mekanisme coba lagi
 	 */
 	private async loadWithRetry(
 		timeout: number,
@@ -67,31 +67,31 @@ class IconLoader {
 				await this.loadScript(timeout);
 				return;
 			} catch (error) {
-				console.warn(`Iconify load attempt ${attempt} failed:`, error);
+				console.warn(`Percobaan memuat Iconify ${attempt} gagal:`, error);
 
 				if (attempt === retryCount) {
 					throw new Error(
-						`Failed to load Iconify after ${retryCount} attempts`,
+						`Gagal memuat Iconify setelah ${retryCount} percobaan`,
 					);
 				}
 
-				// 等待后重试
+				// Tunggu sebelum mencoba lagi
 				await new Promise((resolve) => setTimeout(resolve, retryDelay));
 			}
 		}
 	}
 
 	/**
-	 * 加载脚本
+	 * Muat skrip
 	 */
 	private loadScript(timeout: number): Promise<void> {
 		return new Promise((resolve, reject) => {
-			// 检查是否已经存在脚本
+			// Periksa apakah skrip sudah ada
 			const existingScript = document.querySelector(
 				'script[src*="iconify-icon"]',
 			);
 			if (existingScript) {
-				// 检查Iconify是否已经可用
+				// Periksa apakah Iconify sudah tersedia
 				if (this.isIconifyReady()) {
 					resolve();
 					return;
@@ -106,19 +106,19 @@ class IconLoader {
 
 			const timeoutId = setTimeout(() => {
 				script.remove();
-				reject(new Error("Iconify script load timeout"));
+				reject(new Error("Waktu muat skrip Iconify habis"));
 			}, timeout);
 
 			script.onload = () => {
 				clearTimeout(timeoutId);
-				// 等待Iconify完全初始化
+				// Tunggu hingga Iconify sepenuhnya siap
 				this.waitForIconifyReady().then(resolve).catch(reject);
 			};
 
 			script.onerror = () => {
 				clearTimeout(timeoutId);
 				script.remove();
-				reject(new Error("Failed to load Iconify script"));
+				reject(new Error("Gagal memuat skrip Iconify"));
 			};
 
 			document.head.appendChild(script);
@@ -126,7 +126,7 @@ class IconLoader {
 	}
 
 	/**
-	 * 等待Iconify完全准备就绪
+	 * Tunggu hingga Iconify sepenuhnya siap
 	 */
 	private waitForIconifyReady(maxWait = 5000): Promise<void> {
 		return new Promise((resolve, reject) => {
@@ -139,7 +139,7 @@ class IconLoader {
 				}
 
 				if (Date.now() - startTime > maxWait) {
-					reject(new Error("Iconify initialization timeout"));
+					reject(new Error("Waktu inisialisasi Iconify habis"));
 					return;
 				}
 
@@ -151,7 +151,7 @@ class IconLoader {
 	}
 
 	/**
-	 * 检查Iconify是否准备就绪
+	 * Periksa apakah Iconify sudah siap
 	 */
 	private isIconifyReady(): boolean {
 		return (
@@ -162,7 +162,7 @@ class IconLoader {
 	}
 
 	/**
-	 * 添加加载完成观察者
+	 * Tambahkan pengamat selesai memuat
 	 */
 	onLoad(callback: () => void): void {
 		if (this.isLoaded) {
@@ -173,28 +173,28 @@ class IconLoader {
 	}
 
 	/**
-	 * 移除观察者
+	 * Hapus pengamat
 	 */
 	offLoad(callback: () => void): void {
 		this.observers.delete(callback);
 	}
 
 	/**
-	 * 通知所有观察者
+	 * Beri tahu semua pengamat
 	 */
 	private notifyObservers(): void {
 		this.observers.forEach((callback) => {
 			try {
 				callback();
 			} catch (error) {
-				console.error("Error in icon load observer:", error);
+				console.error("Kesalahan pada pengamat muat ikon:", error);
 			}
 		});
 		this.observers.clear();
 	}
 
 	/**
-	 * 获取加载状态
+	 * Dapatkan status pemuatan
 	 */
 	getLoadState(): { isLoaded: boolean; isLoading: boolean } {
 		return {
@@ -204,14 +204,14 @@ class IconLoader {
 	}
 
 	/**
-	 * 预加载指定图标
+	 * Pramuat ikon yang ditentukan
 	 */
 	async preloadIcons(icons: string[]): Promise<void> {
 		if (!this.isLoaded) {
 			await this.loadIconify();
 		}
 
-		// 等待图标加载
+		// Tunggu ikon dimuat
 		return new Promise((resolve) => {
 			let loadedCount = 0;
 			const totalIcons = icons.length;
@@ -228,16 +228,16 @@ class IconLoader {
 				}
 			};
 
-			// 创建临时图标元素来触发加载
+			// Buat elemen ikon sementara untuk memicu pemuatan
 			icons.forEach((icon) => {
 				const tempIcon = document.createElement("iconify-icon");
 				tempIcon.setAttribute("icon", icon);
 				tempIcon.style.display = "none";
 				tempIcon.onload = checkComplete;
-				tempIcon.onerror = checkComplete; // 即使加载失败也要继续
+				tempIcon.onerror = checkComplete; // Lanjutkan meskipun gagal memuat
 				document.body.appendChild(tempIcon);
 
-				// 清理临时元素
+				// Bersihkan elemen sementara
 				setTimeout(() => {
 					if (tempIcon.parentNode) {
 						tempIcon.parentNode.removeChild(tempIcon);
@@ -245,7 +245,7 @@ class IconLoader {
 				}, 1000);
 			});
 
-			// 设置超时
+			// Atur waktu habis
 			setTimeout(() => {
 				resolve();
 			}, 5000);
@@ -253,10 +253,10 @@ class IconLoader {
 	}
 }
 
-// 导出单例实例
+// Ekspor instance tunggal
 export const iconLoader = IconLoader.getInstance();
 
-// 导出便捷函数
+// Ekspor fungsi praktis
 export const loadIconify = (options?: IconifyLoadOptions) =>
 	iconLoader.loadIconify(options);
 export const preloadIcons = (icons: string[]) => iconLoader.preloadIcons(icons);

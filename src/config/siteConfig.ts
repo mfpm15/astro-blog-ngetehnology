@@ -1,8 +1,8 @@
 import type { SiteConfig } from "../types/config";
 import { fontConfig } from "./fontConfig";
 
-// 定义站点语言
-const SITE_LANG = "id"; // 语言代码，例如：'en', 'zh_CN', 'ja' 等。
+// Tentukan bahasa situs
+const SITE_LANG = "id"; // Kode bahasa, misalnya: 'en', 'id', 'ja', dll.
 
 export const siteConfig: SiteConfig = {
   title: "NgetehNology",
@@ -20,149 +20,145 @@ export const siteConfig: SiteConfig = {
   lang: SITE_LANG,
 
   themeColor: {
-    hue: 155, // 主题色的默认色相，范围从 0 到 360。例如：红色：0，青色：200，蓝绿色：250，粉色：345
-    fixed: false, // 对访问者隐藏主题色选择器
-    defaultMode: "system", // 默认模式："light" 浅色，"dark" 深色，"system" 跟随系统
+    hue: 250, // Rona default warna tema, rentang dari 0 hingga 360. Misalnya: merah: 0, sian: 200, biru-hijau: 250, pink: 345
+    fixed: false, // Sembunyikan pemilih warna tema untuk pengunjung
+    defaultMode: "system", // Mode default: "light" terang, "dark" gelap, "system" mengikuti sistem
   },
 
   favicon: [
-    // 留空以使用默认 favicon
+    // Biarkan kosong untuk menggunakan favicon default
     {
-      src: "/assets/images/favicon.ico", // 图标文件路径
-      theme: "light", // 可选，指定主题 'light' | 'dark'
-      sizes: "32x32", // 可选，图标大小
+      src: "/assets/images/favicon.ico", // Path file ikon
+      theme: "light", // Opsional, tentukan tema 'light' | 'dark'
+      sizes: "32x32", // Opsional, ukuran ikon
     },
   ],
 
-  // 网站Logo
-  // logoIcon 支持三种类型：Astro图标库，本地图片，网络图片
+  // Logo Situs
+  // logoIcon mendukung tiga jenis: pustaka ikon Astro, gambar lokal, gambar jaringan
   // { type: "icon", value: "material-symbols:home-pin-outline" }
-  // { type: "image", value: "/assets/images/logo.webp", alt: "Firefly Logo" }
-  // { type: "image", value: "https://example.com/logo.png", alt: "Firefly Logo" }
+  // { type: "image", value: "/assets/images/logo.webp", alt: "Logo Firefly" }
+  // { type: "image", value: "https://example.com/logo.png", alt: "Logo Firefly" }
   logoIcon: {
     type: "image",
     value: "/assets/images/LiuYingPure3.svg",
     alt: "🍀",
   },
 
-  // 追番配置
+  // Konfigurasi Bangumi (pelacakan anime)
   bangumi: {
-    userId: "1163581", // 在此处设置你的Bangumi用户ID
+    userId: "1163581", // Atur ID Pengguna Bangumi Anda di sini
   },
 
-  // 文章页底部的"上次编辑时间"卡片开关
+  // Saklar kartu "Terakhir Diedit" di bagian bawah halaman artikel
   showLastModified: true,
 
-  // OpenGraph图片功能,注意开启后要渲染很长时间，不建议本地调试的时候开启
+  // Fitur gambar OpenGraph, perhatikan bahwa rendering akan memakan waktu lama setelah diaktifkan, tidak disarankan untuk mengaktifkannya saat debugging lokal
   generateOgImages: false,
 
-  // 页面开关配置 - 控制特定页面的访问权限
+  // Konfigurasi sakelar halaman - mengontrol akses ke halaman tertentu
   pages: {
-    anime: true, // 追番页面开关，设为false时访问/anime/会返回404
-    projects: true, // 项目展示页面开关，设为false时访问/projects/会返回404
-    timeline: true, // 时间线页面开关，设为false时访问/timeline/会返回404
-    skills: true, // 技能页面开关，设为false时访问/skills/会返回404
+    anime: true, // Sakelar halaman anime, jika false, mengakses /anime/ akan mengembalikan 404
+    projects: true, // Sakelar halaman proyek, jika false, mengakses /projects/ akan mengembalikan 404
+    timeline: true, // Sakelar halaman linimasa, jika false, mengakses /timeline/ akan mengembalikan 404
+    skills: true, // Sakelar halaman keahlian, jika false, mengakses /skills/ akan mengembalikan 404
   },
 
-  // 文章列表布局配置
+  // Konfigurasi tata letak daftar postingan
   postListLayout: {
-    // 默认布局模式："list" 列表模式（单列布局），"grid" 网格模式（双列布局）
+    // Mode tata letak default: "list" mode daftar (tata letak satu kolom), "grid" mode petak (tata letak dua kolom)
     defaultMode: "list",
-    // 是否允许用户切换布局
+    // Apakah mengizinkan pengguna untuk beralih tata letak
     allowSwitch: true,
   },
 
-  // 分页配置
+  // Konfigurasi paginasi
   pagination: {
-    // 每页显示的文章数量
+    // Jumlah postingan yang ditampilkan per halaman
     postsPerPage: 8,
   },
 
   backgroundWallpaper: {
-    // 是否启用背景壁纸功能
+    // Apakah akan mengaktifkan fitur wallpaper latar belakang
     enable: true,
-    // 壁纸模式："banner" Banner壁纸模式，"overlay" 全屏透明覆盖模式
+    // Mode wallpaper: "banner" mode wallpaper Banner, "overlay" mode lapisan transparan layar penuh
     mode: "banner",
 
-    // 背景图片配置
+    // Konfigurasi gambar latar belakang
     src: {
-      // 桌面背景图片
+      // Gambar latar belakang desktop
       desktop: "/assets/images/d1.webp",
-      // 移动背景图片
+      // Gambar latar belakang seluler
       mobile: "/assets/images/m1.webp",
     },
 
-    // 图片位置
-    // 支持所有CSS object-position值，如: 'top', 'center', 'bottom', 'left top', 'right bottom', '25% 75%', '10px 20px'..
-    // 如果不知道怎么配置百分百之类的配置，推荐直接使用：'center'居中，'top'顶部居中，'bottom' 底部居中，'left'左侧居中，'right'右侧居中
+    // Posisi gambar
+    // Mendukung semua nilai CSS object-position, seperti: 'top', 'center', 'bottom', 'left top', 'right bottom', '25% 75%', '10px 20px'..
+    // Jika Anda tidak tahu cara mengkonfigurasi persentase, dll., disarankan untuk langsung menggunakan: 'center' tengah, 'top' tengah atas, 'bottom' tengah bawah, 'left' tengah kiri, 'right' tengah kanan
     position: "0% 20%",
 
-    // Banner模式特有配置
+    // Konfigurasi khusus mode Banner
     banner: {
       homeText: {
-        // 主页显示自定义文本（全局开关）
+        // Tampilkan teks kustom di beranda (sakelar global)
         enable: true,
-        // 主页横幅主标题
-        title: "Lovely firefly!",
-        // 主页横幅副标题
+        // Judul utama spanduk beranda
+        title: "NgetehNology",
+        // Subjudul spanduk beranda
         subtitle: [
-          "In Reddened Chrysalis, I Once Rest",
-          "From Shattered Sky, I Free Fall",
-          "Amidst Silenced Stars, I Deep Sleep",
-          "Upon Lighted Fyrefly, I Soon Gaze",
-          "From Undreamt Night, I Thence Shine",
-          "In Finalized Morrow, I Full Bloom",
+          "Belajar Keamanan Siber Sambil Ngeteh",
+          "Dari Pemula Hingga Mahir",
         ],
         typewriter: {
-          enable: true, // 启用副标题打字机效果
-          speed: 100, // 打字速度（毫秒）
-          deleteSpeed: 50, // 删除速度（毫秒）
-          pauseTime: 2000, // 完全显示后的暂停时间（毫秒）
+          enable: true, // Aktifkan efek mesin tik subjudul
+          speed: 100, // Kecepatan mengetik (ms)
+          deleteSpeed: 50, // Kecepatan menghapus (ms)
+          pauseTime: 2000, // Waktu jeda setelah ditampilkan sepenuhnya (ms)
         },
       },
       credit: {
         enable: {
-          desktop: true, // 桌面端显示横幅图片来源文本
-          mobile: false, // 移动端显示横幅图片来源文本
+          desktop: true, // Tampilkan teks sumber gambar spanduk di desktop
+          mobile: false, // Tampilkan teks sumber gambar spanduk di seluler
         },
         text: {
-          desktop: "晚晚喵", // 桌面端要显示的来源文本
-          mobile: "Mobile Credit", // 移动端要显示的来源文本
+          desktop: "Source", // Teks sumber yang akan ditampilkan di desktop
+          mobile: "Mobile Credit", // Teks sumber yang akan ditampilkan di seluler
         },
         url: {
-          desktop: "https://www.pixiv.net/artworks/135490046", // 桌面端原始艺术品或艺术家页面的 URL 链接
-          mobile: "", // 移动端原始艺术品或艺术家页面的 URL 链接
+          desktop: "#", // URL tautan ke karya seni asli atau halaman artis di desktop
+          mobile: "", // URL tautan ke karya seni asli atau halaman artis di seluler
         },
       },
       navbar: {
-        transparentMode: "semifull", // 导航栏透明模式："semi" 半透明加圆角，"full" 完全透明，"semifull" 动态透明
+        transparentMode: "semifull", // Mode transparan bilah navigasi: "semi" semi-transparan dengan sudut membulat, "full" sepenuhnya transparan, "semifull" transparan dinamis
       },
       waves: {
         enable: {
-          desktop: true, // 桌面端启用波浪动画效果
-          mobile: true, // 移动端启用波浪动画效果
+          desktop: true, // Aktifkan efek animasi gelombang di desktop
+          mobile: true, // Aktifkan efek animasi gelombang di seluler
         },
       },
     },
 
-    // 全屏透明覆盖模式特有配置
+    // Konfigurasi khusus mode lapisan transparan layar penuh
     overlay: {
-      zIndex: -1, // 层级，确保壁纸在背景层
-      opacity: 0.8, // 壁纸透明度
-      blur: 1, // 背景模糊程度
+      zIndex: -1, // z-index, pastikan wallpaper berada di lapisan latar belakang
+      opacity: 0.8, // Opasitas wallpaper
+      blur: 1, // Tingkat keburaman latar belakang
     },
   },
 
-  // 目录功能
+  // Fitur Daftar Isi
   toc: {
-    // 目录功能开关
+    // Saklar fitur daftar isi
     enable: true,
-    // 目录深度，1-3，1 表示只显示 h1 标题，2 表示显示 h1 和 h2 标题，依此类推
-    // depth在新版已弃用
+    // Kedalaman daftar isi, 1-3, 1 berarti hanya menampilkan judul h1, 2 berarti menampilkan judul h1 dan h2, dan seterusnya
+    // depth sudah usang di versi baru
     depth: 3,
   },
 
-  // 字体配置
-  // 在src/config/fontConfig.ts中配置具体字体
+  // Konfigurasi font
+  // Konfigurasikan font spesifik di src/config/fontConfig.ts
   font: fontConfig,
 };

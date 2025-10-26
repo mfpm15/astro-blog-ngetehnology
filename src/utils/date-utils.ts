@@ -4,19 +4,19 @@ export function formatDateToYYYYMMDD(date: Date): string {
   return date.toISOString().substring(0, 10);
 }
 
-// 国际化日期格式化函数
+// Fungsi pemformatan tanggal internasional
 export function formatDateI18n(dateString: string): string {
   const date = new Date(dateString);
   const lang = siteConfig.lang || "en";
 
-  // 根据语言设置不同的日期格式
+  // Atur format tanggal yang berbeda berdasarkan bahasa
   const options: Intl.DateTimeFormatOptions = {
     year: "numeric",
     month: "long",
     day: "numeric",
   };
 
-  // 语言代码映射
+  // Pemetaan kode bahasa
   const localeMap: Record<string, string> = {
     zh_CN: "zh-CN",
     zh_TW: "zh-TW",

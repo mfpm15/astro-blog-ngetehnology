@@ -1,6 +1,6 @@
 import type { SakuraConfig } from "../types/config";
 
-// 樱花对象类
+// Kelas objek Sakura
 class Sakura {
   x: number;
   y: number;
@@ -62,7 +62,7 @@ class Sakura {
     this.r = this.fn.r(this.r);
     this.a = this.fn.a(this.a);
 
-    // 如果樱花越界或完全透明，重新调整位置
+    // Jika sakura keluar batas atau sepenuhnya transparan, atur ulang posisi
     if (
       this.x > window.innerWidth ||
       this.x < 0 ||
@@ -70,11 +70,11 @@ class Sakura {
       this.y < 0 ||
       this.a <= 0
     ) {
-      // 如果樱花不做限制
+      // Jika sakura tidak memiliki batasan
       if (this.limitArray[this.idx] === -1) {
         this.resetPosition();
       }
-      // 否则樱花有限制
+      // Jika sakura memiliki batasan
       else {
         if (this.limitArray[this.idx] > 0) {
           this.resetPosition();
@@ -102,7 +102,7 @@ class Sakura {
   }
 }
 
-// 樱花列表类
+// Kelas daftar Sakura
 class SakuraList {
   list: Sakura[];
 
@@ -135,7 +135,7 @@ class SakuraList {
   }
 }
 
-// 获取随机值的函数
+// Fungsi untuk mendapatkan nilai acak
 function getRandom(option: string, config: SakuraConfig): any {
   let ret: any;
   let random: number;
@@ -162,8 +162,7 @@ function getRandom(option: string, config: SakuraConfig): any {
     case "fnx":
       random =
         config.speed.horizontal.min +
-        Math.random() *
-          (config.speed.horizontal.max - config.speed.horizontal.min);
+        Math.random() * (config.speed.horizontal.max - config.speed.horizontal.min);
       ret = function (x: number, y: number) {
         return x + random;
       };
@@ -190,7 +189,7 @@ function getRandom(option: string, config: SakuraConfig): any {
   return ret;
 }
 
-// 樱花管理器类
+// Kelas manajer Sakura
 export class SakuraManager {
   private config: SakuraConfig;
   private canvas: HTMLCanvasElement | null = null;
@@ -204,22 +203,22 @@ export class SakuraManager {
     this.config = config;
   }
 
-  // 初始化樱花特效
+  // Inisialisasi efek sakura
   async init(): Promise<void> {
     if (!this.config.enable || this.isRunning) {
       return;
     }
 
-    // 创建图片对象
+    // Buat objek gambar
     this.img = new Image();
-    this.img.src = "/sakura.png"; // 使用樱花图片
+    this.img.src = "/sakura.png"; // Gunakan gambar sakura
 
-    // 等待图片加载完成
+    // Tunggu hingga gambar selesai dimuat
     await new Promise<void>((resolve, reject) => {
       if (this.img) {
         this.img.onload = () => resolve();
         this.img.onerror = () =>
-          reject(new Error("Failed to load sakura image"));
+          reject(new Error("Gagal memuat gambar sakura"));
       }
     });
 
@@ -229,7 +228,7 @@ export class SakuraManager {
     this.isRunning = true;
   }
 
-  // 创建画布
+  // Buat kanvas
   private createCanvas(): void {
     this.canvas = document.createElement("canvas");
     this.canvas.height = window.innerHeight;
@@ -242,11 +241,11 @@ export class SakuraManager {
     document.body.appendChild(this.canvas);
     this.ctx = this.canvas.getContext("2d");
 
-    // 监听窗口大小变化
+    // Dengarkan perubahan ukuran jendela
     window.addEventListener("resize", this.handleResize.bind(this));
   }
 
-  // 创建樱花列表
+  // Buat daftar sakura
   private createSakuraList(): void {
     if (!this.img || !this.ctx) return;
 
@@ -289,7 +288,7 @@ export class SakuraManager {
     }
   }
 
-  // 开始动画
+  // Mulai animasi
   private startAnimation(): void {
     if (!this.ctx || !this.canvas || !this.sakuraList) return;
 
@@ -305,7 +304,7 @@ export class SakuraManager {
     this.animationId = requestAnimationFrame(animate);
   }
 
-  // 处理窗口大小变化
+  // Tangani perubahan ukuran jendela
   private handleResize(): void {
     if (this.canvas) {
       this.canvas.width = window.innerWidth;
@@ -313,7 +312,7 @@ export class SakuraManager {
     }
   }
 
-  // 停止樱花特效
+  // Hentikan efek sakura
   stop(): void {
     if (this.animationId) {
       cancelAnimationFrame(this.animationId);
@@ -329,7 +328,7 @@ export class SakuraManager {
     this.isRunning = false;
   }
 
-  // 切换樱花特效
+  // Alihkan efek sakura
   toggle(): void {
     if (this.isRunning) {
       this.stop();
@@ -338,7 +337,7 @@ export class SakuraManager {
     }
   }
 
-  // 更新配置
+  // Perbarui konfigurasi
   updateConfig(newConfig: SakuraConfig): void {
     const wasRunning = this.isRunning;
     if (wasRunning) {
@@ -350,16 +349,16 @@ export class SakuraManager {
     }
   }
 
-  // 获取运行状态
+  // Dapatkan status berjalan
   getIsRunning(): boolean {
     return this.isRunning;
   }
 }
 
-// 创建全局樱花管理器实例
+// Buat instance manajer sakura global
 let globalSakuraManager: SakuraManager | null = null;
 
-// 初始化樱花特效
+// Inisialisasi efek sakura
 export function initSakura(config: SakuraConfig): void {
   if (globalSakuraManager) {
     globalSakuraManager.updateConfig(config);
@@ -371,14 +370,14 @@ export function initSakura(config: SakuraConfig): void {
   }
 }
 
-// 切换樱花特效
+// Alihkan efek sakura
 export function toggleSakura(): void {
   if (globalSakuraManager) {
     globalSakuraManager.toggle();
   }
 }
 
-// 停止樱花特效
+// Hentikan efek sakura
 export function stopSakura(): void {
   if (globalSakuraManager) {
     globalSakuraManager.stop();
@@ -386,7 +385,7 @@ export function stopSakura(): void {
   }
 }
 
-// 获取樱花特效运行状态
+// Dapatkan status efek sakura
 export function getSakuraStatus(): boolean {
   return globalSakuraManager ? globalSakuraManager.getIsRunning() : false;
 }
