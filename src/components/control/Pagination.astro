@@ -18,7 +18,7 @@ const className = Astro.props.class;
 const ADJ_DIST = 2;
 const VISIBLE = ADJ_DIST * 2 + 1;
 
-// untuk pengujian
+// for test
 let count = 1;
 let l = page.currentPage;
 let r = page.currentPage;
@@ -52,22 +52,22 @@ const getPageUrl = (p: number) => {
 ---
 
 <div class:list={[className, "flex flex-col gap-4 items-center"]} style={style}>
-  <!-- Info paginasi - dinonaktifkan -->
+  <!-- 分页信息 - 已禁用 -->
   <!--
   {
     page.lastPage > 1 && (
       <div class="text-sm text-[var(--text-secondary)] text-center">
-        Halaman {page.currentPage} dari {page.lastPage}
+        第 {page.currentPage} 页，共 {page.lastPage} 页
       </div>
     )
   }
   -->
 
-  <!-- Kontrol paginasi -->
+  <!-- 分页控件 -->
   <div class="flex flex-row gap-3 justify-center">
     <a
       href={page.url.prev || ""}
-      aria-label={page.url.prev ? "Halaman Sebelumnya" : null}
+      aria-label={page.url.prev ? "Previous Page" : null}
       class:list={[
         "btn-card overflow-hidden rounded-lg text-[var(--primary)] w-11 h-11",
         { disabled: page.url.prev == undefined },
@@ -97,7 +97,7 @@ const getPageUrl = (p: number) => {
           return (
             <a
               href={url(getPageUrl(p))}
-              aria-label={`Halaman ${p}`}
+              aria-label={`Page ${p}`}
               class="btn-card w-11 h-11 rounded-lg overflow-hidden active:scale-[0.85]"
             >
               {p}
@@ -108,7 +108,7 @@ const getPageUrl = (p: number) => {
     </div>
     <a
       href={page.url.next || ""}
-      aria-label={page.url.next ? "Halaman Berikutnya" : null}
+      aria-label={page.url.next ? "Next Page" : null}
       class:list={[
         "btn-card overflow-hidden rounded-lg text-[var(--primary)] w-11 h-11",
         { disabled: page.url.next == undefined },

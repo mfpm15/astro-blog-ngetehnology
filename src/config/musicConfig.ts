@@ -3,7 +3,7 @@ import type { MusicPlayerConfig } from "../types/config";
 // Konfigurasi Pemutar Musik
 export const musicPlayerConfig: MusicPlayerConfig = {
   // Saklar fungsionalitas dasar
-  enable: true, // Aktifkan fitur pemutar musik
+  enable: false, // Aktifkan fitur pemutar musik
 
   // Konfigurasi mode pemutar
   mode: "local", // Mode pemutar: "local" untuk musik lokal, "meting" untuk musik online

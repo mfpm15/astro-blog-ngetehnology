@@ -226,7 +226,7 @@ export type WidgetComponentConfig = {
   class?: string; // 自定义CSS类名
   style?: string; // 自定义内联样式
   animationDelay?: number; // 动画延迟时间（毫秒）
-  configId?: string; // 配置ID，用于广告组件指定使用哪个配置
+  configId?: string; // ConfigurationID，用于广告组件指定使用哪个配置
   responsive?: {
     hidden?: ("mobile" | "tablet" | "desktop")[]; // 在指定设备上隐藏
     collapseThreshold?: number; // 折叠阈值

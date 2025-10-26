@@ -49,7 +49,7 @@ const generateTOC = () => {
 };
 
 const generatePostList = () => {
-	// Temukan semua kartu postingan
+	// 查找所有文章卡片
 	const postCards = document.querySelectorAll(".card-base");
 	const items: Array<{
 		title: string;
@@ -59,11 +59,11 @@ const generatePostList = () => {
 	}> = [];
 
 	postCards.forEach((card) => {
-		// Temukan tautan judul
-		const titleLink = card.querySelector('a[href*="/posts/"]');
-		// Temukan tautan kategori
-		const categoryLink = card.querySelector('a[href*="/categories/"]');
-		// Temukan ikon pin
+		// 查找标题链接
+		const titleLink = card.querySelector('a[href*="/posts/"].transition.group');
+		// 查找分类链接
+		const categoryLink = card.querySelector('a[href*="/categories/"].link-lg');
+		// 查找置顶图标
 		const pinnedIcon = titleLink?.querySelector('svg[data-icon="mdi:pin"]');
 
 		if (titleLink) {
@@ -89,10 +89,10 @@ const checkIsHomePage = () => {
 const scrollToHeading = (id: string) => {
 	const element = document.getElementById(id);
 	if (element) {
-		// Tutup panel
+		// 关闭面板
 		setPanelVisibility(false);
 
-		// Gulir ke posisi target, pertimbangkan tinggi bilah navigasi
+		// 滚动到目标位置，考虑导航栏高度
 		const offset = 80;
 		const elementPosition = element.offsetTop - offset;
 
@@ -104,10 +104,10 @@ const scrollToHeading = (id: string) => {
 };
 
 const navigateToPost = (url: string) => {
-	// Tutup panel
+	// 关闭面板
 	setPanelVisibility(false);
 
-	// Gunakan fungsi utilitas navigasi terpadu untuk navigasi tanpa refresh
+	// 使用统一的导航工具函数，实现无刷新跳转
 	navigateToPage(url);
 };
 
@@ -159,10 +159,10 @@ const setupIntersectionObserver = () => {
 
 const checkSwupAvailability = () => {
 	if (typeof window !== "undefined") {
-		// Periksa apakah Swup sudah dimuat
+		// 检查Swup是否已加载
 		swupReady = !!(window as any).swup;
 
-		// Jika Swup belum dimuat, dengarkan event pemuatannya
+		// 如果Swup还未加载，监听其加载事件
 		if (!swupReady) {
 			const checkSwup = () => {
 				if ((window as any).swup) {
@@ -171,10 +171,10 @@ const checkSwupAvailability = () => {
 				}
 			};
 
-			// Dengarkan event enable Swup
+			// 监听Swup启用事件
 			document.addEventListener("swup:enable", checkSwup);
 
-			// Atur pemeriksaan waktu habis
+			// 设置超时检查
 			setTimeout(() => {
 				if ((window as any).swup) {
 					swupReady = true;
@@ -198,10 +198,10 @@ const init = () => {
 };
 
 onMount(() => {
-	// Inisialisasi dengan penundaan untuk memastikan konten halaman telah dimuat
+	// 延迟初始化，确保页面内容已加载
 	setTimeout(init, 100);
 
-	// Dengarkan event scroll sebagai cadangan
+	// 监听滚动事件作为备用
 	window.addEventListener("scroll", updateActiveHeading);
 
 	return () => {
@@ -212,23 +212,23 @@ onMount(() => {
 	};
 });
 
-// Ekspor fungsi inisialisasi untuk pemanggilan eksternal
+// 导出初始化函数供外部调用
 if (typeof window !== "undefined") {
 	(window as any).mobileTOCInit = init;
 }
 </script>
 
-<!-- Tombol toggle TOC untuk seluler -->
+<!-- TOC toggle button for mobile -->
 <button 
 	on:click={togglePanel} 
-	aria-label="Daftar Isi" 
+	aria-label="Table of Contents" 
 	id="mobile-toc-switch"
 	class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90 lg:!hidden"
 >
 	<Icon icon="material-symbols:format-list-bulleted" class="text-[1.25rem]" />
 </button>
 
-<!-- Panel TOC Seluler -->
+<!-- Mobile TOC Panel -->
 <div 
 	id="mobile-toc-panel" 
 	class="float-panel float-panel-closed mobile-toc-panel absolute md:w-[20rem] w-[calc(100vw-2rem)]
@@ -238,7 +238,7 @@ if (typeof window !== "undefined") {
 		<h3 class="text-lg font-bold text-[var(--primary)]">{isHomePage ? i18n(I18nKey.postList) : i18n(I18nKey.tableOfContents)}</h3>
 		<button 
 			on:click={togglePanel}
-			aria-label="Tutup TOC"
+			aria-label="Close TOC"
 			class="btn-plain rounded-lg h-8 w-8 active:scale-90"
 		>
 			<Icon icon="material-symbols:close" class="text-[1rem]" />
@@ -249,7 +249,7 @@ if (typeof window !== "undefined") {
 		{#if postItems.length === 0}
 			<div class="text-center py-8 text-black/50 dark:text-white/50">
 				<Icon icon="material-symbols:article-outline" class="text-2xl mb-2" />
-				<p>Tidak ada postingan</p>
+				<p>暂无文章</p>
 			</div>
 		{:else}
 			<div class="post-content">
@@ -275,7 +275,7 @@ if (typeof window !== "undefined") {
 		{#if tocItems.length === 0}
 			<div class="text-center py-8 text-black/50 dark:text-white/50">
 				<Icon icon="material-symbols:article-outline" class="text-2xl mb-2" />
-				<p>Halaman ini tidak memiliki daftar isi</p>
+				<p>当前页面没有目录</p>
 			</div>
 		{:else}
 			<div class="toc-content">
@@ -346,7 +346,7 @@ if (typeof window !== "undefined") {
 		padding-left: 9px;
 	}
 
-	/* Indentasi untuk level judul yang berbeda */
+	/* 不同级别的标题缩进 */
 	.toc-item.level-1 {
 		padding-left: 12px;
 		font-weight: 600;
@@ -475,7 +475,7 @@ if (typeof window !== "undefined") {
 		color: rgba(255, 255, 255, 0.75);
 	}
 
-	/* Gaya scrollbar */
+	/* 滚动条样式 */
 	.mobile-toc-panel::-webkit-scrollbar {
 		width: 4px;
 	}

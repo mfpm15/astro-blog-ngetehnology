@@ -18,7 +18,7 @@ export interface Props {
   slug?: string;
   words?: number;
   minutes?: number;
-  showWordCount?: boolean; // Apakah akan menampilkan jumlah kata, defaultnya false untuk menampilkan tag
+  showWordCount?: boolean; // 是否显示字数统计，默认false显示标签
 }
 
 const {
@@ -43,7 +43,7 @@ const {
     className,
   ]}
 >
-  <!-- Tanggal publikasi -->
+  <!-- publish date -->
   <div class="flex items-center">
     <div class="meta-icon">
       <Icon
@@ -56,7 +56,7 @@ const {
     >
   </div>
 
-  <!-- Tanggal pembaruan -->
+  <!-- update date -->
   {
     !hideUpdateDate && updated && updated.getTime() !== published.getTime() && (
       <div class="flex items-center">
@@ -73,7 +73,7 @@ const {
     )
   }
 
-  <!-- Kategori -->
+  <!-- categories -->
   <div class="flex items-center">
     <div class="meta-icon">
       <Icon name="material-symbols:book-2-outline-rounded" class="text-xl" />
@@ -81,7 +81,7 @@ const {
     <div class="flex flex-row flex-nowrap items-center">
       <a
         href={getCategoryUrl(category || "")}
-        aria-label={`Lihat semua postingan di kategori ${category}`}
+        aria-label={`View all posts in the ${category} category`}
         class="link-lg transition text-50 text-sm font-medium
                             hover:text-[var(--primary)] dark:hover:text-[var(--primary)] whitespace-nowrap"
       >
@@ -90,11 +90,11 @@ const {
     </div>
   </div>
 
-   <!-- Jumlah kata dan waktu baca (hanya untuk daftar postingan) -->
+   <!-- word count and read time (only for post list) -->
    {
      showWordCount && words !== undefined && minutes !== undefined && (
        <>
-         <!-- Jumlah kata -->
+         <!-- word count -->
          <div class="flex items-center">
            <div class="meta-icon">
              <Icon
@@ -108,7 +108,7 @@ const {
            </div>
          </div>
          
-{/* <!-- Waktu baca -->
+{/*          <!-- read time -->
          <div class="flex items-center">
            <div class="meta-icon">
              <Icon
@@ -126,7 +126,7 @@ const {
      )
    }
 
-   <!-- Tag (hanya untuk halaman detail postingan) -->
+   <!-- tags (only for post detail page) -->
    {
      !showWordCount && (
        <div class:list={["items-center", {"flex": !hideTagsForMobile, "hidden md:flex": hideTagsForMobile}]}>
@@ -135,8 +135,8 @@ const {
          </div>
          <div class="flex flex-row flex-nowrap items-center">
            {(tags && tags.length > 0) && tags.map((tag, i) => (
-             <div class:list={["mx-1.5 text-[var(--meta-divider)] text-sm", {"hidden": i == 0}]}>/</div>
-             <a href={getTagUrl(tag)} aria-label={`Lihat semua postingan dengan tag ${tag.trim()}`}
+             <div class:list={[{"hidden": i == 0}, "mx-1.5 text-[var(--meta-divider)] text-sm"]}>/</div>
+             <a href={getTagUrl(tag)} aria-label={`View all posts with the ${tag.trim()} tag`}
                 class="link-lg transition text-50 text-sm font-medium
                              hover:text-[var(--primary)] dark:hover:text-[var(--primary)] whitespace-nowrap">
                {tag.trim()}
@@ -148,7 +148,7 @@ const {
      )
    }
 
-  <!-- Statistik pengunjung Twikoo (tidak ditampilkan di beranda, dan hanya ditampilkan jika statistik pengunjung artikel diaktifkan) -->
+  <!-- Twikoo访问量统计（首页不显示，且文章访问量统计启用时显示） -->
   {
     !isHome &&
       commentConfig.enable &&

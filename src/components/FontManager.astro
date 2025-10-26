@@ -1,9 +1,9 @@
---- 
+---
 import { siteConfig } from "../config";
 
 const { font: fontConfig } = siteConfig;
 
-// Dapatkan font yang dipilih
+// 获取选中的字体
 const getSelectedFonts = () => {
   if (!fontConfig.enable || !fontConfig.selected) return [];
 
@@ -13,12 +13,12 @@ const getSelectedFonts = () => {
 
   return selectedIds
     .map((id) => fontConfig.fonts[id])
-    .filter((font) => font && font.src); // Saring font sistem dan font yang tidak ada
+    .filter((font) => font && font.src); // 过滤掉系统字体和不存在的字体
 };
 
 const selectedFonts = getSelectedFonts();
 
-// Hasilkan nama kelas CSS font
+// 生成字体CSS类名
 const generateFontClasses = () => {
   if (!fontConfig.enable) return [];
 
@@ -31,7 +31,7 @@ const generateFontClasses = () => {
 
 const fontClasses = generateFontClasses();
 
-// Hasilkan gaya cadangan font-family
+// 生成font-family回退样式
 const generateFontFamilyStyle = () => {
   if (!fontConfig.enable || !fontConfig.selected) return "";
 
@@ -55,19 +55,19 @@ const generateFontFamilyStyle = () => {
 const fontFamilyStyle = generateFontFamilyStyle();
 ---
 
-<!-- Tautan stylesheet font -->{ 
+<!-- 字体样式表链接 -->{
   selectedFonts.map((font) => {
-    // Tentukan apakah itu tautan eksternal
+    // 判断是否为外部链接
     const isExternalUrl =
       font.src.startsWith("http://") ||
       font.src.startsWith("https://") ||
       font.src.startsWith("//");
 
     if (isExternalUrl) {
-      // Tautan font eksternal (mis. Google Fonts, CDN, dll.)
+      // 外部字体链接 (如 Google Fonts, CDN等)
       return <link rel="stylesheet" href={font.src} />;
     } else {
-      // File font lokal
+      // 本地字体文件
       return (
         <style
           set:html={`
@@ -86,7 +86,7 @@ const fontFamilyStyle = generateFontFamilyStyle();
   })
 }
 
-<!-- Tautan pramuat font -->
+<!-- 字体预加载链接 -->
 {
   fontConfig.enable &&
     fontConfig.preload &&
@@ -103,7 +103,7 @@ const fontFamilyStyle = generateFontFamilyStyle();
       ))
 }
 
-<!-- Gaya font global -->
+<!-- 全局字体样式 -->
 {
   fontConfig.enable && fontFamilyStyle && (
     <style
@@ -113,12 +113,12 @@ const fontFamilyStyle = generateFontFamilyStyle();
       --font-family-fallback: ${(fontConfig.fallback || []).join(", ")};
     }
     
-    /* Terapkan font kustom ke body */
+    /* 应用自定义字体到body */
     body {
       ${fontFamilyStyle}
     }
     
-    /* Hasilkan kelas CSS yang sesuai untuk setiap font yang dipilih */
+    /* 为每个选中的字体生成对应的CSS类 */
     ${selectedFonts
       .map((font) => {
         return `
@@ -130,9 +130,9 @@ const fontFamilyStyle = generateFontFamilyStyle();
       })
       .join("\n")}
     
-    /* Tambahkan nama kelas untuk body dengan font yang diaktifkan secara keseluruhan */
+    /* 为整体启用字体的body添加类名 */
     ${fontClasses.map((className) => `.${className}`).join(",\n")} {
-      /* Gaya global terkait font dapat ditambahkan di sini */
+      /* 字体相关的全局样式可以在这里添加 */
     }
   `}
     />
@@ -140,26 +140,26 @@ const fontFamilyStyle = generateFontFamilyStyle();
 }
 
 <script>
-  // Optimisasi pemuatan font dan penanganan kesalahan
+  // 字体加载优化和错误处理
   if (document.fonts && typeof document.fonts.ready !== "undefined") {
     document.fonts.ready
       .then(() => {
-        console.log("Semua font telah dimuat");
+        console.log("All fonts have been loaded");
 
-        // Picu event kustom untuk memberi tahu bahwa font telah dimuat
+        // 触发自定义事件，通知字体加载完成
         document.dispatchEvent(new CustomEvent("fontsLoaded"));
       })
       .catch((error: Error) => {
-        console.warn("Pemuatan font gagal:", error);
+        console.warn("Font loading failed:", error);
       });
   }
 
-  // Pemantauan kinerja pemuatan font
+  // 字体加载性能监控
   if (typeof PerformanceObserver !== "undefined") {
     const observer = new PerformanceObserver((list) => {
       list.getEntries().forEach((entry) => {
         if (entry.entryType === "resource") {
-          // console.log(`Sumber daya font dimuat: ${entry.name} (${entry.duration.toFixed(2)}ms)`);
+          // console.log(`Font resource loaded: ${entry.name} (${entry.duration.toFixed(2)}ms)`);
         }
       });
     });
@@ -167,7 +167,7 @@ const fontFamilyStyle = generateFontFamilyStyle();
     try {
       observer.observe({ entryTypes: ["resource"] });
     } catch (e) {
-      // Gagal secara diam-diam jika browser tidak mendukung
+      // 浏览器不支持时静默失败
     }
   }
 </script>

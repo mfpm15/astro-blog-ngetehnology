@@ -40,7 +40,7 @@ const textData = Array.isArray(text) ? JSON.stringify(text) : text;
       this.element = element;
       const textData = element.dataset.text || "";
 
-      // Coba parse sebagai array JSON, jika gagal, anggap sebagai string tunggal
+      // 尝试解析为JSON数组，如果失败则作为单个字符串处理
       try {
         const parsed = JSON.parse(textData);
         this.texts = Array.isArray(parsed) ? parsed : [textData];
@@ -52,7 +52,7 @@ const textData = Array.isArray(text) ? JSON.stringify(text) : text;
       this.deleteSpeed = parseInt(element.dataset.deleteSpeed || "50");
       this.pauseTime = parseInt(element.dataset.pauseTime || "2000");
 
-      // Jika ada beberapa teks dan efek mesin tik tidak diaktifkan, tampilkan teks acak
+      // 如果有多条文本且未启用打字机效果，随机显示一条
       if (this.texts.length > 1 && !this.isTypewriterEnabled()) {
         this.showRandomText();
       } else {
@@ -61,7 +61,7 @@ const textData = Array.isArray(text) ? JSON.stringify(text) : text;
     }
 
     private isTypewriterEnabled(): boolean {
-      // Periksa apakah ada atribut data terkait mesin tik
+      // 检查是否有打字机相关的数据属性
       return (
         this.element.dataset.speed !== undefined ||
         this.element.dataset.deleteSpeed !== undefined ||
@@ -87,7 +87,7 @@ const textData = Array.isArray(text) ? JSON.stringify(text) : text;
       const currentText = this.getCurrentText();
 
       if (this.isDeleting) {
-        // Hapus karakter
+        // 删除字符
         if (this.currentIndex > 0) {
           this.currentIndex--;
           this.element.textContent = currentText.substring(
@@ -99,14 +99,14 @@ const textData = Array.isArray(text) ? JSON.stringify(text) : text;
             this.deleteSpeed
           );
         } else {
-          // Selesai menghapus, beralih ke teks berikutnya
+          // 删除完成，切换到下一条文本
           this.isDeleting = false;
           this.currentTextIndex =
             (this.currentTextIndex + 1) % this.texts.length;
           this.timeoutId = window.setTimeout(() => this.type(), this.speed);
         }
       } else {
-        // Tambah karakter
+        // 添加字符
         if (this.currentIndex < currentText.length) {
           this.currentIndex++;
           this.element.textContent = currentText.substring(
@@ -115,7 +115,7 @@ const textData = Array.isArray(text) ? JSON.stringify(text) : text;
           );
           this.timeoutId = window.setTimeout(() => this.type(), this.speed);
         } else {
-          // Selesai mengetik, jeda lalu mulai menghapus (jika ada beberapa teks)
+          // 打字完成，暂停后开始删除（如果有多条文本）
           if (this.texts.length > 1) {
             this.isDeleting = true;
             this.timeoutId = window.setTimeout(
@@ -123,7 +123,7 @@ const textData = Array.isArray(text) ? JSON.stringify(text) : text;
               this.pauseTime
             );
           }
-          // Jika hanya ada satu teks, tetap tampilkan tanpa menghapus
+          // 如果只有一条文本，保持显示不删除
         }
       }
     }
@@ -135,7 +135,7 @@ const textData = Array.isArray(text) ? JSON.stringify(text) : text;
     }
   }
 
-  // Inisialisasi semua efek mesin tik
+  // 初始化所有打字机效果
   document.addEventListener("DOMContentLoaded", () => {
     const typewriterElements = document.querySelectorAll(".typewriter");
     typewriterElements.forEach((element) => {
@@ -143,7 +143,7 @@ const textData = Array.isArray(text) ? JSON.stringify(text) : text;
     });
   });
 
-  // Dukungan untuk inisialisasi ulang saat pergantian halaman
+  // 支持页面切换时重新初始化
   document.addEventListener("swup:contentReplaced", () => {
     const typewriterElements = document.querySelectorAll(".typewriter");
     typewriterElements.forEach((element) => {

@@ -2,7 +2,7 @@
 import { Icon } from "astro-icon/components";
 ---
 
-<!-- Tidak boleh ada filter pada elemen induk, atau akan merusak `fixed` -->
+<!-- There can't be a filter on parent element, or it will break `fixed` -->
 <div class="back-to-top-wrapper hidden lg:block">
   <div
     id="back-to-top-btn"
@@ -10,7 +10,7 @@ import { Icon } from "astro-icon/components";
     onclick="backToTop()"
   >
     <button
-      aria-label="Kembali ke Atas"
+      aria-label="Back to Top"
       class="h-[3.75rem] w-[3.75rem] rounded-2xl"
     >
       <Icon name="material-symbols:keyboard-arrow-up-rounded" class="mx-auto" />
@@ -57,7 +57,7 @@ import { Icon } from "astro-icon/components";
         background-color: rgba(255, 255, 255, 0.95)
         border-color: rgba(0, 0, 0, 0.2)
 
-/* Gaya tema gelap */
+/* 暗色主题样式 */
 :global(.dark) .back-to-top-btn
     background-color: var(--card-bg)
     border: 1px solid rgba(255, 255, 255, 0.15)
@@ -68,7 +68,7 @@ import { Icon } from "astro-icon/components";
         border-color: rgba(255, 255, 255, 0.3)
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3)
 
-/* Penyesuaian responsif */
+/* 响应式调整 */
 @media (max-width: 1024px)
     .back-to-top-btn
         right: 1rem
@@ -96,13 +96,13 @@ import { Icon } from "astro-icon/components";
         i
             font-size: 1rem
 
-/* Adaptasi untuk rasio piksel tinggi */
+/* 高缩放比例适配 */
 @media (min-resolution: 2dppx)
     .back-to-top-btn
         right: max(0.5rem, 2rem - 2vw)
         bottom: max(7rem, 8rem - 5vh)
 
-/* Adaptasi untuk layar super kecil */
+/* 超小屏幕适配 */
 @media (max-width: 360px)
     .back-to-top-btn
         right: 0.25rem
@@ -114,33 +114,33 @@ import { Icon } from "astro-icon/components";
         i
             font-size: 0.875rem
 
-/* Adaptasi mode lanskap */
+/* 横屏模式适配 */
 @media (orientation: landscape) and (max-height: 500px)
     .back-to-top-btn
         bottom: 2rem
         right: 0.5rem
 
-/* Pastikan tombol selalu terlihat */
+/* 确保按钮始终在可视区域内 */
 .back-to-top-btn
-    /* Mencegah tombol terpotong */
+    /* 防止按钮被裁剪 */
     min-width: 2rem
     min-height: 2rem
-    /* Pastikan area klik cukup besar */
+    /* 确保按钮有足够的点击区域 */
     padding: 0.25rem
-    /* Mencegah tombol keluar dari layar */
+    /* 防止按钮超出屏幕 */
     max-width: 4rem
     max-height: 4rem
-    /* Pastikan sudut membulat benar di semua ukuran */
+    /* 确保圆角在所有尺寸下都正确 */
     border-radius: 1rem !important
 
-/* Optimasi layar DPI tinggi */
+/* 高DPI屏幕优化 */
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi)
     .back-to-top-btn
-        /* Pastikan tampilan tajam di layar DPI tinggi */
+        /* 确保在高DPI屏幕上清晰显示 */
         image-rendering: -webkit-optimize-contrast
         image-rendering: crisp-edges
 
-/* Adaptasi resolusi sangat rendah */
+/* 极低分辨率适配 */
 @media (max-width: 320px)
     .back-to-top-btn
         right: 0.125rem
@@ -152,14 +152,14 @@ import { Icon } from "astro-icon/components";
         i
             font-size: 0.75rem
 
-/* Pastikan tombol ditampilkan dengan benar di dalam wadah */
+/* 确保按钮在容器内正确显示 */
 .back-to-top-wrapper
-    /* Pastikan wadah tidak memotong konten */
+    /* 确保容器不会裁剪内容 */
     overflow: visible
-    /* Mencegah wadah mempengaruhi posisi tombol */
+    /* 防止容器影响按钮定位 */
     z-index: 999
 
-/* Status aktif tombol */
+/* 按钮激活状态 */
 .back-to-top-btn:active
     transform: scale(0.95)
 
@@ -168,11 +168,11 @@ import { Icon } from "astro-icon/components";
 
 <script is:raw is:inline>
   function backToTop() {
-    // Langsung gunakan gulir asli untuk menghindari konflik dengan OverlayScrollbars
+    // 直接使用原生滚动，避免OverlayScrollbars冲突
     window.scroll({ top: 0, behavior: "smooth" });
   }
 
-  // Manajer tombol kembali ke atas yang responsif
+  // 响应式返回顶部按钮管理器
   if (typeof window.BackToTopManager === "undefined") {
     window.BackToTopManager = class BackToTopManager {
       constructor() {
@@ -192,7 +192,7 @@ import { Icon } from "astro-icon/components";
           const scrollTop =
             window.pageYOffset || document.documentElement.scrollTop;
 
-          // Tampilkan tombol saat menggulir lebih dari 200px
+          // 当滚动超过200px时显示按钮
           if (scrollTop > 200) {
             this.button.classList.remove("hide");
           } else {
@@ -203,16 +203,16 @@ import { Icon } from "astro-icon/components";
         window.addEventListener("scroll", updateVisibility, { passive: true });
       }
 
-      // Hapus listener resize dan logika pembaruan posisi, karena media query CSS sudah menanganinya
+      // 移除resize监听和位置更新逻辑，因为CSS媒体查询已经处理了响应式定位
     };
   }
 
-  // Inisialisasi setelah halaman dimuat
+  // 页面加载完成后初始化
   document.addEventListener("DOMContentLoaded", () => {
     new BackToTopManager();
   });
 
-  // Jika halaman sudah dimuat, inisialisasi segera
+  // 如果页面已经加载完成，立即初始化
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => {
       new BackToTopManager();

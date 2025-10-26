@@ -35,10 +35,11 @@
     "@iconify/svelte": "^4.2.0",
     "@swup/astro": "^1.7.0",
     "@tailwindcss/typography": "^0.5.16",
-    "astro": "5.14.7",
+    "astro": "5.15.1",
     "astro-expressive-code": "^0.41.3",
     "astro-icon": "^1.1.5",
     "bcryptjs": "^3.0.2",
+    "canvaskit-wasm": "^0.40.0",
     "crypto-js": "^4.2.0",
     "dayjs": "^1.11.18",
     "decap-cms-app": "^3.8.4",
@@ -71,6 +72,7 @@
     "unist-util-visit": "^5.0.0"
   },
   "devDependencies": {
+    "@astrojs/partytown": "^2.1.4",
     "@astrojs/ts-plugin": "^1.10.5",
     "@biomejs/biome": "2.2.6",
     "@iconify-json/mdi": "^1.2.3",
@@ -79,6 +81,10 @@
     "@types/markdown-it": "^14.1.2",
     "@types/mdast": "^4.0.4",
     "@types/sanitize-html": "^2.16.0",
+    "astro-compress": "^2.3.8",
+    "astro-font": "^1.1.0",
+    "astro-robots-txt": "^1.0.0",
+    "astro-seo": "^0.8.4",
     "postcss-import": "^16.1.1",
     "postcss-nesting": "^13.0.2"
   },

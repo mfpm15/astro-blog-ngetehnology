@@ -1,7 +1,7 @@
 backend:
   name: git-gateway
-  repo: mfpm15/astro-blog-ngetehnology # IMPORTANT: replace this with your repository
-  branch: main # or master, or whatever branch you want to use
+  repo: mfpm15/astro-blog-ngetehnology
+  branch: master
 
 # The media_folder and public_folder settings are optional. If you don't specify them, all images will be saved in the same folder as the post.
 media_folder: "src/assets/images/posts" # Where media files will be stored

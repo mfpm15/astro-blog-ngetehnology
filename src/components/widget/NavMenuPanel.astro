@@ -10,7 +10,7 @@ interface Props {
 	links: NavBarLink[];
 }
 
-// Proses LinkPreset di dalam tautan
+// 处理links中的LinkPreset转换
 const processedLinks = Astro.props.links.map(
 	(link: NavBarLink): NavBarLink => ({
 		...link,
@@ -29,7 +29,7 @@ const processedLinks = Astro.props.links.map(
     {processedLinks.map((link) => (
         <div class="mobile-menu-item">
             {link.children && link.children.length > 0 ? (
-                <!-- Item dengan submenu -->
+                <!-- 有子菜单的项目 -->
                 <div class="mobile-dropdown" data-mobile-dropdown>
                     <button 
                         class="group flex justify-between items-center py-2 pl-3 pr-1 rounded-lg gap-8 w-full text-left
@@ -64,7 +64,7 @@ const processedLinks = Astro.props.links.map(
                     </div>
                 </div>
             ) : (
-                <!-- Item tautan biasa -->
+                <!-- 普通链接项目 -->
                 <a href={link.external ? link.url : url(link.url)} class="group flex justify-between items-center py-2 pl-3 pr-1 rounded-lg gap-8
                     hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)] transition
                 "
@@ -114,7 +114,7 @@ const processedLinks = Astro.props.links.map(
                 e.preventDefault();
                 const isExpanded = dropdown.getAttribute('data-expanded') === 'true';
                 
-                // Tutup dropdown lain yang terbuka
+                // 关闭其他打开的下拉菜单
                 mobileDropdowns.forEach(otherDropdown => {
                     if (otherDropdown !== dropdown) {
                         otherDropdown.setAttribute('data-expanded', 'false');
@@ -125,7 +125,7 @@ const processedLinks = Astro.props.links.map(
                     }
                 });
                 
-                // Alihkan dropdown saat ini
+                // 切换当前下拉菜单
                 const newState = !isExpanded;
                 dropdown.setAttribute('data-expanded', newState.toString());
                 trigger.setAttribute('aria-expanded', newState.toString());
