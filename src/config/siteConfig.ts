@@ -2,21 +2,19 @@ import type { SiteConfig } from "../types/config";
 import { fontConfig } from "./fontConfig";
 
 // 定义站点语言
-const SITE_LANG = "zh_CN"; // 语言代码，例如：'en', 'zh_CN', 'ja' 等。
+const SITE_LANG = "id"; // 语言代码，例如：'en', 'zh_CN', 'ja' 等。
 
 export const siteConfig: SiteConfig = {
-  title: "Firefly",
-  subtitle: "Demo site",
+  title: "NgetehNology",
+  subtitle: "Panduan Keamanan Siber untuk Pemula",
   description:
-    "Firefly 是一款基于 Astro 框架开发的清新美观且现代化个人博客主题，专为技术爱好者和内容创作者设计。该主题融合了现代 Web 技术栈，提供了丰富的功能模块和高度可定制的界面，让您能够轻松打造出专业且美观的个人博客网站。",
+    "NgetehNology adalah sebuah blog yang membahas tentang keamanan siber, teknologi, dan tutorial untuk pemula.",
   keywords: [
-    "Firefly",
-    "Fuwari",
-    "Astro",
-    "ACGN",
-    "博客",
-    "技术博客",
-    "静态博客",
+    "NgetehNology",
+    "Keamanan Siber",
+    "Teknologi",
+    "Tutorial",
+    "Blog",
   ],
 
   lang: SITE_LANG,

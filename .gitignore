@@ -35,3 +35,5 @@ Docs-Firefly/
 
 cache/
 fuwari/
+# Local Netlify folder
+.netlify

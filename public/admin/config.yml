@@ -1,0 +1,23 @@
+backend:
+  name: git-gateway
+  repo: mfpm15/astro-blog-ngetehnology # IMPORTANT: replace this with your repository
+  branch: main # or master, or whatever branch you want to use
+
+# The media_folder and public_folder settings are optional. If you don't specify them, all images will be saved in the same folder as the post.
+media_folder: "src/assets/images/posts" # Where media files will be stored
+public_folder: "/assets/images/posts" # The public-facing path to the media folder
+
+collections:
+  - name: "blog" # Used in routes, e.g., /admin/collections/blog
+    label: "Blog" # Used in the UI
+    folder: "src/content/posts" # The path to the folder where the documents are stored
+    create: true # Allow users to create new documents in this collection
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}" # Filename template, e.g., YYYY-MM-DD-title.md
+    fields: # The fields for each document, usually in front matter
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Publish Date", name: "published", widget: "datetime" }
+      - { label: "Description", name: "description", widget: "string" }
+      - { label: "Tags", name: "tags", widget: "list", required: false }
+      - { label: "Category", name: "category", widget: "string", required: false }
+      - { label: "Draft", name: "draft", widget: "boolean", default: true }
+      - { label: "Body", name: "body", widget: "markdown" }

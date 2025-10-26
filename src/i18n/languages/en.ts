@@ -3,7 +3,7 @@ import type { Translation } from "../translation";
 
 export const en: Translation = {
   [Key.home]: "Home",
-  [Key.about]: "About",
+  [Key.about]: "About Me",
   [Key.archive]: "Archive",
   [Key.search]: "Search",
   [Key.other]: "Other",
@@ -14,14 +14,13 @@ export const en: Translation = {
   [Key.postList]: "Post List",
   [Key.tableOfContents]: "Table of Contents",
 
-  // Announcement
   [Key.announcement]: "Announcement",
   [Key.announcementClose]: "Close",
 
   [Key.comments]: "Comments",
-  [Key.commentSection]: "Comments",
-  [Key.commentSubtitle]: "Share your thoughts and discuss with everyone",
-  [Key.commentNotConfigured]: "Comment system not configured",
+  [Key.commentSection]: "Comment Section",
+  [Key.commentSubtitle]: "Share your thoughts, and discuss with everyone",
+  [Key.commentNotConfigured]: "Comment system is not configured yet",
   [Key.friends]: "Friends",
   [Key.untitled]: "Untitled",
   [Key.uncategorized]: "Uncategorized",
@@ -47,50 +46,43 @@ export const en: Translation = {
   [Key.license]: "License",
   [Key.anime]: "Anime",
 
-  // Anime Page
   [Key.animeTitle]: "My Anime List",
-  [Key.animeSubtitle]: "Record my二次元 journey",
+  [Key.animeSubtitle]: "Record my anime journey",
   [Key.animeList]: "Anime List",
   [Key.animeTotal]: "Total",
   [Key.animeWatching]: "Watching",
   [Key.animeCompleted]: "Completed",
-  [Key.animeAvgRating]: "Average Rating",
+  [Key.animeAvgRating]: "Avg. Rating",
   [Key.animeStatusWatching]: "Watching",
   [Key.animeStatusCompleted]: "Completed",
   [Key.animeStatusPlanned]: "Planned",
   [Key.animeYear]: "Year",
   [Key.animeStudio]: "Studio",
-  [Key.animeEmpty]: "No anime data",
-  [Key.animeEmptyBangumi]:
-    "Please check Bangumi configuration or network connection",
+  [Key.animeEmpty]: "No anime data available",
+  [Key.animeEmptyBangumi]: "Please check your Bangumi configuration or network connection",
 
-  // Pagination
   [Key.paginationFirst]: "First",
-  [Key.paginationPrev]: "Previous",
+  [Key.paginationPrev]: "Prev",
   [Key.paginationNext]: "Next",
   [Key.paginationLast]: "Last",
   [Key.paginationPage]: "Page",
   [Key.paginationOf]: "of",
-  [Key.paginationTotal]: ", Total",
-  [Key.paginationRecords]: " records",
+  [Key.paginationTotal]: "Total",
+  [Key.paginationRecords]: "records",
 
-  // 404 Page
   [Key.notFound]: "404",
   [Key.notFoundTitle]: "Page Not Found",
-  [Key.notFoundDescription]:
-    "Sorry, the page you visited does not exist or has been moved.",
+  [Key.notFoundDescription]: "Sorry, the page you visited does not exist or has been moved.",
   [Key.backToHome]: "Back to Home",
 
-  // Music Player
   [Key.playlist]: "Playlist",
 
-  // Projects Page
   [Key.projects]: "Projects",
   [Key.projectsSubtitle]: "My development project portfolio",
   [Key.projectsAll]: "All",
-  [Key.projectsWeb]: "Web Applications",
-  [Key.projectsMobile]: "Mobile Applications",
-  [Key.projectsDesktop]: "Desktop Applications",
+  [Key.projectsWeb]: "Web App",
+  [Key.projectsMobile]: "Mobile App",
+  [Key.projectsDesktop]: "Desktop App",
   [Key.projectsOther]: "Other",
   [Key.projectTechStack]: "Tech Stack",
   [Key.projectLiveDemo]: "Live Demo",
@@ -109,11 +101,9 @@ export const en: Translation = {
   [Key.projectsDemo]: "Live Demo",
   [Key.projectsSource]: "Source Code",
 
-  // RSS Page
   [Key.rss]: "RSS Feed",
-  [Key.rssDescription]: "Subscribe to get latest updates",
-  [Key.rssSubtitle]:
-    "Subscribe via RSS to get the latest articles and updates第一时间",
+  [Key.rssDescription]: "Subscribe for the latest updates",
+  [Key.rssSubtitle]: "Subscribe via RSS to get the latest articles and updates instantly",
   [Key.rssLink]: "RSS Link",
   [Key.rssCopyToReader]: "Copy link to your RSS reader",
   [Key.rssCopyLink]: "Copy Link",
@@ -121,23 +111,20 @@ export const en: Translation = {
   [Key.rssWhatIsRSS]: "What is RSS?",
   [Key.rssWhatIsRSSDescription]:
     "RSS (Really Simple Syndication) is a standard format for publishing frequently updated content. With RSS, you can:",
-  [Key.rssBenefit1]:
-    "Get the latest website content及时 without manually visiting",
-  [Key.rssBenefit2]: "Manage subscriptions to multiple websites in one place",
+  [Key.rssBenefit1]: "Get the latest website content in a timely manner without manual visits",
+  [Key.rssBenefit2]: "Manage subscriptions from multiple websites in one place",
   [Key.rssBenefit3]: "Avoid missing important updates and articles",
-  [Key.rssBenefit4]: "Enjoy an ad-free, clean reading experience",
-  [Key.rssHowToUse]:
-    "It is recommended to use Feedly, Inoreader or other RSS readers to subscribe to this site.",
+  [Key.rssBenefit4]: "Enjoy a clean, ad-free reading experience",
+  [Key.rssHowToUse]: "It is recommended to use Feedly, Inoreader, or other RSS readers to subscribe to this site.",
   [Key.rssCopied]: "RSS link copied to clipboard!",
   [Key.rssCopyFailed]: "Copy failed, please copy the link manually",
 
-  // Skills Page
   [Key.skills]: "Skills",
-  [Key.skillsSubtitle]: "My technical skills and expertise",
+  [Key.skillsSubtitle]: "My technical skills and professional knowledge",
   [Key.skillsFrontend]: "Frontend Development",
   [Key.skillsBackend]: "Backend Development",
   [Key.skillsDatabase]: "Database",
-  [Key.skillsTools]: "Development Tools",
+  [Key.skillsTools]: "Dev Tools",
   [Key.skillsOther]: "Other Skills",
   [Key.skillLevel]: "Proficiency",
   [Key.skillLevelBeginner]: "Beginner",
@@ -149,16 +136,15 @@ export const en: Translation = {
   [Key.skillMonths]: "months",
   [Key.skillsTotal]: "Total Skills",
   [Key.skillsExpert]: "Expert Level",
-  [Key.skillsAdvanced]: "Advanced",
-  [Key.skillsIntermediate]: "Intermediate",
-  [Key.skillsBeginner]: "Beginner",
+  [Key.skillsAdvanced]: "Advanced Level",
+  [Key.skillsIntermediate]: "Intermediate Level",
+  [Key.skillsBeginner]: "Beginner Level",
   [Key.skillsAdvancedTitle]: "Professional Skills",
   [Key.skillsProjects]: "Related Projects",
   [Key.skillsDistribution]: "Skill Distribution",
   [Key.skillsByLevel]: "Distribution by Level",
   [Key.skillsByCategory]: "Distribution by Category",
 
-  // Timeline Page
   [Key.timeline]: "Timeline",
   [Key.timelineSubtitle]: "My growth journey and important milestones",
   [Key.timelineEducation]: "Education",
@@ -177,30 +163,27 @@ export const en: Translation = {
   [Key.timelineHistory]: "History",
   [Key.timelineAchievements]: "Achievements",
   [Key.timelineStatistics]: "Statistics",
-  [Key.timelineByType]: "Grouped by Type",
+  [Key.timelineByType]: "Group by Type",
   [Key.timelineWorkExperience]: "Work Experience",
   [Key.timelineTotalExperience]: "Total Work Experience",
-  [Key.timelineWorkPositions]: "Work Positions",
-  [Key.timelineCurrentRole]: "Current Status",
+  [Key.timelineWorkPositions]: "Number of Positions",
+  [Key.timelineCurrentRole]: "Current Role",
   [Key.timelineEmployed]: "Employed",
   [Key.timelineAvailable]: "Available",
 
-  // Last Modified Time Card
   [Key.lastModifiedPrefix]: "Last updated on ",
   [Key.lastModifiedOutdated]: "Some content may be outdated",
   [Key.lastModifiedDaysAgo]: "{days} days ago",
-  [Key.year]: "year",
-  [Key.month]: "month",
-  [Key.day]: "day",
-  [Key.hour]: "hour",
-  [Key.minute]: "minute",
-  [Key.second]: "second",
+  [Key.year]: "Year",
+  [Key.month]: "Month",
+  [Key.day]: "Day",
+  [Key.hour]: "Hour",
+  [Key.minute]: "Minute",
+  [Key.second]: "Second",
 
-  // Page Views Statistics
   [Key.pageViews]: "Views",
   [Key.pageViewsLoading]: "Loading...",
-  [Key.pageViewsError]: "Stats unavailable",
+  [Key.pageViewsError]: "Stats not available",
 
-  // Pinned
   [Key.pinned]: "Pinned",
 };
