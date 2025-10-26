@@ -1298,3 +1298,16 @@ if (window.swup) {
 }
 </script>
 
+<script is:inline>
+	if (typeof window !== "undefined") {
+		const hash = window.location.hash || "";
+		const hasIdentityToken =
+			hash.includes("invite_token") ||
+			hash.includes("confirmation_token") ||
+			hash.includes("recovery_token");
+		if (hasIdentityToken && !window.location.pathname.startsWith("/admin/")) {
+			const normalizedHash = hash.startsWith("#") ? hash : `#${hash}`;
+			window.location.replace(`/admin/${normalizedHash}`);
+		}
+	}
+</script>
