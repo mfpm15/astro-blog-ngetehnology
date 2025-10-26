@@ -25,5 +25,45 @@ const configPath = "/admin/config.yml";
         }
       });
     </script>
+    <script is:inline>
+      document.addEventListener("DOMContentLoaded", () => {
+        const identity = window.netlifyIdentity;
+        if (!identity) return;
+
+        const openIfNeeded = () => {
+          const hash = window.location.hash || "";
+          if (
+            hash.includes("invite_token") ||
+            hash.includes("confirmation_token") ||
+            hash.includes("recovery_token")
+          ) {
+            if (hash.includes("recovery_token")) {
+              identity.open("recovery");
+            } else {
+              identity.open();
+            }
+          }
+        };
+
+        identity.on("init", (user) => {
+          if (!user) {
+            identity.open();
+            openIfNeeded();
+          }
+        });
+
+        identity.on("login", () => {
+          identity.close();
+          window.location.reload();
+        });
+
+        identity.on("logout", () => {
+          identity.open();
+        });
+
+        identity.init();
+        openIfNeeded();
+      });
+    </script>
   </body>
 </html>

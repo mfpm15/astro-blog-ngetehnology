@@ -67,7 +67,7 @@ export const siteConfig: SiteConfig = {
   // Konfigurasi tata letak daftar postingan
   postListLayout: {
     // Mode tata letak default: "list" mode daftar (tata letak satu kolom), "grid" mode petak (tata letak dua kolom)
-    defaultMode: "grid",
+    defaultMode: "list",
     // Apakah mengizinkan pengguna untuk beralih tata letak
     allowSwitch: true,
   },
