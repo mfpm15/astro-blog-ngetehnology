@@ -1,6 +1,7 @@
 import sitemap from "@astrojs/sitemap";
 import svelte from "@astrojs/svelte";
 import tailwind from "@astrojs/tailwind";
+import partytown from "@astrojs/partytown";
 import { pluginCollapsibleSections } from "@expressive-code/plugin-collapsible-sections";
 import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
 import swup from "@swup/astro";
@@ -28,9 +29,14 @@ import { remarkReadingTime } from "./src/plugins/remark-reading-time.mjs";
 import netlify from "@astrojs/netlify";
 // https://astro.build/config
 export default defineConfig({
-  site: "https://demo-firefly.netlify.app/",
+  site: "https://astro-blog-ngetehnology.netlify.app/",
   base: "/",
   trailingSlash: "always",
+  image: {
+      service: {
+          entrypoint: "astro/assets/services/sharp",
+      },
+  },
 
   integrations: [
       tailwind({
@@ -64,6 +70,11 @@ export default defineConfig({
               "fa6-regular": ["*"],
               "fa6-solid": ["*"],
               mdi: ["*"],
+          },
+      }),
+      partytown({
+          config: {
+              forward: ["clarity"],
           },
       }),
       expressiveCode({
@@ -208,5 +219,7 @@ export default defineConfig({
       },
 	},
 
-  adapter: netlify(),
+  adapter: netlify({
+      imageCDN: false,
+  }),
 });

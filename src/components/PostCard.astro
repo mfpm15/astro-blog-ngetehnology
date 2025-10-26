@@ -175,12 +175,20 @@ const { remarkPluginFrontmatter } = await entry.render();
             class="transition opacity-0 group-hover:opacity-100 scale-50 group-hover:scale-100 text-white text-5xl"
           />
         </div>
-        <ImageWrapper
-          src={image}
-          basePath={path.join("content/posts/", getDir(entry.id))}
-          alt="Cover Image of the Post"
-          class="w-full h-full"
-        />
+        {(() => {
+          const entryDir = getDir(entry.id);
+          const contentDir = entryDir.startsWith("posts/")
+            ? entryDir
+            : path.join("posts", entryDir);
+          return (
+            <ImageWrapper
+              src={image}
+              basePath={path.join("content", contentDir)}
+              alt="Cover Image of the Post"
+              class="w-full h-full"
+            />
+          );
+        })()}
       </a>
     )
   }
