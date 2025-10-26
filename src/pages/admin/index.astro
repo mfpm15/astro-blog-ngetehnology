@@ -30,39 +30,25 @@ const configPath = "/admin/config.yml";
         const identity = window.netlifyIdentity;
         if (!identity) return;
 
-        const openIfNeeded = () => {
-          const hash = window.location.hash || "";
-          if (
-            hash.includes("invite_token") ||
-            hash.includes("confirmation_token") ||
-            hash.includes("recovery_token")
-          ) {
-            if (hash.includes("recovery_token")) {
-              identity.open("recovery");
-            } else {
-              identity.open();
-            }
-          }
-        };
+        const hash = window.location.hash || "";
 
         identity.on("init", (user) => {
-          if (!user) {
-            identity.open();
-            openIfNeeded();
+          if (user) return;
+
+          if (hash.includes("recovery_token")) {
+            identity.open("recovery");
+          } else if (hash.includes("invite_token") || hash.includes("confirmation_token")) {
+            identity.open("signup");
           }
         });
 
         identity.on("login", () => {
           identity.close();
+          window.location.hash = "";
           window.location.reload();
         });
 
-        identity.on("logout", () => {
-          identity.open();
-        });
-
         identity.init();
-        openIfNeeded();
       });
     </script>
   </body>
