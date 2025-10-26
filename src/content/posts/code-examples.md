@@ -1,28 +1,28 @@
 ---
-title: Firefly 代码块示例
+title: Contoh Blok Kode Firefly
 published: 2025-08-20
 pinned: false
-description: 在Firefly中使用表达性代码的代码块在 Markdown 中的外观。
+description: Bagaimana tampilan blok kode di Markdown menggunakan Expressive Code di Firefly.
 tags: [Markdown, Firefly]
-category: 文章示例
+category: Contoh Postingan
 draft: false
 ---
 
-在这里，我们将探索如何使用 [Expressive Code](https://expressive-code.com/) 展示代码块。提供的示例基于官方文档，您可以参考以获取更多详细信息。
+Di sini, kita akan menjelajahi cara menampilkan blok kode menggunakan [Expressive Code](https://expressive-code.com/). Contoh yang diberikan didasarkan pada dokumentasi resmi, yang dapat Anda rujuk untuk detail lebih lanjut.
 
-## 表达性代码
+## Expressive Code
 
-### 语法高亮
+### Penyorotan Sintaks
 
-[语法高亮](https://expressive-code.com/key-features/syntax-highlighting/)
+[Penyorotan Sintaks](https://expressive-code.com/key-features/syntax-highlighting/)
 
-#### 常规语法高亮
+#### Penyorotan Sintaks Biasa
 
 ```js
-console.log('此代码有语法高亮!')
+console.log('Kode ini memiliki penyorotan sintaks!')
 ```
 
-#### 渲染 ANSI 转义序列
+#### Merender Urutan Escape ANSI
 
 ```ansi
 ANSI colors:
@@ -41,82 +41,82 @@ Full RGB colors:
 Text formatting: [1mBold[0m [2mDimmed[0m [3mItalic[0m [4mUnderline[0m
 ```
 
-### 编辑器和终端框架
+### Kerangka Editor dan Terminal
 
-[编辑器和终端框架](https://expressive-code.com/key-features/frames/)
+[Kerangka Editor dan Terminal](https://expressive-code.com/key-features/frames/)
 
-#### 代码编辑器框架
+#### Kerangka Editor Kode
 
-```js title="my-test-file.js"
-console.log('标题属性示例')
+```js title="file-tes-saya.js"
+console.log('Contoh atribut judul')
 ```
 
 ---
 
 ```html
 <!-- src/content/index.html -->
-<div>文件名注释示例</div>
+<div>Contoh komentar nama file</div>
 ```
 
-#### 终端框架
+#### Kerangka Terminal
 
 ```bash
-echo "此终端框架没有标题"
+echo "Kerangka terminal ini tidak memiliki judul"
 ```
 
 ---
 
-```powershell title="PowerShell 终端示例"
-Write-Output "这个有标题!"
+```powershell title="Contoh Terminal PowerShell"
+Write-Output "Yang ini punya judul!"
 ```
 
-#### 覆盖框架类型
+#### Mengganti Jenis Kerangka
 
 ```sh frame="none"
-echo "看，没有框架!"
+echo "Lihat, tidak ada kerangka!"
 ```
 
 ---
 
 ```ps frame="code" title="PowerShell Profile.ps1"
-# 如果不覆盖，这将是一个终端框架
+# Jika tidak diganti, ini akan menjadi kerangka terminal
 function Watch-Tail { Get-Content -Tail 20 -Wait $args }
 New-Alias tail Watch-Tail
 ```
 
-### 文本和行标记
+### Penanda Teks dan Baris
 
-[文本和行标记](https://expressive-code.com/key-features/text-markers/)
+[Penanda Teks dan Baris](https://expressive-code.com/key-features/text-markers/)
 
-#### 标记整行和行范围
+#### Menandai Seluruh Baris dan Rentang Baris
 
 ```js {1, 4, 7-8}
-// 第1行 - 通过行号定位
-// 第2行
-// 第3行
-// 第4行 - 通过行号定位
-// 第5行
-// 第6行
-// 第7行 - 通过范围 "7-8" 定位
-// 第8行 - 通过范围 "7-8" 定位
+// Baris 1 - ditargetkan oleh nomor baris
+// Baris 2
+// Baris 3
+// Baris 4 - ditargetkan oleh nomor baris
+// Baris 5
+// Baris 6
+// Baris 7 - ditargetkan oleh rentang "7-8"
+// Baris 8 - ditargetkan oleh rentang "7-8"
 ```
 
-#### 选择行标记类型 (mark, ins, del)
+#### Memilih Jenis Penanda Baris (mark, ins, del)
 
-```js title="line-markers.js" del={2} ins={3-4} {6}
+```js title="penanda-baris.js" del={2} ins={3-4} {6}
 function demo() {
-  console.log('此行标记为已删除')
-  // 此行和下一行标记为已插入
-  console.log('这是第二个插入行')
+  console.log('Baris ini ditandai sebagai dihapus')
+  // Baris ini dan baris berikutnya ditandai sebagai disisipkan
+  console.log('Ini adalah baris sisipan kedua')
 
-  return '此行使用中性默认标记类型'
+  return 'Baris ini menggunakan jenis penanda default netral'
 }
 ```
 
-#### 为行标记添加标签
+#### Menambahkan Label ke Penanda Baris
 
 ```jsx {"1":5} del={"2":7-8} ins={"3":10-12}
-// labeled-line-markers.jsx
+// penanda-baris-berlabel.jsx
 <button
   role="button"
   {...props}
@@ -131,10 +131,10 @@ function demo() {
 </button>
 ```
 
-#### 在单独行上添加长标签
+#### Menambahkan Label Panjang pada Baris Terpisah
 
-```jsx {"1. Provide the value prop here:":5-6} del={"2. Remove the disabled and active states:":8-10} ins={"3. Add this to render the children inside the button:":12-15}
-// labeled-line-markers.jsx
+```jsx {"1. Sediakan prop nilai di sini:":5-6} del={"2. Hapus status nonaktif dan aktif:":8-10} ins={"3. Tambahkan ini untuk merender anak-anak di dalam tombol:":12-15}
+// penanda-baris-berlabel.jsx
 <button
   role="button"
   {...props}
@@ -152,12 +152,12 @@ function demo() {
 </button>
 ```
 
-#### 使用类似 diff 的语法
+#### Menggunakan Sintaks Mirip Diff
 
 ```diff
-+此行将标记为已插入
--此行将标记为已删除
-这是常规行
++Baris ini akan ditandai sebagai disisipkan
+-Baris ini akan ditandai sebagai dihapus
+Ini adalah baris biasa
 ```
 
 ---
@@ -166,147 +166,147 @@ function demo() {
 --- a/README.md
 +++ b/README.md
 @@ -1,3 +1,4 @@
-+this is an actual diff file
--all contents will remain unmodified
- no whitespace will be removed either
++ini adalah file diff yang sebenarnya
+-semua konten akan tetap tidak dimodifikasi
+ tidak ada spasi putih yang akan dihapus juga
 ```
 
-#### 结合语法高亮和类似 diff 的语法
+#### Menggabungkan Penyorotan Sintaks dan Sintaks Mirip Diff
 
 ```diff lang="js"
-  function thisIsJavaScript() {
-    // 整个块都会以 JavaScript 高亮显示，
-    // 并且我们仍然可以为其添加 diff 标记！
--   console.log('要删除的旧代码')
-+   console.log('新的闪亮代码！')
+  function iniAdalahJavaScript() {
+    // Seluruh blok akan disorot sebagai JavaScript,
+    // dan kita masih bisa menambahkan penanda diff ke dalamnya!
+-   console.log('kode lama untuk dihapus')
++   console.log('kode baru yang mengkilap!')
   }
 ```
 
-#### 标记行内的单独文本
+#### Menandai Teks Terpisah di Dalam Baris
 
-```js "given text"
+```js "teks yang diberikan"
 function demo() {
-  // 标记行内的任何给定文本
-  return '支持给定文本的多个匹配项';
+  // Menandai setiap teks yang diberikan di dalam baris
+  return 'Mendukung beberapa kecocokan dari teks yang diberikan';
 }
 ```
 
-#### 正则表达式
+#### Ekspresi Reguler
 
 ```ts /ye[sp]/
-console.log('单词 yes 和 yep 将被标记。')
+console.log('Kata yes dan yep akan ditandai.')
 ```
 
-#### 转义正斜杠
+#### Melepaskan Garis Miring
 
 ```sh /\/ho.*\//
 echo "Test" > /home/test.txt
 ```
 
-#### 选择内联标记类型 (mark, ins, del)
+#### Memilih Jenis Penanda Inline (mark, ins, del)
 
-```js "return true;" ins="inserted" del="deleted"
+```js "return true;" ins="disisipkan" del="dihapus"
 function demo() {
-  console.log('这些是插入和删除的标记类型');
-  // return 语句使用默认标记类型
+  console.log('Ini adalah jenis penanda sisipan dan hapus');
+  // Pernyataan return menggunakan jenis penanda default
   return true;
 }
 ```
 
-### 自动换行
+### Bungkus Kata Otomatis
 
-[自动换行](https://expressive-code.com/key-features/word-wrap/)
+[Bungkus Kata Otomatis](https://expressive-code.com/key-features/word-wrap/)
 
-#### 为每个块配置自动换行
+#### Mengkonfigurasi Bungkus Kata untuk Setiap Blok
 
 ```js wrap
-// 启用换行的示例
+// Contoh dengan bungkus kata diaktifkan
 function getLongString() {
-  return '这是一个非常长的字符串，除非容器极宽，否则很可能无法适应可用空间'
+  return 'Ini adalah string yang sangat panjang yang kemungkinan besar tidak akan muat di ruang yang tersedia kecuali wadahnya sangat lebar'
 }
 ```
 
 ---
 
 ```js wrap=false
-// wrap=false 的示例
+// Contoh dengan wrap=false
 function getLongString() {
-  return '这是一个非常长的字符串，除非容器极宽，否则很可能无法适应可用空间'
+  return 'Ini adalah string yang sangat panjang yang kemungkinan besar tidak akan muat di ruang yang tersedia kecuali wadahnya sangat lebar'
 }
 ```
 
-#### 配置换行的缩进
+#### Mengkonfigurasi Indentasi Bungkus Kata
 
 ```js wrap preserveIndent
-// preserveIndent 示例（默认启用）
+// Contoh preserveIndent (diaktifkan secara default)
 function getLongString() {
-  return '这是一个非常长的字符串，除非容器极宽，否则很可能无法适应可用空间'
+  return 'Ini adalah string yang sangat panjang yang kemungkinan besar tidak akan muat di ruang yang tersedia kecuali wadahnya sangat lebar'
 }
 ```
 
 ---
 
 ```js wrap preserveIndent=false
-// preserveIndent=false 的示例
+// Contoh dengan preserveIndent=false
 function getLongString() {
-  return '这是一个非常长的字符串，除非容器极宽，否则很可能无法适应可用空间'
+  return 'Ini adalah string yang sangat panjang yang kemungkinan besar tidak akan muat di ruang yang tersedia kecuali wadahnya sangat lebar'
 }
 ```
 
-## 可折叠部分
+## Bagian yang Dapat Dilipat
 
-[可折叠部分](https://expressive-code.com/plugins/collapsible-sections/)
+[Bagian yang Dapat Dilipat](https://expressive-code.com/plugins/collapsible-sections/)
 
 ```js collapse={1-5, 12-14, 21-24}
-// 所有这些样板设置代码将被折叠
+// Semua kode boilerplate ini akan dilipat
 import { someBoilerplateEngine } from '@example/some-boilerplate'
 import { evenMoreBoilerplate } from '@example/even-more-boilerplate'
 
 const engine = someBoilerplateEngine(evenMoreBoilerplate())
 
-// 这部分代码默认可见
+// Bagian kode ini terlihat secara default
 engine.doSomething(1, 2, 3, calcFn)
 
 function calcFn() {
-  // 您可以有多个折叠部分
+  // Anda dapat memiliki beberapa bagian yang dapat dilipat
   const a = 1
   const b = 2
   const c = a + b
 
-  // 这将保持可见
-  console.log(`计算结果: ${a} + ${b} = ${c}`)
+  // Ini akan tetap terlihat
+  console.log(`Hasil perhitungan: ${a} + ${b} = ${c}`)
   return c
 }
 
-// 直到块末尾的所有代码将再次被折叠
+// Semua kode hingga akhir blok akan dilipat lagi
 engine.closeConnection()
 engine.freeMemory()
-engine.shutdown({ reason: '示例样板代码结束' })
+engine.shutdown({ reason: 'Kode boilerplate contoh berakhir' })
 ```
 
-## 行号
+## Nomor Baris
 
-[行号](https://expressive-code.com/plugins/line-numbers/)
+[Nomor Baris](https://expressive-code.com/plugins/line-numbers/)
 
-### 为每个块显示行号
+### Menampilkan Nomor Baris untuk Setiap Blok
 
 ```js showLineNumbers
-// 此代码块将显示行号
-console.log('来自第2行的问候!')
-console.log('我在第3行')
+// Blok kode ini akan menampilkan nomor baris
+console.log('Salam dari baris 2!')
+console.log('Saya di baris 3')
 ```
 
 ---
 
 ```js showLineNumbers=false
-// 此块禁用行号
-console.log('你好?')
-console.log('抱歉，你知道我在第几行吗?')
+// Blok ini menonaktifkan nomor baris
+console.log('Halo?')
+console.log('Maaf, Anda tahu di baris mana saya?')
 ```
 
-### 更改起始行号
+### Mengubah Nomor Baris Awal
 
 ```js showLineNumbers startLineNumber=5
-console.log('来自第5行的问候!')
-console.log('我在第6行')
+console.log('Salam dari baris 5!')
+console.log('Saya di baris 6')
 ```

@@ -1,93 +1,94 @@
 ---
-title: Markdown 扩展功能
+title: Fitur Tambahan Markdown
 published: 2024-05-01
 updated: 2024-11-29
-description: '了解 Firefly 中的 Markdown 功能'
+description: 'Pelajari tentang fitur Markdown di Firefly'
 image: ''
-tags: [演示, 示例, Markdown, Firefly]
-category: '文章示例'
+tags: [Demo, Contoh, Markdown, Firefly]
+category: 'Contoh Postingan'
 draft: false 
 ---
 
-## GitHub 仓库卡片
-您可以添加链接到 GitHub 仓库的动态卡片，在页面加载时，仓库信息会从 GitHub API 获取。 
+## Kartu Repositori GitHub
+Anda dapat menambahkan kartu dinamis yang tertaut ke repositori GitHub. Saat halaman dimuat, informasi repositori akan diambil dari API GitHub.
 
 ::github{repo="CuteLeaf/Firefly"}
 
-使用代码 `::github{repo="CuteLeaf/Firefly"}` 创建 GitHub 仓库卡片。
+Gunakan kode `::github{repo="CuteLeaf/Firefly"}` untuk membuat kartu repositori GitHub.
 
 ```markdown
 ::github{repo="CuteLeaf/Firefly"}
 ```
 
-## 提醒框
+## Kotak Peringatan
 
-支持以下类型的提醒框：`note` `tip` `important` `warning` `caution`
+Jenis kotak peringatan berikut didukung: `note` `tip` `important` `warning` `caution`
 
 :::note
-突出显示用户应该考虑的信息，即使在快速浏览时也是如此。
+Menyoroti informasi yang harus dipertimbangkan pengguna, bahkan saat membaca sekilas.
 :::
 
 :::tip
-可选信息，帮助用户更成功。
+Informasi opsional untuk membantu pengguna menjadi lebih sukses.
 :::
 
 :::important
-用户成功所必需的关键信息。
+Informasi penting yang diperlukan untuk keberhasilan pengguna.
 :::
 
 :::warning
-由于潜在风险需要用户立即注意的关键内容。
+Konten penting yang memerlukan perhatian segera dari pengguna karena potensi risiko.
 :::
 
 :::caution
-行动的负面潜在后果。
+Potensi konsekuensi negatif dari suatu tindakan.
 :::
 
-### 基本语法
+### Sintaks Dasar
 
 ```markdown
 :::note
-突出显示用户应该考虑的信息，即使在快速浏览时也是如此。
+Menyoroti informasi yang harus dipertimbangkan pengguna, bahkan saat membaca sekilas.
 :::
 
 :::tip
-可选信息，帮助用户更成功。
+Informasi opsional untuk membantu pengguna menjadi lebih sukses.
 :::
 ```
 
-### 自定义标题
+### Judul Kustom
 
-可以自定义提醒框的标题。
+Anda dapat menyesuaikan judul kotak peringatan.
 
-:::note[我的自定义标题]
-这是一个带有自定义标题的注释。
+:::note[Judul Kustom Saya]
+Ini adalah catatan dengan judul kustom.
 :::
 
 ```markdown
-:::note[我的自定义标题]
-这是一个带有自定义标题的注释。
+:::note[Judul Kustom Saya]
+Ini adalah catatan dengan judul kustom.
 :::
 ```
 
-### GitHub 语法
+### Sintaks GitHub
 
 > [!TIP]
-> 也支持 [GitHub 语法](https://github.com/orgs/community/discussions/16925)。
+> Sintaks [GitHub](https://github.com/orgs/community/discussions/16925) juga didukung.
 
 ```
 > [!NOTE]
-> 也支持 GitHub 语法。
+> Sintaks GitHub juga didukung.
 
 > [!TIP]
-> 也支持 GitHub 语法。
+> Sintaks GitHub juga didukung.
 ```
 
-### 剧透
+### Spoiler
 
-您可以为文本添加剧透。文本也支持 **Markdown** 语法。
+Anda dapat menambahkan spoiler ke teks. Teks juga mendukung sintaks **Markdown**.
 
-内容 :spoiler[被隐藏了 **哈哈**]！
+Konten :spoiler[disembunyikan **haha**]!
 
 ```markdown
-内容 :spoiler[被隐藏了 **哈哈**]！
+Konten :spoiler[disembunyikan **haha**]!
+```

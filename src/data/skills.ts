@@ -1,28 +1,28 @@
-// Skill data configuration file
-// Used to manage data for the skill display page
+// File data konfigurasi keahlian
+// Digunakan untuk mengelola data pada halaman pameran keahlian
 
 export interface Skill {
   id: string;
   name: string;
   description: string;
-  icon: string; // Iconify icon name
+  icon: string; // Nama ikon Iconify
   category: "frontend" | "backend" | "database" | "tools" | "other";
   level: "beginner" | "intermediate" | "advanced" | "expert";
   experience: {
     years: number;
     months: number;
   };
-  projects?: string[]; // Related project IDs
+  projects?: string[]; // ID proyek terkait
   certifications?: string[];
-  color?: string; // Skill card theme color
+  color?: string; // Warna tema kartu keahlian
 }
 
 export const skillsData: Skill[] = [
-  // Frontend Skills
+  // Keahlian Frontend
   {
     id: "javascript",
     name: "JavaScript",
-    description: "现代JavaScript开发，包括ES6+语法、异步编程和模块化开发。",
+    description: "Pengembangan JavaScript modern, termasuk sintaks ES6+, pemrograman asinkron, dan pengembangan modular.",
     icon: "logos:javascript",
     category: "frontend",
     level: "advanced",
@@ -33,7 +33,7 @@ export const skillsData: Skill[] = [
   {
     id: "typescript",
     name: "TypeScript",
-    description: "JavaScript的类型安全超集，提高代码质量和开发效率。",
+    description: "Superset JavaScript yang aman tipe, meningkatkan kualitas kode dan efisiensi pengembangan.",
     icon: "logos:typescript-icon",
     category: "frontend",
     level: "advanced",
@@ -45,7 +45,7 @@ export const skillsData: Skill[] = [
     id: "react",
     name: "React",
     description:
-      "用于构建用户界面的JavaScript库，包括Hooks、Context和状态管理。",
+      "Pustaka JavaScript untuk membangun antarmuka pengguna, termasuk Hooks, Context, dan manajemen state.",
     icon: "logos:react",
     category: "frontend",
     level: "advanced",
@@ -56,7 +56,7 @@ export const skillsData: Skill[] = [
   {
     id: "vue",
     name: "Vue.js",
-    description: "渐进式JavaScript框架，易学易用，适合快速开发。",
+    description: "Kerangka kerja JavaScript progresif, mudah dipelajari dan digunakan, cocok untuk pengembangan cepat.",
     icon: "logos:vue",
     category: "frontend",
     level: "intermediate",
@@ -67,7 +67,7 @@ export const skillsData: Skill[] = [
   {
     id: "angular",
     name: "Angular",
-    description: "Google开发的企业级前端框架，完整的单页应用解决方案。",
+    description: "Kerangka kerja frontend tingkat perusahaan yang dikembangkan oleh Google, solusi lengkap untuk aplikasi satu halaman.",
     icon: "logos:angular-icon",
     category: "frontend",
     level: "beginner",
@@ -78,7 +78,7 @@ export const skillsData: Skill[] = [
   {
     id: "nextjs",
     name: "Next.js",
-    description: "生产级React框架，支持SSR、SSG和全栈开发。",
+    description: "Kerangka kerja React tingkat produksi, mendukung SSR, SSG, dan pengembangan full-stack.",
     icon: "logos:nextjs-icon",
     category: "frontend",
     level: "intermediate",
@@ -89,7 +89,7 @@ export const skillsData: Skill[] = [
   {
     id: "nuxtjs",
     name: "Nuxt.js",
-    description: "直观的Vue.js框架，支持服务端渲染和静态站点生成。",
+    description: "Kerangka kerja Vue.js yang intuitif, mendukung rendering sisi server dan pembuatan situs statis.",
     icon: "logos:nuxt-icon",
     category: "frontend",
     level: "beginner",
@@ -100,7 +100,7 @@ export const skillsData: Skill[] = [
   {
     id: "astro",
     name: "Astro",
-    description: "现代静态站点生成器，支持多框架集成和卓越性能。",
+    description: "Pembuat situs statis modern, mendukung integrasi multi-kerangka kerja dan kinerja luar biasa.",
     icon: "logos:astro-icon",
     category: "frontend",
     level: "advanced",
@@ -111,7 +111,7 @@ export const skillsData: Skill[] = [
   {
     id: "tailwindcss",
     name: "Tailwind CSS",
-    description: "实用优先的CSS框架，用于快速构建现代用户界面。",
+    description: "Kerangka kerja CSS yang mengutamakan utilitas, untuk membangun antarmuka pengguna modern dengan cepat.",
     icon: "logos:tailwindcss-icon",
     category: "frontend",
     level: "advanced",
@@ -122,7 +122,7 @@ export const skillsData: Skill[] = [
   {
     id: "sass",
     name: "Sass/SCSS",
-    description: "CSS预处理器，提供变量、嵌套和混合等高级功能。",
+    description: "Preprocessor CSS, menyediakan variabel, nesting, dan mixin untuk fungsionalitas lanjutan.",
     icon: "logos:sass",
     category: "frontend",
     level: "intermediate",
@@ -133,7 +133,7 @@ export const skillsData: Skill[] = [
   {
     id: "webpack",
     name: "Webpack",
-    description: "现代JavaScript应用的静态模块打包器。",
+    description: "Bundler modul statis untuk aplikasi JavaScript modern.",
     icon: "logos:webpack",
     category: "frontend",
     level: "intermediate",
@@ -144,7 +144,7 @@ export const skillsData: Skill[] = [
   {
     id: "vite",
     name: "Vite",
-    description: "下一代前端构建工具，具有快速冷启动和热更新功能。",
+    description: "Alat bantu frontend generasi berikutnya, dengan fitur cold start dan hot update yang cepat.",
     icon: "logos:vitejs",
     category: "frontend",
     level: "intermediate",
@@ -153,11 +153,11 @@ export const skillsData: Skill[] = [
     color: "#646CFF",
   },
 
-  // Backend Skills
+  // Keahlian Backend
   {
     id: "nodejs",
     name: "Node.js",
-    description: "基于Chrome V8引擎的JavaScript运行时，用于服务端开发。",
+    description: "Runtime JavaScript yang dibangun di atas mesin V8 Chrome, untuk pengembangan sisi server.",
     icon: "logos:nodejs-icon",
     category: "backend",
     level: "intermediate",
@@ -168,7 +168,7 @@ export const skillsData: Skill[] = [
   {
     id: "python",
     name: "Python",
-    description: "通用编程语言，适用于Web开发、数据分析、机器学习等多个领域。",
+    description: "Bahasa pemrograman serbaguna, cocok untuk pengembangan Web, analisis data, pembelajaran mesin, dan banyak lagi.",
     icon: "logos:python",
     category: "backend",
     level: "intermediate",
@@ -178,7 +178,7 @@ export const skillsData: Skill[] = [
   {
     id: "java",
     name: "Java",
-    description: "企业应用开发的主流编程语言，跨平台且面向对象。",
+    description: "Bahasa pemrograman utama untuk pengembangan aplikasi perusahaan, lintas platform dan berorientasi objek.",
     icon: "logos:java",
     category: "backend",
     level: "intermediate",
@@ -189,7 +189,7 @@ export const skillsData: Skill[] = [
   {
     id: "csharp",
     name: "C#",
-    description: "微软开发的现代面向对象编程语言，适用于.NET生态系统。",
+    description: "Bahasa pemrograman modern berorientasi objek yang dikembangkan oleh Microsoft, cocok untuk ekosistem .NET.",
     icon: "devicon:csharp",
     category: "backend",
     level: "intermediate",
@@ -200,7 +200,7 @@ export const skillsData: Skill[] = [
   {
     id: "go",
     name: "Go",
-    description: "Google开发的高效编程语言，适用于云原生和微服务开发。",
+    description: "Bahasa pemrograman efisien yang dikembangkan oleh Google, cocok untuk pengembangan cloud-native dan microservices.",
     icon: "logos:go",
     category: "backend",
     level: "beginner",
@@ -211,7 +211,7 @@ export const skillsData: Skill[] = [
   {
     id: "rust",
     name: "Rust",
-    description: "专注于安全性、速度和并发的系统编程语言，无垃圾回收器。",
+    description: "Bahasa pemrograman sistem yang berfokus pada keamanan, kecepatan, dan konkurensi, tanpa garbage collector.",
     icon: "logos:rust",
     category: "backend",
     level: "beginner",
@@ -222,7 +222,7 @@ export const skillsData: Skill[] = [
   {
     id: "cpp",
     name: "C++",
-    description: "高性能系统编程语言，广泛用于游戏开发、系统软件和嵌入式开发。",
+    description: "Bahasa pemrograman sistem berkinerja tinggi, banyak digunakan dalam pengembangan game, perangkat lunak sistem, dan sistem tertanam.",
     icon: "logos:c-plusplus",
     category: "backend",
     level: "intermediate",
@@ -233,7 +233,7 @@ export const skillsData: Skill[] = [
   {
     id: "c",
     name: "C",
-    description: "底层系统编程语言，操作系统和嵌入式系统开发的基础。",
+    description: "Bahasa pemrograman sistem tingkat rendah, dasar untuk pengembangan sistem operasi dan sistem tertanam.",
     icon: "logos:c",
     category: "backend",
     level: "intermediate",
@@ -245,7 +245,7 @@ export const skillsData: Skill[] = [
     id: "kotlin",
     name: "Kotlin",
     description:
-      "JetBrains开发的现代编程语言，与Java完全兼容，Android开发的首选。",
+      "Bahasa pemrograman modern yang dikembangkan oleh JetBrains, sepenuhnya kompatibel dengan Java, pilihan utama untuk pengembangan Android.",
     icon: "logos:kotlin-icon",
     category: "backend",
     level: "beginner",
@@ -256,7 +256,7 @@ export const skillsData: Skill[] = [
   {
     id: "swift",
     name: "Swift",
-    description: "苹果开发的现代编程语言，用于iOS、macOS、watchOS和tvOS开发。",
+    description: "Bahasa pemrograman modern yang dikembangkan oleh Apple, untuk pengembangan iOS, macOS, watchOS, dan tvOS.",
     icon: "logos:swift",
     category: "backend",
     level: "beginner",
@@ -267,7 +267,7 @@ export const skillsData: Skill[] = [
   {
     id: "ruby",
     name: "Ruby",
-    description: "专注于简洁和生产力的动态开源编程语言，Rails框架的基础。",
+    description: "Bahasa pemrograman dinamis open-source yang berfokus pada kesederhanaan dan produktivitas, dasar dari kerangka kerja Rails.",
     icon: "logos:ruby",
     category: "backend",
     level: "beginner",
@@ -278,7 +278,7 @@ export const skillsData: Skill[] = [
   {
     id: "php",
     name: "PHP",
-    description: "广泛使用的服务端脚本语言，特别适合Web开发。",
+    description: "Bahasa skrip sisi server yang banyak digunakan, sangat cocok untuk pengembangan Web.",
     icon: "logos:php",
     category: "backend",
     level: "intermediate",
@@ -289,7 +289,7 @@ export const skillsData: Skill[] = [
   {
     id: "express",
     name: "Express.js",
-    description: "快速、极简的Node.js Web应用框架。",
+    description: "Kerangka kerja aplikasi Web Node.js yang cepat dan minimalis.",
     icon: "simple-icons:express",
     category: "backend",
     level: "intermediate",
@@ -300,7 +300,7 @@ export const skillsData: Skill[] = [
   {
     id: "spring",
     name: "Spring Boot",
-    description: "Java生态系统中最受欢迎的企业应用开发框架。",
+    description: "Kerangka kerja pengembangan aplikasi perusahaan paling populer di ekosistem Java.",
     icon: "logos:spring-icon",
     category: "backend",
     level: "intermediate",
@@ -311,7 +311,7 @@ export const skillsData: Skill[] = [
   {
     id: "django",
     name: "Django",
-    description: "高级Python Web框架，具有快速开发和简洁务实的设计。",
+    description: "Kerangka kerja Web Python tingkat tinggi, dengan pengembangan cepat dan desain yang bersih dan pragmatis.",
     icon: "logos:django-icon",
     category: "backend",
     level: "beginner",
@@ -320,11 +320,11 @@ export const skillsData: Skill[] = [
     color: "#092E20",
   },
 
-  // Database Skills
+  // Keahlian Database
   {
     id: "mysql",
     name: "MySQL",
-    description: "世界上最受欢迎的开源关系型数据库管理系统，广泛用于Web应用。",
+    description: "Sistem manajemen basis data relasional open-source paling populer di dunia, banyak digunakan dalam aplikasi Web.",
     icon: "logos:mysql-icon",
     category: "database",
     level: "advanced",
@@ -335,7 +335,7 @@ export const skillsData: Skill[] = [
   {
     id: "postgresql",
     name: "PostgreSQL",
-    description: "功能强大的开源关系型数据库管理系统。",
+    description: "Sistem manajemen basis data relasional open-source yang kuat.",
     icon: "logos:postgresql",
     category: "database",
     level: "intermediate",
@@ -346,7 +346,7 @@ export const skillsData: Skill[] = [
   {
     id: "redis",
     name: "Redis",
-    description: "高性能内存数据结构存储，用作数据库、缓存和消息代理。",
+    description: "Penyimpanan struktur data dalam memori berkinerja tinggi, digunakan sebagai basis data, cache, dan message broker.",
     icon: "logos:redis",
     category: "database",
     level: "intermediate",
@@ -357,7 +357,7 @@ export const skillsData: Skill[] = [
   {
     id: "mongodb",
     name: "MongoDB",
-    description: "面向文档的NoSQL数据库，具有灵活的数据模型。",
+    description: "Basis data NoSQL berorientasi dokumen, dengan model data yang fleksibel.",
     icon: "logos:mongodb-icon",
     category: "database",
     level: "intermediate",
@@ -367,7 +367,7 @@ export const skillsData: Skill[] = [
   {
     id: "sqlite",
     name: "SQLite",
-    description: "轻量级嵌入式关系型数据库，适用于移动应用和小型项目。",
+    description: "Basis data relasional tertanam yang ringan, cocok untuk aplikasi seluler dan proyek kecil.",
     icon: "simple-icons:sqlite",
     category: "database",
     level: "intermediate",
@@ -379,7 +379,7 @@ export const skillsData: Skill[] = [
     id: "firebase",
     name: "Firebase",
     description:
-      "Google的移动和Web应用开发平台，提供实时数据库和身份验证服务。",
+      "Platform pengembangan aplikasi seluler dan Web Google, menyediakan basis data real-time dan layanan otentikasi.",
     icon: "simple-icons:firebase",
     category: "database",
     level: "intermediate",
@@ -388,11 +388,11 @@ export const skillsData: Skill[] = [
     color: "#FFCA28",
   },
 
-  // Tools
+  // Alat
   {
     id: "git",
     name: "Git",
-    description: "分布式版本控制系统，代码管理和团队协作的必备工具。",
+    description: "Sistem kontrol versi terdistribusi, alat penting untuk manajemen kode dan kolaborasi tim.",
     icon: "logos:git-icon",
     category: "tools",
     level: "advanced",
@@ -402,7 +402,7 @@ export const skillsData: Skill[] = [
   {
     id: "vscode",
     name: "VS Code",
-    description: "轻量级但功能强大的代码编辑器，拥有丰富的插件生态。",
+    description: "Editor kode yang ringan namun kuat, dengan ekosistem plugin yang kaya.",
     icon: "logos:visual-studio-code",
     category: "tools",
     level: "expert",
@@ -413,7 +413,7 @@ export const skillsData: Skill[] = [
     id: "webstorm",
     name: "WebStorm",
     description:
-      "JetBrains开发的专业JavaScript和Web开发IDE，具有智能代码辅助功能。",
+      "IDE JavaScript dan Web profesional yang dikembangkan oleh JetBrains, dengan bantuan kode cerdas.",
     icon: "logos:webstorm",
     category: "tools",
     level: "advanced",
@@ -425,7 +425,7 @@ export const skillsData: Skill[] = [
     id: "intellij",
     name: "IntelliJ IDEA",
     description:
-      "JetBrains旗舰IDE，Java开发的首选工具，具有强大的智能编码辅助功能。",
+      "IDE andalan JetBrains, alat pilihan untuk pengembangan Java, dengan bantuan pengkodean cerdas yang kuat.",
     icon: "logos:intellij-idea",
     category: "tools",
     level: "intermediate",
@@ -436,7 +436,7 @@ export const skillsData: Skill[] = [
   {
     id: "pycharm",
     name: "PyCharm",
-    description: "JetBrains的专业Python IDE，提供智能代码分析和调试功能。",
+    description: "IDE Python profesional JetBrains, menyediakan analisis kode cerdas dan alat debugging.",
     icon: "logos:pycharm",
     category: "tools",
     level: "intermediate",
@@ -447,7 +447,7 @@ export const skillsData: Skill[] = [
   {
     id: "rider",
     name: "Rider",
-    description: "JetBrains的跨平台.NET IDE，支持C#、VB.NET、F#等语言开发。",
+    description: "IDE .NET lintas platform JetBrains, mendukung pengembangan dalam C#, VB.NET, F#, dan lainnya.",
     icon: "logos:rider",
     category: "tools",
     level: "beginner",
@@ -458,7 +458,7 @@ export const skillsData: Skill[] = [
   {
     id: "goland",
     name: "GoLand",
-    description: "JetBrains的专业Go语言IDE，提供智能编码辅助和调试工具。",
+    description: "IDE Go profesional JetBrains, menyediakan bantuan pengkodean cerdas dan alat debugging.",
     icon: "logos:goland",
     category: "tools",
     level: "beginner",
@@ -469,7 +469,7 @@ export const skillsData: Skill[] = [
   {
     id: "docker",
     name: "Docker",
-    description: "容器化平台，简化应用部署和环境管理。",
+    description: "Platform kontainerisasi, menyederhanakan penyebaran aplikasi dan manajemen lingkungan.",
     icon: "logos:docker-icon",
     category: "tools",
     level: "intermediate",
@@ -479,7 +479,7 @@ export const skillsData: Skill[] = [
   {
     id: "kubernetes",
     name: "Kubernetes",
-    description: "容器编排平台，用于自动化容器应用的部署、扩展和管理。",
+    description: "Platform orkestrasi kontainer, untuk mengotomatiskan penyebaran, penskalaan, dan pengelolaan aplikasi kontainer.",
     icon: "logos:kubernetes",
     category: "tools",
     level: "beginner",
@@ -490,7 +490,7 @@ export const skillsData: Skill[] = [
   {
     id: "nginx",
     name: "Nginx",
-    description: "高性能Web服务器和反向代理服务器。",
+    description: "Server Web berkinerja tinggi dan server proksi terbalik.",
     icon: "logos:nginx",
     category: "tools",
     level: "intermediate",
@@ -501,7 +501,7 @@ export const skillsData: Skill[] = [
   {
     id: "apache",
     name: "Apache HTTP Server",
-    description: "世界上最受欢迎的Web服务器软件，稳定可靠的HTTP服务器。",
+    description: "Perangkat lunak server Web paling populer di dunia, server HTTP yang stabil dan andal.",
     icon: "logos:apache",
     category: "tools",
     level: "intermediate",
@@ -512,7 +512,7 @@ export const skillsData: Skill[] = [
   {
     id: "openresty",
     name: "OpenResty",
-    description: "基于Nginx和LuaJIT的高性能Web平台，支持动态Web应用开发。",
+    description: "Platform Web berkinerja tinggi berdasarkan Nginx dan LuaJIT, mendukung pengembangan aplikasi Web dinamis.",
     icon: "simple-icons:nginx",
     category: "tools",
     level: "beginner",
@@ -523,7 +523,7 @@ export const skillsData: Skill[] = [
   {
     id: "tomcat",
     name: "Apache Tomcat",
-    description: "Java Servlet容器和Web服务器，Java Web应用的标准部署环境。",
+    description: "Wadah servlet Java dan server Web, lingkungan penyebaran standar untuk aplikasi Web Java.",
     icon: "logos:tomcat",
     category: "tools",
     level: "intermediate",
@@ -534,7 +534,7 @@ export const skillsData: Skill[] = [
   {
     id: "aws",
     name: "AWS",
-    description: "亚马逊云平台，提供全面的云计算解决方案。",
+    description: "Platform cloud Amazon, menyediakan solusi komputasi awan yang komprehensif.",
     icon: "logos:aws",
     category: "tools",
     level: "intermediate",
@@ -545,7 +545,7 @@ export const skillsData: Skill[] = [
   {
     id: "linux",
     name: "Linux",
-    description: "开源操作系统，服务器部署和开发环境的首选。",
+    description: "Sistem operasi open-source, pilihan utama untuk penyebaran server dan lingkungan pengembangan.",
     icon: "logos:linux-tux",
     category: "tools",
     level: "intermediate",
@@ -556,7 +556,7 @@ export const skillsData: Skill[] = [
   {
     id: "postman",
     name: "Postman",
-    description: "API开发和测试工具，简化API设计、测试和文档编写。",
+    description: "Alat pengembangan dan pengujian API, menyederhanakan desain, pengujian, dan dokumentasi API.",
     icon: "logos:postman-icon",
     category: "tools",
     level: "intermediate",
@@ -567,7 +567,7 @@ export const skillsData: Skill[] = [
   {
     id: "figma",
     name: "Figma",
-    description: "协作式界面设计工具，用于UI/UX设计和原型制作。",
+    description: "Alat desain antarmuka kolaboratif, untuk desain UI/UX dan pembuatan prototipe.",
     icon: "logos:figma",
     category: "tools",
     level: "intermediate",
@@ -577,7 +577,7 @@ export const skillsData: Skill[] = [
   {
     id: "photoshop",
     name: "Photoshop",
-    description: "专业图像编辑和设计软件。",
+    description: "Perangkat lunak pengeditan gambar dan desain profesional.",
     icon: "logos:adobe-photoshop",
     category: "tools",
     level: "intermediate",
@@ -586,11 +586,11 @@ export const skillsData: Skill[] = [
     color: "#31A8FF",
   },
 
-  // Other Skills
+  // Keahlian Lainnya
   {
     id: "graphql",
     name: "GraphQL",
-    description: "API查询语言和运行时，提供更高效、强大和灵活的数据获取方式。",
+    description: "Bahasa kueri API dan runtime, menyediakan pengambilan data yang lebih efisien, kuat, dan fleksibel.",
     icon: "logos:graphql",
     category: "other",
     level: "beginner",
@@ -601,7 +601,7 @@ export const skillsData: Skill[] = [
   {
     id: "elasticsearch",
     name: "Elasticsearch",
-    description: "分布式搜索和分析引擎，用于全文搜索和数据分析。",
+    description: "Mesin pencari dan analisis terdistribusi, untuk pencarian teks lengkap dan analisis data.",
     icon: "logos:elasticsearch",
     category: "other",
     level: "beginner",
@@ -612,7 +612,7 @@ export const skillsData: Skill[] = [
   {
     id: "jest",
     name: "Jest",
-    description: "专注于简洁和易用性的JavaScript测试框架。",
+    description: "Kerangka kerja pengujian JavaScript yang berfokus pada kesederhanaan dan kemudahan penggunaan.",
     icon: "logos:jest",
     category: "other",
     level: "intermediate",
@@ -623,7 +623,7 @@ export const skillsData: Skill[] = [
   {
     id: "cypress",
     name: "Cypress",
-    description: "现代端到端测试框架，用于Web应用测试。",
+    description: "Kerangka kerja pengujian end-to-end modern, untuk pengujian aplikasi Web.",
     icon: "logos:cypress-icon",
     category: "other",
     level: "beginner",
@@ -633,7 +633,7 @@ export const skillsData: Skill[] = [
   },
 ];
 
-// Get skill statistics
+// Mendapatkan statistik keahlian
 export const getSkillStats = () => {
   const total = skillsData.length;
   const byLevel = {
@@ -653,7 +653,7 @@ export const getSkillStats = () => {
   return { total, byLevel, byCategory };
 };
 
-// Get skills by category
+// Mendapatkan keahlian berdasarkan kategori
 export const getSkillsByCategory = (category?: string) => {
   if (!category || category === "all") {
     return skillsData;
@@ -661,14 +661,14 @@ export const getSkillsByCategory = (category?: string) => {
   return skillsData.filter((s) => s.category === category);
 };
 
-// Get advanced skills
+// Mendapatkan keahlian tingkat lanjut
 export const getAdvancedSkills = () => {
   return skillsData.filter(
     (s) => s.level === "advanced" || s.level === "expert"
   );
 };
 
-// Calculate total years of experience
+// Menghitung total tahun pengalaman
 export const getTotalExperience = () => {
   const totalMonths = skillsData.reduce((total, skill) => {
     return total + skill.experience.years * 12 + skill.experience.months;

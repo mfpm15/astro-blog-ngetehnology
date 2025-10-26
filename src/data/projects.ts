@@ -1,5 +1,5 @@
-// 项目数据配置文件
-// 用于管理项目展示页面的数据
+// File data konfigurasi proyek
+// Digunakan untuk mengelola data pada halaman pameran proyek
 
 export interface Project {
   id: string;
@@ -20,9 +20,9 @@ export interface Project {
 export const projectsData: Project[] = [
   {
     id: "firefly-blog",
-    title: "Firefly 博客主题",
+    title: "Tema Blog Firefly",
     description:
-      "基于 Astro 框架开发的现代化博客主题，支持多语言、暗色模式和响应式设计等功能。",
+      "Tema blog modern yang dikembangkan berdasarkan kerangka Astro, mendukung multi-bahasa, mode gelap, dan desain responsif.",
     image: "",
     category: "web",
     techStack: ["Astro", "TypeScript", "Tailwind CSS", "Svelte"],
@@ -32,12 +32,12 @@ export const projectsData: Project[] = [
     startDate: "2024-01-01",
     endDate: "2024-06-01",
     featured: true,
-    tags: ["博客", "主题", "开源"],
+    tags: ["Blog", "Tema", "Open Source"],
   },
   {
     id: "portfolio-website",
-    title: "个人作品集网站",
-    description: "展示项目经验和技术技能的个人作品集网站。",
+    title: "Situs Web Portofolio Pribadi",
+    description: "Situs web portofolio pribadi untuk memamerkan pengalaman proyek dan keterampilan teknis.",
     image: "",
     category: "web",
     techStack: ["React", "Next.js", "TypeScript", "Framer Motion"],
@@ -47,23 +47,23 @@ export const projectsData: Project[] = [
     startDate: "2023-09-01",
     endDate: "2023-12-01",
     featured: true,
-    tags: ["作品集", "React", "动画"],
+    tags: ["Portofolio", "React", "Animasi"],
   },
   {
     id: "task-manager-app",
-    title: "任务管理应用",
-    description: "支持团队协作和项目管理的跨平台任务管理应用程序。",
+    title: "Aplikasi Manajemen Tugas",
+    description: "Aplikasi manajemen tugas lintas platform yang mendukung kolaborasi tim dan manajemen proyek.",
     image: "",
     category: "mobile",
     techStack: ["React Native", "TypeScript", "Redux", "Firebase"],
     status: "in-progress",
     startDate: "2024-03-01",
-    tags: ["移动应用", "效率工具", "团队协作"],
+    tags: ["Aplikasi Seluler", "Alat Produktivitas", "Kolaborasi Tim"],
   },
   {
     id: "data-visualization-tool",
-    title: "数据可视化工具",
-    description: "支持多种图表类型和交互式分析的数据可视化工具。",
+    title: "Alat Visualisasi Data",
+    description: "Alat visualisasi data yang mendukung berbagai jenis grafik dan analisis interaktif.",
     image: "",
     category: "web",
     techStack: ["Vue.js", "D3.js", "TypeScript", "Node.js"],
@@ -71,11 +71,11 @@ export const projectsData: Project[] = [
     liveDemo: "https://dataviz.example.com",
     startDate: "2023-06-01",
     endDate: "2023-11-01",
-    tags: ["数据可视化", "分析工具", "图表"],
+    tags: ["Visualisasi Data", "Alat Analisis", "Grafik"],
   },
 ];
 
-// 获取项目统计信息
+// Mendapatkan statistik proyek
 export const getProjectStats = () => {
   const total = projectsData.length;
   const completed = projectsData.filter((p) => p.status === "completed").length;
@@ -94,7 +94,7 @@ export const getProjectStats = () => {
   };
 };
 
-// 根据分类获取项目
+// Mendapatkan proyek berdasarkan kategori
 export const getProjectsByCategory = (category?: string) => {
   if (!category || category === "all") {
     return projectsData;
@@ -102,12 +102,12 @@ export const getProjectsByCategory = (category?: string) => {
   return projectsData.filter((p) => p.category === category);
 };
 
-// 获取精选项目
+// Mendapatkan proyek unggulan
 export const getFeaturedProjects = () => {
   return projectsData.filter((p) => p.featured);
 };
 
-// 获取所有技术栈
+// Mendapatkan semua tumpukan teknologi
 export const getAllTechStack = () => {
   const techSet = new Set<string>();
   projectsData.forEach((project) => {

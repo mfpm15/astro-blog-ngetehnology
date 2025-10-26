@@ -1,183 +1,183 @@
 ---
-title: Markdown 教程
-published: 1970-01-01
+title: Tutorial Markdown
+published: 2023-01-01
 pinned: false
-description: 一个简明的 Markdown 博客示例。
-tags: [文章示例]
-category: 文章示例
-licenseName: "未授权"
+description: Contoh postingan blog Markdown yang ringkas.
+tags: [Contoh Postingan]
+category: Contoh Postingan
+licenseName: "Tidak Berlisensi"
 author: emn178
 sourceLink: "https://github.com/emn178/markdown"
 draft: false
 
 ---
 
-# Markdown 教程
+# Tutorial Markdown
 
-这是一个展示如何编写 Markdown 文件的示例。本文档汇总了核心语法与常见扩展（GFM）。
+Ini adalah contoh yang menunjukkan cara menulis file Markdown. Dokumen ini merangkum sintaks inti dan ekstensi umum (GFM).
 
-- [块级元素](#block-elements)
-    - [段落与换行](#paragraphs-and-line-breaks)
-    - [标题](#headers)
-    - [引用](#blockquotes)
-    - [列表](#lists)
-    - [代码块](#code-blocks)
-    - [分割线](#horizontal-rules)
-    - [表格](#table)
-- [内联元素](#span-elements)
-    - [链接](#links)
-    - [强调](#emphasis)
-    - [行内代码](#code)
-    - [图片](#images)
-    - [删除线](#strikethrough)
-- [杂项](#miscellaneous)
-    - [自动链接](#automatic-links)
-    - [反斜杠转义](#backslash-escapes)
-- [内联 HTML](#inline-html)
+- [Elemen Blok](#block-elements)
+    - [Paragraf dan Baris Baru](#paragraphs-and-line-breaks)
+    - [Judul](#headers)
+    - [Kutipan](#blockquotes)
+    - [Daftar](#lists)
+    - [Blok Kode](#code-blocks)
+    - [Garis Pemisah](#horizontal-rules)
+    - [Tabel](#table)
+- [Elemen Inline](#span-elements)
+    - [Tautan](#links)
+    - [Penekanan](#emphasis)
+    - [Kode Inline](#code)
+    - [Gambar](#images)
+    - [Coretan](#strikethrough)
+- [Lain-lain](#miscellaneous)
+    - [Tautan Otomatis](#automatic-links)
+    - [Escape Karakter](#backslash-escapes)
+- [HTML Inline](#inline-html)
 
 <a id="block-elements"></a>
-## 块级元素
+## Elemen Blok
 
 <a id="paragraphs-and-line-breaks"></a>
-### 段落与换行
+### Paragraf dan Baris Baru
 
-#### 段落
+#### Paragraf
 
-HTML 标签：`<p>`
+Tag HTML: `<p>`
 
-使用一个或多个空行分隔段落。（仅包含**空格**或**制表符**的行也视为空行。）
+Gunakan satu atau lebih baris kosong untuk memisahkan paragraf. (Baris yang hanya berisi **spasi** atau **tab** juga dianggap sebagai baris kosong.)
 
-代码：
+Kode:
 
-    This will be
-    inline.
+    Ini akan menjadi
+    satu baris.
 
-    This is second paragraph.
+    Ini adalah paragraf kedua.
 
-预览：
-
----
-
-This will be
-inline.
-
-This is second paragraph.
+Pratinjau:
 
 ---
 
-#### 换行
+Ini akan menjadi
+satu baris.
 
-HTML 标签：`<br />`
-
-在行末添加**两个或更多空格**来产生换行。
-
-代码：
-
-    This will be not
-    inline.
-
-预览：
+Ini adalah paragraf kedua.
 
 ---
 
-This will be not  
-inline.
+#### Baris Baru
+
+Tag HTML: `<br />`
+
+Tambahkan **dua atau lebih spasi** di akhir baris untuk membuat baris baru.
+
+Kode:
+
+    Ini tidak akan menjadi  
+    satu baris.
+
+Pratinjau:
+
+---
+
+Ini tidak akan menjadi  
+satu baris.
 
 ---
 
 <a id="headers"></a>
-### 标题
+### Judul
 
-Markdown 支持两种标题样式：Setext 与 atx。
+Markdown mendukung dua gaya judul: Setext dan atx.
 
 #### Setext
 
-HTML 标签：`<h1>`，`<h2>`
+Tag HTML: `<h1>`, `<h2>`
 
-使用**等号 (=)** 表示 `<h1>`、使用**短横线 (-)** 表示 `<h2>`，数量不限，作为“下划线”。
+Gunakan **tanda sama dengan (=)** untuk `<h1>` dan **tanda hubung (-)** untuk `<h2>`, dalam jumlah berapa pun, sebagai "garis bawah".
 
-代码：
+Kode:
 
-    This is an H1
+    Ini adalah H1
     =============
-    This is an H2
+    Ini adalah H2
     -------------
 
-预览：
+Pratinjau:
 
 ---
 
-# This is an H1
+# Ini adalah H1
 
-## This is an H2
+## Ini adalah H2
 
 ---
 
 #### atx
 
-HTML 标签：`<h1>`，`<h2>`，`<h3>`，`<h4>`，`<h5>`，`<h6>`
+Tag HTML: `<h1>`, `<h2>`, `<h3>`, `<h4>`, `<h5>`, `<h6>`
 
-在行首使用 1-6 个**井号 (#)**，对应 `<h1>` 至 `<h6>`。
+Gunakan 1-6 **tanda pagar (#)** di awal baris, sesuai dengan `<h1>` hingga `<h6>`.
 
-代码：
+Kode:
 
-    # This is an H1
-    ## This is an H2
-    ###### This is an H6
+    # Ini adalah H1
+    ## Ini adalah H2
+    ###### Ini adalah H6
 
-预览：
-
----
-
-# This is an H1
-
-## This is an H2
-
-###### This is an H6
+Pratinjau:
 
 ---
 
-可选：你可以在行尾“闭合” atx 标题。末尾的井号数量**不必与**开头一致。
+# Ini adalah H1
 
-代码：
+## Ini adalah H2
 
-    # This is an H1 #
-    ## This is an H2 ##
-    ### This is an H3 ######
-
-预览：
+###### Ini adalah H6
 
 ---
 
-# This is an H1
+Opsional: Anda dapat "menutup" judul atx di akhir baris. Jumlah tanda pagar di akhir **tidak harus sama** dengan di awal.
 
-## This is an H2
+Kode:
 
-### This is an H3
+    # Ini adalah H1 #
+    ## Ini adalah H2 ##
+    ### Ini adalah H3 ######
+
+Pratinjau:
+
+---
+
+# Ini adalah H1
+
+## Ini adalah H2
+
+### Ini adalah H3
 
 ---
 
 <a id="blockquotes"></a>
-### 引用
+### Kutipan
 
-HTML 标签：`<blockquote>`
+Tag HTML: `<blockquote>`
 
-Markdown 使用邮件风格的 **>** 作为引用符号。若手动换行并在每行前加 >，显示效果最佳。
+Markdown menggunakan gaya email **>** sebagai simbol kutipan. Untuk hasil terbaik, ganti baris secara manual dan tambahkan > di depan setiap baris.
 
-代码：
+Kode:
 
-    > This is a blockquote with two paragraphs. Lorem ipsum dolor sit amet,
+    > Ini adalah kutipan dengan dua paragraf. Lorem ipsum dolor sit amet,
     > consectetuer adipiscing elit. Aliquam hendrerit mi posuere lectus.
     > Vestibulum enim wisi, viverra nec, fringilla in, laoreet vitae, risus.
     >
     > Donec sit amet nisl. Aliquam semper ipsum sit amet velit. Suspendisse
     > id sem consectetuer libero luctus adipiscing.
 
-预览：
+Pratinjau:
 
 ---
 
-> This is a blockquote with two paragraphs. Lorem ipsum dolor sit amet,
+> Ini adalah kutipan dengan dua paragraf. Lorem ipsum dolor sit amet,
 > consectetuer adipiscing elit. Aliquam hendrerit mi posuere lectus.
 > Vestibulum enim wisi, viverra nec, fringilla in, laoreet vitae, risus.
 >
@@ -186,22 +186,22 @@ Markdown 使用邮件风格的 **>** 作为引用符号。若手动换行并在�
 
 ---
 
-Markdown 允许“偷懒”：在一个硬换行段落中，只在第一行前加 > 即可。
+Markdown memungkinkan cara "malas": dalam paragraf dengan baris baru yang keras, cukup tambahkan > di baris pertama.
 
-代码：
+Kode:
 
-    > This is a blockquote with two paragraphs. Lorem ipsum dolor sit amet,
+    > Ini adalah kutipan dengan dua paragraf. Lorem ipsum dolor sit amet,
     consectetuer adipiscing elit. Aliquam hendrerit mi posuere lectus.
     Vestibulum enim wisi, viverra nec, fringilla in, laoreet vitae, risus.
 
     > Donec sit amet nisl. Aliquam semper ipsum sit amet velit. Suspendisse
     id sem consectetuer libero luctus adipiscing.
 
-预览：
+Pratinjau:
 
 ---
 
-> This is a blockquote with two paragraphs. Lorem ipsum dolor sit amet,
+> Ini adalah kutipan dengan dua paragraf. Lorem ipsum dolor sit amet,
 > consectetuer adipiscing elit. Aliquam hendrerit mi posuere lectus.
 > Vestibulum enim wisi, viverra nec, fringilla in, laoreet vitae, risus.
 
@@ -210,196 +210,196 @@ Markdown 允许“偷懒”：在一个硬换行段落中，只在第一行前�
 
 ---
 
-引用可以嵌套（引用中的引用），通过增加 > 层级实现。
+Kutipan dapat bersarang (kutipan di dalam kutipan) dengan menambah level >.
 
-代码：
+Kode:
 
-    > This is the first level of quoting.
+    > Ini adalah level kutipan pertama.
     >
-    > > This is nested blockquote.
+    > > Ini adalah kutipan bersarang.
     >
-    > Back to the first level.
+    > Kembali ke level pertama.
 
-预览：
+Pratinjau:
 
 ---
 
-> This is the first level of quoting.
+> Ini adalah level kutipan pertama.
 >
-> > This is nested blockquote.
+> > Ini adalah kutipan bersarang.
 >
-> Back to the first level.
+> Kembali ke level pertama.
 
 ---
 
-引用内可包含其他 Markdown 元素，包括标题、列表与代码块。
+Kutipan dapat berisi elemen Markdown lainnya, termasuk judul, daftar, dan blok kode.
 
-代码：
+Kode:
 
-    > ## This is a header.
+    > ## Ini adalah judul.
     >
-    > 1.   This is the first list item.
-    > 2.   This is the second list item.
+    > 1.   Ini adalah item daftar pertama.
+    > 2.   Ini adalah item daftar kedua.
     >
-    > Here's some example code:
+    > Berikut adalah contoh kode:
     >
     >     return shell_exec("echo $input | $markdown_script");
 
-预览：
+Pratinjau:
 
 ---
 
-> ## This is a header.
+> ## Ini adalah judul.
 >
-> 1.  This is the first list item.
-> 2.  This is the second list item.
+> 1.  Ini adalah item daftar pertama.
+> 2.  Ini adalah item daftar kedua.
 >
-> Here's some example code:
+> Berikut adalah contoh kode:
 >
 >     return shell_exec("echo $input | $markdown_script");
 
 ---
 
 <a id="lists"></a>
-### 列表
+### Daftar
 
-Markdown 支持有序（数字）与无序（圆点）列表。
+Markdown mendukung daftar berurutan (angka) dan tidak berurutan (poin).
 
-#### 无序列表
+#### Daftar Tidak Berurutan
 
-HTML 标签：`<ul>`
+Tag HTML: `<ul>`
 
-无序列表可使用 **星号 (\*)**、**加号 (+)** 或 **短横线 (-)**。
+Daftar tidak berurutan dapat menggunakan **tanda bintang (*)**, **tanda tambah (+)**, atau **tanda hubung (-)**.
 
-代码：
+Kode:
 
-    *   Red
-    *   Green
-    *   Blue
+    *   Merah
+    *   Hijau
+    *   Biru
 
-预览：
-
----
-
-- Red
-- Green
-- Blue
+Pratinjau:
 
 ---
 
-等价于：
+- Merah
+- Hijau
+- Biru
 
-代码：
+---
 
-    +   Red
-    +   Green
-    +   Blue
+Sama dengan:
 
-或者：
+Kode:
 
-代码：
+    +   Merah
+    +   Hijau
+    +   Biru
 
-    -   Red
-    -   Green
-    -   Blue
+Atau:
 
-#### 有序列表
+Kode:
 
-HTML 标签：`<ol>`
+    -   Merah
+    -   Hijau
+    -   Biru
 
-有序列表使用数字加英文句点：
+#### Daftar Berurutan
 
-代码：
+Tag HTML: `<ol>`
 
-    1.  Bird
+Daftar berurutan menggunakan angka diikuti titik:
+
+Kode:
+
+    1.  Burung
     2.  McHale
     3.  Parish
 
-预览：
+Pratinjau:
 
 ---
 
-1.  Bird
+1.  Burung
 2.  McHale
 3.  Parish
 
 ---
 
-注意：像下面这样可能会“意外触发”有序列表：
+Perhatian: Penulisan seperti di bawah ini dapat "secara tidak sengaja" memicu daftar berurutan:
 
-代码：
+Kode:
 
-    1986. What a great season.
+    1986. Musim yang luar biasa.
 
-预览：
-
----
-
-1986. What a great season.
+Pratinjau:
 
 ---
 
-你可以用**反斜杠转义 (\\)** 句点：
-
-代码：
-
-    1986\. What a great season.
-
-预览：
+1986. Musim yang luar biasa.
 
 ---
 
-1986\. What a great season.
+Anda dapat menggunakan **escape karakter backslash (\\)** pada titik:
+
+Kode:
+
+    1986\. Musim yang luar biasa.
+
+Pratinjau:
 
 ---
 
-#### 列表中的缩进内容
-
-##### 列表项里的引用
-
-在列表项内放置引用，需要将 > 符号整体缩进：
-
-代码：
-
-    *   A list item with a blockquote:
-
-        > This is a blockquote
-        > inside a list item.
-
-预览：
+1986\. Musim yang luar biasa.
 
 ---
 
-- A list item with a blockquote:
+#### Konten dengan Indentasi dalam Daftar
 
-  > This is a blockquote
-  > inside a list item.
+##### Kutipan dalam Item Daftar
 
----
+Untuk menempatkan kutipan di dalam item daftar, Anda perlu mengindentasi simbol >:
 
-##### 列表项里的代码块
+Kode:
 
-在列表项内放置代码块，需要缩进两层——**8 个空格**或**两个 Tab**：
+    *   Item daftar dengan kutipan:
 
-代码：
+        > Ini adalah kutipan
+        > di dalam item daftar.
 
-    *   A list item with a code block:
-
-            <code goes here>
-
-预览：
+Pratinjau:
 
 ---
 
-- A list item with a code block:
+- Item daftar dengan kutipan:
 
-      <code goes here>
+  > Ini adalah kutipan
+  > di dalam item daftar.
 
 ---
 
-##### 嵌套列表
+##### Blok Kode dalam Item Daftar
 
-代码：
+Untuk menempatkan blok kode di dalam item daftar, Anda perlu mengindentasi dua kali — **8 spasi** atau **dua Tab**:
+
+Kode:
+
+    *   Item daftar dengan blok kode:
+
+            <kode di sini>
+
+Pratinjau:
+
+---
+
+- Item daftar dengan blok kode:
+
+      <kode di sini>
+
+---
+
+##### Daftar Bersarang
+
+Kode:
 
     * A
       * A1
@@ -407,7 +407,7 @@ HTML 标签：`<ol>`
     * B
     * C
 
-预览：
+Pratinjau:
 
 ---
 
@@ -420,39 +420,39 @@ HTML 标签：`<ol>`
 ---
 
 <a id="code-blocks"></a>
-### 代码块
+### Blok Kode
 
-HTML 标签：`<pre>`
+Tag HTML: `<pre>`
 
-将代码块中的每行缩进至少**4 个空格**或**1 个制表符**。
+Indentasi setiap baris blok kode dengan setidaknya **4 spasi** atau **1 tab**.
 
-代码：
+Kode:
 
-    This is a normal paragraph:
+    Ini adalah paragraf biasa:
 
-        This is a code block.
+        Ini adalah blok kode.
 
-预览：
-
----
-
-This is a normal paragraph:
-
-    This is a code block.
+Pratinjau:
 
 ---
 
-代码块会一直持续，直到遇到未缩进的行（或文末）。
+Ini adalah paragraf biasa:
 
-在代码块内，**与号 (&)** 和尖括号 **(< >)** 会自动转为 HTML 实体。
+    Ini adalah blok kode.
 
-代码：
+---
+
+Blok kode berlanjut hingga baris tanpa indentasi (atau akhir dokumen).
+
+Di dalam blok kode, **ampersan (&)** dan kurung sudut **(< >)** secara otomatis diubah menjadi entitas HTML.
+
+Kode:
 
         <div class="footer">
             &copy; 2004 Foo Corporation
         </div>
 
-预览：
+Pratinjau:
 
 ---
 
@@ -462,41 +462,41 @@ This is a normal paragraph:
 
 ---
 
-下文的“围栏代码块”和“语法高亮”属于扩展语法，你也可以用它们来书写代码块。
+"Blok kode berpagar" dan "penyorotan sintaks" di bawah ini adalah sintaks yang diperluas, Anda juga dapat menggunakannya untuk menulis blok kode.
 
-#### 围栏代码块
+#### Blok Kode Berpagar
 
-使用成对的反引号围起来（如下所示），就不需要四空格缩进了。
+Gunakan pasangan backtick (seperti yang ditunjukkan di bawah) untuk mengelilinginya, sehingga Anda tidak perlu indentasi empat spasi.
 
-代码：
+Kode:
 
-    Here's an example:
+    Berikut contohnya:
 
     ```
     function test() {
-      console.log("notice the blank line before this function?");
+      console.log("perhatikan baris kosong sebelum fungsi ini?");
     }
     ```
 
-预览：
+Pratinjau:
 
 ---
 
-Here's an example:
+Berikut contohnya:
 
 ```
 function test() {
-  console.log("notice the blank line before this function?");
+  console.log("perhatikan baris kosong sebelum fungsi ini?");
 }
 ```
 
 ---
 
-#### 语法高亮
+#### Penyorotan Sintaks
 
-在围栏代码块后添加可选的语言标识，即可启用语法高亮（参见支持语言列表）。
+Tambahkan pengenal bahasa opsional setelah blok kode berpagar untuk mengaktifkan penyorotan sintaks (lihat daftar bahasa yang didukung).
 
-代码：
+Kode:
 
     ```ruby
     require 'redcarpet'
@@ -504,7 +504,7 @@ function test() {
     puts markdown.to_html
     ```
 
-预览：
+Pratinjau:
 
 ---
 
@@ -517,12 +517,12 @@ puts markdown.to_html
 ---
 
 <a id="horizontal-rules"></a>
-### 分割线（水平线）
+### Garis Pemisah (Garis Horizontal)
 
-HTML 标签：`<hr />`
-一行中放置**三个或以上的短横线 (-)、星号 (\*) 或下划线 (\_)**。符号之间允许有空格。
+Tag HTML: `<hr />`
+Tempatkan **tiga atau lebih tanda hubung (-), tanda bintang (*), atau garis bawah (_)** pada satu baris. Spasi di antara simbol-simbol tersebut diperbolehkan.
 
-代码：
+Kode:
 
     * * *
     ***
@@ -531,7 +531,7 @@ HTML 标签：`<hr />`
     ---------------------------------------
     ___
 
-预览：
+Pratinjau:
 
 ---
 
@@ -550,20 +550,20 @@ HTML 标签：`<hr />`
 ---
 
 <a id="table"></a>
-### 表格
+### Tabel
 
-HTML 标签：`<table>`
+Tag HTML: `<table>`
 
-这是扩展语法。
+Ini adalah sintaks yang diperluas.
 
-用**竖线 (|)** 分隔列，用**短横线 (-)** 分隔表头，使用**冒号 (:)** 指定对齐方式。
+Gunakan **garis vertikal (|)** untuk memisahkan kolom, **tanda hubung (-)** untuk memisahkan header, dan **titik dua (:)** untuk menentukan perataan.
 
-两侧的**竖线 (|)** 与对齐可选。用于表头分隔时，每列至少需要 **3 个短横线**。
+**Garis vertikal (|)** di kedua sisi dan perataan bersifat opsional. Saat digunakan untuk pemisah header, setiap kolom membutuhkan setidaknya **3 tanda hubung**.
 
-代码：
+Kode:
 
 ```
-| Left | Center | Right |
+| Kiri | Tengah | Kanan |
 |:-----|:------:|------:|
 |aaa   |bbb     |ccc    |
 |ddd   |eee     |fff    |
@@ -578,11 +578,11 @@ A |B
 12|45
 ```
 
-预览：
+Pratinjau:
 
 ---
 
-| Left | Center | Right |
+| Kiri | Tengah | Kanan |
 | :--- | :----: | ----: |
 | aaa  |  bbb   |   ccc |
 | ddd  |  eee   |   fff |
@@ -598,98 +598,98 @@ A |B
 ---
 
 <a id="span-elements"></a>
-## 内联元素
+## Elemen Inline
 
 <a id="links"></a>
-### 链接
+### Tautan
 
-HTML 标签：`<a>`
+Tag HTML: `<a>`
 
-Markdown 支持两种链接样式：行内链接与引用式链接。
+Markdown mendukung dua gaya tautan: inline dan referensi.
 
-#### 行内链接
+#### Tautan Inline
 
-行内链接格式：`[文本](URL "标题")`
+Format tautan inline: `[Teks](URL "Judul")`
 
-标题可选。
+Judul bersifat opsional.
 
-代码：
+Kode:
 
-    This is [an example](http://example.com/ "Title") inline link.
+    Ini adalah [contoh](http://example.com/ "Judul") tautan inline.
 
-    [This link](http://example.net/) has no title attribute.
+    [Tautan ini](http://example.net/) tidak memiliki atribut judul.
 
-预览：
-
----
-
-This is [an example](http://example.com/ "Title") inline link.
-
-[This link](http://example.net/) has no title attribute.
+Pratinjau:
 
 ---
 
-如果引用同一站点的本地资源，可以使用相对路径：
+Ini adalah [contoh](http://example.com/ "Judul") tautan inline.
 
-代码：
-
-    See my [About](/about/) page for details.
-
-预览：
+[Tautan ini](http://example.net/) tidak memiliki atribut judul.
 
 ---
 
-See my [About](/about/) page for details.
+Jika Anda mereferensikan sumber daya lokal di situs yang sama, Anda dapat menggunakan path relatif:
+
+Kode:
+
+    Lihat halaman [Tentang Saya](/about/) saya untuk detailnya.
+
+Pratinjau:
 
 ---
 
-#### 引用式链接
-
-可以预定义链接引用。定义格式：`[id]: URL "标题"`
-
-标题同样可选。引用时使用：`[文本][id]`
-
-代码：
-
-    [id]: http://example.com/  "Optional Title Here"
-    This is [an example][id] reference-style link.
-
-预览：
+Lihat halaman [Tentang Saya](/about/) saya untuk detailnya.
 
 ---
 
-[id]: http://example.com/ "Optional Title Here"
+#### Tautan Referensi
 
-This is [an example][id] reference-style link.
+Anda dapat mendefinisikan referensi tautan terlebih dahulu. Format definisi: `[id]: URL "Judul"`
+
+Judul juga opsional. Saat mereferensikan, gunakan: `[Teks][id]`
+
+Kode:
+
+    [id]: http://example.com/  "Judul Opsional Di Sini"
+    Ini adalah [contoh][id] tautan gaya referensi.
+
+Pratinjau:
 
 ---
 
-说明：
+[id]: http://example.com/ "Judul Opsional Di Sini"
 
-- 方括号中包含链接标识（**不区分大小写**，可在左侧缩进最多三格空格）；
-- 随后是冒号；
-- 再跟一个或多个空格（或 tab）；
-- 然后是链接 URL；
-- URL 可选地用尖括号包裹；
-- 可选地跟随标题属性，用引号或圆括号包裹。
+Ini adalah [contoh][id] tautan gaya referensi.
 
-以下三种定义等价：
+---
 
-代码：
+Keterangan:
 
-    [foo]: http://example.com/  "Optional Title Here"
-    [foo]: http://example.com/  'Optional Title Here'
-    [foo]: http://example.com/  (Optional Title Here)
-    [foo]: <http://example.com/>  "Optional Title Here"
+- Kurung siku berisi pengenal tautan (**tidak peka huruf besar-kecil**, dapat diindentasi hingga tiga spasi di sebelah kiri);
+- Diikuti oleh titik dua;
+- Kemudian satu atau lebih spasi (atau tab);
+- Kemudian URL tautan;
+- URL dapat secara opsional diapit oleh kurung sudut;
+- Secara opsional diikuti oleh atribut judul, diapit oleh tanda kutip atau kurung.
 
-如果使用空的方括号，则链接文本本身会作为名称。
+Ketiga definisi berikut ini setara:
 
-代码：
+Kode:
+
+    [foo]: http://example.com/  "Judul Opsional Di Sini"
+    [foo]: http://example.com/  'Judul Opsional Di Sini'
+    [foo]: http://example.com/  (Judul Opsional Di Sini)
+    [foo]: <http://example.com/>  "Judul Opsional Di Sini"
+
+Jika Anda menggunakan kurung siku kosong, teks tautan itu sendiri akan digunakan sebagai nama.
+
+Kode:
 
     [Google]: http://google.com/
     [Google][]
 
-预览：
+Pratinjau:
 
 ---
 
@@ -700,195 +700,195 @@ This is [an example][id] reference-style link.
 ---
 
 <a id="emphasis"></a>
-### 强调
+### Penekanan
 
-HTML 标签：`<em>`，`<strong>`
+Tag HTML: `<em>`, `<strong>`
 
-Markdown 使用 **星号 (\*)** 或 **下划线 (\_)** 表示强调。**一个分隔符**对应 `<em>`；**两个分隔符**对应 `<strong>`。
+Markdown menggunakan **tanda bintang (*)** atau **garis bawah (_)** untuk menunjukkan penekanan. **Satu pemisah** sesuai dengan `<em>`; **dua pemisah** sesuai dengan `<strong>`.
 
-代码：
+Kode:
 
-    *single asterisks*
+    *satu tanda bintang*
 
-    _single underscores_
+    _satu garis bawah_
 
-    **double asterisks**
+    **dua tanda bintang**
 
-    __double underscores__
+    __dua garis bawah__
 
-预览：
-
----
-
-_single asterisks_
-
-_single underscores_
-
-**double asterisks**
-
-**double underscores**
+Pratinjau:
 
 ---
 
-但如果两侧有空格，则会被视作普通字符而非强调语法。
+_satu tanda bintang_
 
-你可以使用反斜杠进行转义：
+_satu garis bawah_
 
-代码：
+**dua tanda bintang**
 
-    \*this text is surrounded by literal asterisks\*
-
-预览：
+**dua garis bawah**
 
 ---
 
-\*this text is surrounded by literal asterisks\*
+Tetapi jika ada spasi di kedua sisi, itu akan dianggap sebagai karakter biasa, bukan sintaks penekanan.
+
+Anda dapat menggunakan backslash untuk escape:
+
+Kode:
+
+    \*teks ini dikelilingi oleh tanda bintang harfiah\*
+
+Pratinjau:
+
+---
+
+\*teks ini dikelilingi oleh tanda bintang harfiah\*
 
 ---
 
 <a id="code"></a>
-### 行内代码
+### Kode Inline
 
-HTML 标签：`<code>`
+Tag HTML: `<code>`
 
-用**反引号 (`)** 包裹。
+Bungkus dengan **backtick (`)**.
 
-代码：
+Kode:
 
-    Use the `printf()` function.
+    Gunakan fungsi `printf()`.
 
-预览：
-
----
-
-Use the `printf()` function.
+Pratinjau:
 
 ---
 
-若行内代码中需要包含反引号字符，可使用**多重反引号**作为定界符：
-
-代码：
-
-    ``There is a literal backtick (`) here.``
-
-预览：
+Gunakan fungsi `printf()`.
 
 ---
 
-``There is a literal backtick (`) here.``
+Jika kode inline Anda perlu menyertakan karakter backtick, Anda dapat menggunakan **beberapa backtick** sebagai pembatas:
+
+Kode:
+
+    ``Ada backtick harfiah (`) di sini.``
+
+Pratinjau:
 
 ---
 
-行内代码两侧的定界符允许包含空格（开头一个、结尾一个），方便在代码起始或结尾放置反引号字符：
-
-代码：
-
-    A single backtick in a code span: `` ` ``
-
-    A backtick-delimited string in a code span: `` `foo` ``
-
-预览：
+``Ada backtick harfiah (`) di sini.``
 
 ---
 
-A single backtick in a code span: `` ` ``
+Pembatas di kedua sisi kode inline dapat berisi spasi (satu di awal, satu di akhir), yang nyaman untuk menempatkan karakter backtick di awal atau akhir kode:
 
-A backtick-delimited string in a code span: `` `foo` ``
+Kode:
+
+    Satu backtick dalam rentang kode: `` ` ``
+
+    String yang dibatasi backtick dalam rentang kode: `` `foo` ``
+
+Pratinjau:
+
+---
+
+Satu backtick dalam rentang kode: `` ` ``
+
+String yang dibatasi backtick dalam rentang kode: `` `foo` ``
 
 ---
 
 <a id="images"></a>
-### 图片
+### Gambar
 
-HTML 标签：`<img />`
+Tag HTML: `<img />`
 
-Markdown 的图片语法与链接类似，支持行内与引用两种方式。
+Sintaks gambar Markdown mirip dengan tautan, mendukung gaya inline dan referensi.
 
-#### 行内图片
+#### Gambar Inline
 
-行内图片语法：`![替代文本](URL "标题")`
+Sintaks gambar inline: `![Teks Alternatif](URL "Judul")`
 
-标题可选。
+Judul bersifat opsional.
 
-代码：
+Kode:
 
-    ![Alt text](/path/to/img.jpg)
+    ![Teks Alt](/path/to/img.jpg)
 
-    ![Alt text](/path/to/img.jpg "Optional title")
+    ![Teks Alt](/path/to/img.jpg "Judul opsional")
 
-预览：
-
----
-
-![Alt text](https://s2.loli.net/2024/08/20/5fszgXeOxmL3Wdv.webp)
-
-![Alt text](https://s2.loli.net/2024/08/20/5fszgXeOxmL3Wdv.webp "Optional title")
+Pratinjau:
 
 ---
 
-说明：
+![Teks Alt](https://s2.loli.net/2024/08/20/5fszgXeOxmL3Wdv.webp)
 
-- 一个感叹号 !；
-- 后接方括号，放置图片的替代文本；
-- 再接圆括号，内含图片 URL/路径，及可选的标题（引号包裹）。
-
-#### 引用式图片
-
-引用式图片语法：`![替代文本][id]`
-
-代码：
-
-    [img id]: https://s2.loli.net/2024/08/20/5fszgXeOxmL3Wdv.webp  "Optional title attribute"
-    ![Alt text][img id]
-
-预览：
+![Teks Alt](https://s2.loli.net/2024/08/20/5fszgXeOxmL3Wdv.webp "Judul opsional")
 
 ---
 
-[img id]: https://s2.loli.net/2024/08/20/5fszgXeOxmL3Wdv.webp "Optional title attribute"
+Keterangan:
 
-![Alt text][img id]
+- Satu tanda seru !;
+- Diikuti oleh kurung siku, menempatkan teks alternatif gambar;
+- Kemudian kurung, berisi URL/path gambar, dan judul opsional (diapit tanda kutip).
+
+#### Gambar Referensi
+
+Sintaks gambar referensi: `![Teks Alternatif][id]`
+
+Kode:
+
+    [id img]: https://s2.loli.net/2024/08/20/5fszgXeOxmL3Wdv.webp  "Atribut judul opsional"
+    ![Teks Alt][id img]
+
+Pratinjau:
+
+---
+
+[id img]: https://s2.loli.net/2024/08/20/5fszgXeOxmL3Wdv.webp "Atribut judul opsional"
+
+![Teks Alt][id img]
 
 ---
 
 <a id="strikethrough"></a>
-### 删除线
+### Coretan
 
-HTML 标签：`<del>`
+Tag HTML: `<del>`
 
-这是扩展语法。
+Ini adalah sintaks yang diperluas.
 
-GFM 增加了删除线语法。
+GFM menambahkan sintaks coretan.
 
-代码：
+Kode:
 
 ```
-~~Mistaken text.~~
+~~Teks yang salah.~~
 ```
 
-预览：
+Pratinjau:
 
 ---
 
-~~Mistaken text.~~
+~~Teks yang salah.~~
 
 ---
 
 <a id="miscellaneous"></a>
-## 杂项
+## Lain-lain
 
 <a id="automatic-links"></a>
-### 自动链接
+### Tautan Otomatis
 
-Markdown 支持一种便捷写法来创建“自动链接”（URL 与邮箱地址）：只需用尖括号将其包住即可。
+Markdown mendukung cara mudah untuk membuat "tautan otomatis" (URL dan alamat email): cukup bungkus dengan kurung sudut.
 
-代码：
+Kode:
 
     <http://example.com/>
 
     <address@example.com>
 
-预览：
+Pratinjau:
 
 ---
 
@@ -898,15 +898,15 @@ Markdown 支持一种便捷写法来创建“自动链接”（URL 与邮箱地�
 
 ---
 
-GFM 会自动识别标准 URL 并转换为链接。
+GFM secara otomatis mengenali URL standar dan mengubahnya menjadi tautan.
 
-代码：
+Kode:
 
 ```
 https://github.com/emn178/markdown
 ```
 
-预览：
+Pratinjau:
 
 ---
 
@@ -915,47 +915,47 @@ https://github.com/emn178/markdown
 ---
 
 <a id="backslash-escapes"></a>
-### 反斜杠转义
+### Escape Karakter Backslash
 
-Markdown 允许使用反斜杠来转义那些本用于 Markdown 语法的特殊字符，使其按字面显示。
+Markdown memungkinkan penggunaan backslash untuk escape karakter khusus sintaks Markdown, sehingga ditampilkan secara harfiah.
 
-代码：
+Kode:
 
-    \*literal asterisks\*
+    \*tanda bintang harfiah\*
 
-预览：
-
----
-
-\*literal asterisks\*
+Pratinjau:
 
 ---
 
-以下字符可通过反斜杠转义以按字面量输出：
+\*tanda bintang harfiah\*
 
-Code:
+---
+
+Karakter berikut dapat di-escape dengan backslash untuk output harfiah:
+
+Kode:
 
     \   backslash
     `   backtick
-    *   asterisk
-    _   underscore
-    {}  curly braces
-    []  square brackets
-    ()  parentheses
-    #   hash mark
-    +   plus sign
-    -   minus sign (hyphen)
-    .   dot
-    !   exclamation mark
+    *   tanda bintang
+    _   garis bawah
+    {}  kurung kurawal
+    []  kurung siku
+    ()  kurung
+    #   tanda pagar
+    +   tanda tambah
+    -   tanda kurang (hubung)
+    .   titik
+    !   tanda seru
 
 <a id="inline-html"></a>
-## 内联 HTML
+## HTML Inline
 
-对于 Markdown 语法未覆盖的标记，直接使用原生 HTML 即可。无需特别声明从 Markdown 切换到 HTML，直接写标签就行。
+Untuk markup yang tidak dicakup oleh sintaks Markdown, Anda dapat menggunakan HTML asli secara langsung. Tidak perlu deklarasi khusus untuk beralih dari Markdown ke HTML, cukup tulis tagnya.
 
-代码：
+Kode:
 
-    This is a regular paragraph.
+    Ini adalah paragraf biasa.
 
     <table>
         <tr>
@@ -963,13 +963,13 @@ Code:
         </tr>
     </table>
 
-    This is another regular paragraph.
+    Ini adalah paragraf biasa lainnya.
 
-预览：
+Pratinjau:
 
 ---
 
-This is a regular paragraph.
+Ini adalah paragraf biasa.
 
 <table>
     <tr>
@@ -977,29 +977,29 @@ This is a regular paragraph.
     </tr>
 </table>
 
-This is another regular paragraph.
+Ini adalah paragraf biasa lainnya.
 
 ---
 
-请注意：在**块级 HTML 标签**内不会处理 Markdown 语法。
+Harap dicatat: Sintaks Markdown tidak akan diproses di dalam **tag HTML tingkat blok**.
 
-与块级标签不同，在**行内级标签**内会处理 Markdown 语法。
+Berbeda dengan tag tingkat blok, sintaks Markdown akan diproses di dalam **tag tingkat inline**.
 
-代码：
+Kode:
 
-    <span>**Work**</span>
+    <span>**Bekerja**</span>
 
     <div>
-        **No Work**
+        **Tidak Bekerja**
     </div>
 
-预览：
+Pratinjau:
 
 ---
 
-<span>**Work**</span>
+<span>**Bekerja**</span>
 
 <div>
-  **No Work**
+  **Tidak Bekerja**
 </div>
 ***

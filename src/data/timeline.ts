@@ -1,5 +1,5 @@
-// 时间线数据配置文件
-// 用于管理时间线页面的数据
+// File data konfigurasi linimasa
+// Digunakan untuk mengelola data pada halaman linimasa
 
 export interface TimelineItem {
   id: string;
@@ -7,7 +7,7 @@ export interface TimelineItem {
   description: string;
   type: "education" | "work" | "project" | "achievement";
   startDate: string;
-  endDate?: string; // If empty, it means current
+  endDate?: string; // Jika kosong, berarti saat ini
   location?: string;
   organization?: string;
   position?: string;
@@ -18,7 +18,7 @@ export interface TimelineItem {
     url: string;
     type: "website" | "certificate" | "project" | "other";
   }[];
-  icon?: string; // Iconify icon name
+  icon?: string; // Nama ikon Iconify
   color?: string;
   featured?: boolean;
 }
@@ -26,18 +26,18 @@ export interface TimelineItem {
 export const timelineData: TimelineItem[] = [
   {
     id: "current-study",
-    title: "某知名大学计算机专业在读",
+    title: "Mahasiswa Jurusan Komputer di Universitas Ternama",
     description:
-      "[演示数据] 目前正在攻读计算机科学与技术专业，专注于全栈开发和人工智能方向。",
+      "[Data Demo] Saat ini sedang menempuh pendidikan di jurusan Ilmu Komputer, dengan fokus pada pengembangan full-stack dan kecerdasan buatan.",
     type: "education",
     startDate: "2022-09-01",
-    location: "某一线城市",
-    organization: "某知名理工大学",
+    location: "Sebuah Kota Besar",
+    organization: "Universitas Teknologi Ternama",
     skills: ["Java", "Python", "JavaScript", "HTML/CSS", "MySQL"],
     achievements: [
-      "当前GPA：3.8/4.0（虚拟数据）",
-      "完成多个算法和数据结构项目",
-      "参与校内创新创业项目",
+      "IPK saat ini: 3.8/4.0 (data virtual)",
+      "Menyelesaikan beberapa proyek algoritma dan struktur data",
+      "Berpartisipasi dalam proyek inovasi dan kewirausahaan kampus",
     ],
     icon: "material-symbols:school",
     color: "#059669",
@@ -45,26 +45,26 @@ export const timelineData: TimelineItem[] = [
   },
   {
     id: "firefly-blog-project",
-    title: "开源博客主题项目",
+    title: "Proyek Tema Blog Open Source",
     description:
-      "[演示项目] 基于现代前端框架开发的博客主题，支持多种功能和定制选项。",
+      "[Proyek Demo] Mengembangkan tema blog berdasarkan kerangka kerja frontend modern, mendukung berbagai fitur dan opsi kustomisasi.",
     type: "project",
     startDate: "2024-06-01",
     endDate: "2024-08-01",
     skills: ["Astro", "TypeScript", "Tailwind CSS", "Git"],
     achievements: [
-      "获得GitHub 500+ stars（虚拟数据）",
-      "实现完整的响应式设计",
-      "支持多语言和主题切换",
+      "Mendapatkan 500+ bintang di GitHub (data virtual)",
+      "Mengimplementasikan desain responsif penuh",
+      "Mendukung multi-bahasa dan pergantian tema",
     ],
     links: [
       {
-        name: "GitHub 仓库",
+        name: "Repositori GitHub",
         url: "https://github.com/example/demo-blog",
         type: "project",
       },
       {
-        name: "在线演示",
+        name: "Demo Online",
         url: "https://demo-blog.example.com",
         type: "website",
       },
@@ -75,20 +75,20 @@ export const timelineData: TimelineItem[] = [
   },
   {
     id: "summer-internship-2024",
-    title: "知名互联网公司实习",
+    title: "Magang di Perusahaan Internet Ternama",
     description:
-      "[演示经历] 在某知名互联网公司担任前端开发实习生，参与核心产品开发。",
+      "[Pengalaman Demo] Bekerja sebagai intern pengembang frontend di sebuah perusahaan internet ternama, berpartisipasi dalam pengembangan produk inti.",
     type: "work",
     startDate: "2024-07-01",
     endDate: "2024-08-31",
-    location: "某一线城市",
-    organization: "某知名互联网公司",
-    position: "前端开发实习生",
+    location: "Sebuah Kota Besar",
+    organization: "Perusahaan Internet Ternama",
+    position: "Intern Pengembang Frontend",
     skills: ["React", "JavaScript", "CSS3", "Git", "Figma"],
     achievements: [
-      "负责用户量10万+产品的UI组件开发（虚拟数据）",
-      "参与代码审查和技术分享",
-      "获得部门优秀实习生称号",
+      "Bertanggung jawab atas pengembangan komponen UI untuk produk dengan 100.000+ pengguna (data virtual)",
+      "Berpartisipasi dalam tinjauan kode dan berbagi pengetahuan teknis",
+      "Menerima penghargaan intern terbaik departemen",
     ],
     icon: "material-symbols:work",
     color: "#DC2626",
@@ -96,22 +96,22 @@ export const timelineData: TimelineItem[] = [
   },
   {
     id: "web-development-course",
-    title: "全栈开发认证课程",
+    title: "Kursus Sertifikasi Pengembangan Full-Stack",
     description:
-      "[演示成就] 完成知名在线教育平台的全栈开发认证课程，获得专业认证。",
+      "[Pencapaian Demo] Menyelesaikan kursus sertifikasi pengembangan full-stack dari platform pendidikan online ternama dan memperoleh sertifikasi profesional.",
     type: "achievement",
     startDate: "2024-01-15",
     endDate: "2024-05-30",
-    organization: "某知名在线教育平台",
+    organization: "Platform Pendidikan Online Ternama",
     skills: ["HTML", "CSS", "JavaScript", "Node.js", "Express"],
     achievements: [
-      "获得专业认证证书（98分/100分）",
-      "完成8个综合实战项目",
-      "掌握现代全栈开发技术栈",
+      "Menerima sertifikat profesional (skor 98/100)",
+      "Menyelesaikan 8 proyek praktis komprehensif",
+      "Menguasai tumpukan teknologi pengembangan full-stack modern",
     ],
     links: [
       {
-        name: "认证证书",
+        name: "Sertifikat",
         url: "https://demo-certificates.example.com/fullstack",
         type: "certificate",
       },
@@ -121,93 +121,93 @@ export const timelineData: TimelineItem[] = [
   },
   {
     id: "student-management-system",
-    title: "企业级管理系统项目",
+    title: "Proyek Sistem Manajemen Perusahaan",
     description:
-      "[演示项目] 开发了一套完整的企业级管理系统，包含用户管理、权限控制等功能。",
+      "[Proyek Demo] Mengembangkan sistem manajemen perusahaan lengkap, termasuk manajemen pengguna, kontrol akses, dan fitur lainnya.",
     type: "project",
     startDate: "2023-11-01",
     endDate: "2023-12-15",
     skills: ["Java", "MySQL", "Spring Boot", "Vue.js"],
     achievements: [
-      "获得课程项目一等奖（虚拟荣誉）",
-      "支持1000+并发用户访问",
-      "实现完整的权限管理系统",
+      "Memenangkan penghargaan pertama proyek kursus (penghargaan virtual)",
+      "Mendukung 1000+ akses pengguna bersamaan",
+      "Mengimplementasikan sistem manajemen izin lengkap",
     ],
     icon: "material-symbols:database",
     color: "#EA580C",
   },
   {
     id: "programming-contest",
-    title: "ACM程序设计竞赛",
+    title: "Kompetisi Pemrograman ACM",
     description:
-      "[演示成就] 参加国际大学生程序设计竞赛，在算法和编程方面取得优异成绩。",
+      "[Pencapaian Demo] Berpartisipasi dalam Kompetisi Pemrograman Perguruan Tinggi Internasional (ICPC), mencapai hasil luar biasa dalam algoritma dan pemrograman.",
     type: "achievement",
     startDate: "2023-10-20",
-    location: "某知名大学",
-    organization: "ACM竞赛组委会",
-    skills: ["C++", "算法设计", "数据结构", "数学建模"],
+    location: "Universitas Ternama",
+    organization: "Panitia Kompetisi ACM",
+    skills: ["C++", "Desain Algoritma", "Struktur Data", "Pemodelan Matematika"],
     achievements: [
-      "获得区域赛银奖（虚拟荣誉）",
-      "解决复杂算法问题15道",
-      "团队协作能力显著提升",
+      "Memenangkan medali perak di kompetisi regional (penghargaan virtual)",
+      "Menyelesaikan 15 masalah algoritma kompleks",
+      "Peningkatan signifikan dalam kemampuan kerja tim",
     ],
     icon: "material-symbols:emoji-events",
     color: "#7C3AED",
   },
   {
     id: "part-time-tutor",
-    title: "在线编程讲师",
+    title: "Pengajar Pemrograman Online",
     description:
-      "[演示经历] 在知名在线教育平台担任编程讲师，为学员提供高质量的编程教学。",
+      "[Pengalaman Demo] Bekerja sebagai pengajar pemrograman di platform pendidikan online ternama, memberikan pengajaran pemrograman berkualitas tinggi kepada siswa.",
     type: "work",
     startDate: "2023-09-01",
     endDate: "2024-01-31",
-    position: "高级编程讲师",
-    skills: ["Python", "Java", "教学设计", "课程开发"],
+    position: "Pengajar Pemrograman Senior",
+    skills: ["Python", "Java", "Desain Instruksional", "Pengembangan Kurikulum"],
     achievements: [
-      "累计教学学员500+人次（虚拟数据）",
-      "课程好评率达到98%",
-      "开发原创教学课程3套",
+      "Mengajar lebih dari 500 siswa (data virtual)",
+      "Tingkat kepuasan kursus mencapai 98%",
+      "Mengembangkan 3 kursus pengajaran orisinal",
     ],
     icon: "material-symbols:school",
     color: "#059669",
   },
   {
     id: "high-school-graduation",
-    title: "重点高中毕业",
+    title: "Lulus dari SMA Unggulan",
     description:
-      "[演示学历] 以优异成绩从省重点高中毕业，成功考入知名理工大学计算机专业。",
+      "[Pendidikan Demo] Lulus dengan predikat istimewa dari SMA unggulan provinsi, berhasil diterima di jurusan Ilmu Komputer di universitas teknologi ternama.",
     type: "education",
     startDate: "2019-09-01",
     endDate: "2022-06-30",
-    location: "某省会城市",
-    organization: "某省重点中学",
+    location: "Sebuah Ibu Kota Provinsi",
+    organization: "SMA Unggulan Provinsi",
     achievements: [
-      "高考成绩：全省前1%（虚拟数据）",
-      "获得省级优秀学生干部称号",
-      "全国数学竞赛一等奖",
+      "Skor ujian masuk perguruan tinggi: 1% teratas di provinsi (data virtual)",
+      "Menerima gelar siswa berprestasi tingkat provinsi",
+      "Juara pertama kompetisi matematika nasional",
     ],
     icon: "material-symbols:school",
     color: "#2563EB",
   },
   {
     id: "first-programming-experience",
-    title: "首次接触编程",
-    description: "在高中信息技术课上首次接触编程，开始学习Python基础语法。",
+    title: "Pengalaman Pemrograman Pertama",
+    description: "Pertama kali mengenal pemrograman di kelas teknologi informasi SMA, mulai belajar sintaks dasar Python.",
     type: "education",
     startDate: "2021-03-01",
-    skills: ["Python", "编程基础概念"],
+    skills: ["Python", "Konsep Dasar Pemrograman"],
     achievements: [
-      '完成第一个"Hello World"程序',
-      "学会基本循环和条件语句",
-      "培养对编程的兴趣",
+      'Menyelesaikan program "Hello World" pertama',
+      "Mempelajari perulangan dasar dan pernyataan kondisional",
+      "Mengembangkan minat dalam pemrograman",
     ],
     icon: "material-symbols:code",
     color: "#7C3AED",
   },
 ];
 
-// 获取时间线统计信息
+// Mendapatkan statistik linimasa
 export const getTimelineStats = () => {
   const total = timelineData.length;
   const byType = {
@@ -221,7 +221,7 @@ export const getTimelineStats = () => {
   return { total, byType };
 };
 
-// 根据类型获取时间线项目
+// Mendapatkan item linimasa berdasarkan jenis
 export const getTimelineByType = (type?: string) => {
   if (!type || type === "all") {
     return timelineData.sort(
@@ -237,7 +237,7 @@ export const getTimelineByType = (type?: string) => {
     );
 };
 
-// 获取精选时间线项目
+// Mendapatkan item linimasa unggulan
 export const getFeaturedTimeline = () => {
   return timelineData
     .filter((item) => item.featured)
@@ -247,12 +247,12 @@ export const getFeaturedTimeline = () => {
     );
 };
 
-// 获取当前进行中的项目
+// Mendapatkan item yang sedang berlangsung
 export const getCurrentItems = () => {
   return timelineData.filter((item) => !item.endDate);
 };
 
-// 计算总工作经验
+// Menghitung total pengalaman kerja
 export const getTotalWorkExperience = () => {
   const workItems = timelineData.filter((item) => item.type === "work");
   let totalMonths = 0;
