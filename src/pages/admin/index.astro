@@ -30,15 +30,9 @@ const configPath = "/admin/config.yml";
         const identity = window.netlifyIdentity;
         if (!identity) return;
 
-        const hash = window.location.hash || "";
-
         identity.on("init", (user) => {
-          if (user) return;
-
-          if (hash.includes("recovery_token")) {
-            identity.open("recovery");
-          } else if (hash.includes("invite_token") || hash.includes("confirmation_token")) {
-            identity.open("signup");
+          if (!user) {
+            identity.open();
           }
         });
 

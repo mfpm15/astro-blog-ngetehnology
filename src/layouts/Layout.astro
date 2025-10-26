@@ -1305,9 +1305,9 @@ if (window.swup) {
 			hash.includes("invite_token") ||
 			hash.includes("confirmation_token") ||
 			hash.includes("recovery_token");
-		if (hasIdentityToken && !window.location.pathname.startsWith("/admin/")) {
+		if (hasIdentityToken && !window.location.pathname.startsWith("/admin/identity")) {
 			const normalizedHash = hash.startsWith("#") ? hash : `#${hash}`;
-			window.location.replace(`/admin/${normalizedHash}`);
+			window.location.replace(`/admin/identity/${normalizedHash}`);
 		}
 	}
 </script>

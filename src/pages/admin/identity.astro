@@ -1,0 +1,50 @@
+---
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Account Access</title>
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  </head>
+  <body>
+    <script is:inline>
+      document.addEventListener("DOMContentLoaded", () => {
+        const identity = window.netlifyIdentity;
+        if (!identity) return;
+
+        const hash = window.location.hash || "";
+        const goToAdmin = () => {
+          window.location.replace("/admin/");
+        };
+
+        identity.on("init", (user) => {
+          if (user) {
+            goToAdmin();
+            return;
+          }
+
+          if (hash.includes("recovery_token")) {
+            identity.open("recovery");
+          } else if (
+            hash.includes("invite_token") ||
+            hash.includes("confirmation_token")
+          ) {
+            identity.open("signup");
+          } else {
+            identity.open();
+          }
+        });
+
+        identity.on("login", () => {
+          identity.close();
+          window.location.hash = "";
+          goToAdmin();
+        });
+
+        identity.init();
+      });
+    </script>
+  </body>
+</html>
