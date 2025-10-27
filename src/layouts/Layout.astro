@@ -116,12 +116,13 @@ const bannerOffset =
 <!DOCTYPE html>
 <html lang={siteLang} class="bg-[var(--page-bg)] text-[14px] md:text-[16px]">
 	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://identity.netlify.com https://unpkg.com https://www.googletagmanager.com https://www.clarity.ms https://cdn.jsdelivr.net https://www.bilibili.uno; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https: http:; font-src 'self' data: https://cdn.jsdelivr.net; connect-src 'self' https://identity.netlify.com https://*.netlify.app https://unpkg.com https://www.bilibili.uno https://api.injahow.cn https://api.uomg.com; frame-src 'self' https://identity.netlify.com; worker-src 'self' blob:;" />
+
 		<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-KRX3XGVH');</script>
 		<script type="text/javascript">(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window, document, "clarity", "script", "tjr3vkhj8i");</script>
 
 		<title>{pageTitle}</title>
-
-		<meta charset="UTF-8" />
 		<meta name="description" content={description || siteConfig.description || pageTitle}>
 		{siteConfig.keywords && siteConfig.keywords.length > 0 && (
 			<meta name="keywords" content={siteConfig.keywords.join(', ')} />
@@ -247,7 +248,9 @@ const bannerOffset =
 
 		<link rel="alternate" type="application/rss+xml" title={profileConfig.name} href={`${Astro.site}rss.xml`}/>
 
-		
+		<!-- Netlify Identity Widget -->
+		<script src="https://identity.netlify.com/v1/netlify-identity-widget.js" defer></script>
+
 		<!-- Font Manager -->
 		<FontManager />
 
@@ -1298,7 +1301,6 @@ if (document.readyState === "loading") {
 }
 </script>
 
-<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 <script is:inline>
 	if (typeof window !== "undefined") {
 		const setupIdentity = () => {
@@ -1344,6 +1346,11 @@ if (document.readyState === "loading") {
 			}
 		};
 
-		waitForIdentity();
+		// Wait for DOM to be ready
+		if (document.readyState === "loading") {
+			document.addEventListener("DOMContentLoaded", waitForIdentity);
+		} else {
+			waitForIdentity();
+		}
 	}
 </script>
