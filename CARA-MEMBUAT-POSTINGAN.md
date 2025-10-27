@@ -411,24 +411,139 @@ Password default adalah: :spoiler[admin:admin]
 
 ### 6. Images
 
-#### Gambar dari Folder Post
+Ada 2 cara menampilkan gambar: **Lokal** (di folder post) atau **URL** (dari internet).
 
+#### ⭐ Gambar dari URL (RECOMMENDED - Hemat Storage!)
+
+Cara paling efisien! Gambar langsung load dari internet, tidak perlu save lokal.
+
+**Format Dasar:**
+```markdown
+![Alt Text](https://domain.com/path/to/image.png)
+```
+
+**Dengan Tooltip:**
+```markdown
+![Metasploit Framework](https://example.com/metasploit-logo.png "Official Metasploit Logo")
+```
+
+**Contoh Real:**
+```markdown
+<!-- Diagram dari GitHub -->
+![SQL Injection Flow](https://raw.githubusercontent.com/OWASP/CheatSheetSeries/master/assets/SQL_Injection_Prevention_Cheat_Sheet_Parameterization.png)
+
+<!-- Screenshot dari Imgur -->
+![Burp Suite Interface](https://i.imgur.com/AbCd123.png)
+
+<!-- Cover image dari Unsplash -->
+![Security Concept](https://images.unsplash.com/photo-1234567890?w=1200)
+```
+
+**Keuntungan Pakai URL:**
+- ✅ Tidak memakan storage repository
+- ✅ Tidak perlu download & upload manual
+- ✅ Repo lebih ringan (faster git operations)
+- ✅ Auto-update jika sumber update gambar
+- ✅ Bisa pakai CDN yang sudah optimized
+
+**Sumber Gambar Terpercaya:**
+
+| Platform | Best For | URL Format |
+|----------|----------|------------|
+| **GitHub Raw** | Diagram, technical images | `https://raw.githubusercontent.com/user/repo/main/image.png` |
+| **Imgur** | Screenshots | `https://i.imgur.com/AbCd123.png` |
+| **Unsplash** | Cover images, stock photos | `https://images.unsplash.com/photo-xxx?w=1200` |
+| **Cloudinary** | Optimized images | `https://res.cloudinary.com/xxx/image/upload/v1/image.jpg` |
+| **OWASP GitHub** | Security diagrams | `https://raw.githubusercontent.com/OWASP/...` |
+
+**Tips:**
+- Gunakan `?w=1200` untuk resize (Unsplash, Cloudinary)
+- Pilih format `.webp` untuk ukuran lebih kecil
+- Test URL dulu sebelum publish (buka di browser)
+- Backup penting: simpan screenshot di local jika critical
+
+---
+
+#### 📁 Gambar dari Folder Lokal
+
+Simpan gambar di folder yang sama dengan `index.md`.
+
+**Struktur Folder:**
+```
+src/content/posts/nama-post/
+├── index.md
+├── cover.webp          # Cover image
+├── screenshot1.png     # Screenshot 1
+└── diagram.svg         # Diagram
+```
+
+**Cara Pakai:**
 ```markdown
 ![SQL Injection Diagram](./sqli-diagram.webp)
+![Burp Suite](./screenshot1.png)
+![Architecture](./diagram.svg)
 ```
 
-#### Gambar dari URL
+**Kapan Pakai Lokal:**
+- Gambar custom yang dibuat sendiri
+- Diagram yang sering diupdate
+- Screenshot penting yang harus tetap ada
+- Gambar yang tidak ada di internet
 
-```markdown
-![Metasploit Logo](https://example.com/metasploit-logo.png "Metasploit Framework")
-```
+---
 
-#### Gambar dengan Caption
+#### 🎨 Gambar dengan Caption
+
+Tambahkan keterangan di bawah gambar dengan *italic*.
 
 ```markdown
 ![Burp Suite Interface](./burp-suite.webp)
-*Screenshot Burp Suite menunjukkan HTTP request*
+*Screenshot Burp Suite menunjukkan HTTP request yang di-intercept*
+
+![OWASP Top 10](https://images.example.com/owasp-top10.png)
+*OWASP Top 10 Web Application Security Risks (2021)*
 ```
+
+---
+
+#### 📐 Image Guidelines
+
+**Ukuran Recommended:**
+- **Cover images**: 1200x675px (16:9 ratio)
+- **Screenshots**: Max width 1000px
+- **Diagrams**: 800-1000px width
+
+**Format Recommended:**
+- **First choice**: `.webp` (smallest size, best quality)
+- **Alternative**: `.png` (lossless, untuk diagram)
+- **Avoid**: `.jpg` (lossy, tidak untuk screenshot code)
+
+**Compress Images (jika pakai lokal):**
+- [Squoosh](https://squoosh.app/) - Online image compressor
+- [TinyPNG](https://tinypng.com/) - PNG & JPG compressor
+- [ImageOptim](https://imageoptim.com/) - Mac app
+
+---
+
+#### 🌐 Upload Gambar Sendiri (Jika Perlu)
+
+Jika ingin upload screenshot sendiri ke internet:
+
+**Option 1: Imgur (Termudah)**
+1. Buka https://imgur.com
+2. Drag & drop gambar
+3. Klik kanan → "Copy image address"
+4. Paste URL ke markdown: `![](https://i.imgur.com/xxx.png)`
+
+**Option 2: GitHub Repo**
+1. Buat repo baru untuk images: `username/blog-images`
+2. Upload gambar ke repo
+3. Ambil raw URL: `https://raw.githubusercontent.com/username/blog-images/main/image.png`
+
+**Option 3: Cloudinary (Advanced)**
+1. Daftar di https://cloudinary.com (free tier)
+2. Upload gambar
+3. Dapatkan optimized URL dengan transformations
 
 ---
 

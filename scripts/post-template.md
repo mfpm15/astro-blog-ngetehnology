@@ -76,8 +76,33 @@ Tutorial ini hanya untuk tujuan **edukasi dan ethical hacking**. Selalu:
 
 ### Diagram Alur
 
+**Opsi 1: Gambar Lokal (disimpan di folder post)**
 ![Diagram Cara Kerja](./diagram.webp)
 *Keterangan: Diagram menunjukkan alur kerja [topik]*
+
+**Opsi 2: Gambar dari URL (hemat storage, recommended!)**
+![SQL Injection Flow](https://raw.githubusercontent.com/OWASP/CheatSheetSeries/master/assets/SQL_Injection_Prevention_Cheat_Sheet_Parameterization.png)
+*Keterangan: Gambar langsung dari internet, tidak perlu save lokal*
+
+:::tip[Rekomendasi: Pakai Gambar URL]
+**Keuntungan pakai URL:**
+- ✅ Tidak memakan storage repository
+- ✅ Tidak perlu download dan upload gambar
+- ✅ Auto-update jika sumber update gambar
+- ✅ Faster git operations (repo lebih ringan)
+
+**Sumber gambar yang bagus:**
+- GitHub raw URLs (untuk diagram teknis)
+- Imgur (untuk screenshot)
+- Cloudinary (untuk optimized images)
+- Unsplash (untuk cover images)
+
+**Format URL yang benar:**
+```markdown
+![Alt Text](https://domain.com/path/to/image.png)
+![Alt Text](https://domain.com/path/to/image.png "Optional tooltip text")
+```
+:::
 
 ### Penjelasan Step-by-Step
 
