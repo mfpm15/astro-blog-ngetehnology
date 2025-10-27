@@ -1308,13 +1308,19 @@ if (document.readyState === "loading") {
 			if (!identity || identity.__astroSetup) return;
 			identity.__astroSetup = true;
 
+			console.log('[Netlify Identity] Setting up identity widget');
+
 			const openIfToken = () => {
 				const hash = window.location.hash || "";
+				console.log('[Netlify Identity] Checking hash:', hash);
+
 				if (hash.startsWith("#recovery_token")) {
+					console.log('[Netlify Identity] Opening recovery modal');
 					identity.open("recovery");
 					return true;
 				}
 				if (hash.startsWith("#invite_token") || hash.startsWith("#confirmation_token")) {
+					console.log('[Netlify Identity] Opening signup modal');
 					identity.open("signup");
 					return true;
 				}
@@ -1322,34 +1328,60 @@ if (document.readyState === "loading") {
 			};
 
 			identity.on("init", (user) => {
+				console.log('[Netlify Identity] Initialized, user:', user ? 'logged in' : 'not logged in');
 				if (!user) {
 					openIfToken();
 				}
 			});
 
 			identity.on("login", () => {
+				console.log('[Netlify Identity] User logged in, redirecting to /admin/');
 				identity.close();
 				window.location.hash = "";
 				window.location.href = "/admin/";
 			});
 
-			window.addEventListener("hashchange", openIfToken);
-			identity.init();
-			openIfToken();
-		};
+			identity.on("error", (err) => {
+				console.error('[Netlify Identity] Error:', err);
+			});
 
-		const waitForIdentity = () => {
-			if (window.netlifyIdentity) {
-				setupIdentity();
-			} else {
-				window.setTimeout(waitForIdentity, 50);
+			window.addEventListener("hashchange", openIfToken);
+
+			try {
+				identity.init();
+				// Give init a moment to complete before checking for token
+				setTimeout(() => {
+					openIfToken();
+				}, 100);
+			} catch (err) {
+				console.error('[Netlify Identity] Failed to initialize:', err);
 			}
 		};
 
-		// Wait for DOM to be ready
+		let attempts = 0;
+		const maxAttempts = 100; // 5 seconds total
+
+		const waitForIdentity = () => {
+			attempts++;
+			if (window.netlifyIdentity) {
+				console.log('[Netlify Identity] Widget loaded after', attempts, 'attempts');
+				setupIdentity();
+			} else if (attempts < maxAttempts) {
+				window.setTimeout(waitForIdentity, 50);
+			} else {
+				console.error('[Netlify Identity] Widget failed to load after 5 seconds');
+			}
+		};
+
+		// Try both DOMContentLoaded and window.load
 		if (document.readyState === "loading") {
 			document.addEventListener("DOMContentLoaded", waitForIdentity);
+		} else if (document.readyState === "interactive") {
+			// DOM ready but resources may still be loading
+			window.addEventListener("load", waitForIdentity);
+			waitForIdentity(); // Also try immediately
 		} else {
+			// Document fully loaded
 			waitForIdentity();
 		}
 	}
