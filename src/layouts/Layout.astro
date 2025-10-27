@@ -1301,8 +1301,11 @@ if (document.readyState === "loading") {
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 <script is:inline>
 	if (typeof window !== "undefined") {
-		const identity = window.netlifyIdentity;
-		if (identity) {
+		const setupIdentity = () => {
+			const identity = window.netlifyIdentity;
+			if (!identity || identity.__astroSetup) return;
+			identity.__astroSetup = true;
+
 			const openIfToken = () => {
 				const hash = window.location.hash || "";
 				if (hash.startsWith("#recovery_token")) {
@@ -1331,6 +1334,16 @@ if (document.readyState === "loading") {
 			window.addEventListener("hashchange", openIfToken);
 			identity.init();
 			openIfToken();
-		}
+		};
+
+		const waitForIdentity = () => {
+			if (window.netlifyIdentity) {
+				setupIdentity();
+			} else {
+				window.setTimeout(waitForIdentity, 50);
+			}
+		};
+
+		waitForIdentity();
 	}
 </script>
