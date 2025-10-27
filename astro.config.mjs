@@ -8,6 +8,8 @@ import swup from "@swup/astro";
 import { defineConfig } from "astro/config";
 import expressiveCode from "astro-expressive-code";
 import icon from "astro-icon";
+import compress from "astro-compress";
+import robotsTxt from "astro-robots-txt";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeComponents from "rehype-components";/* Render the custom directive content */
 import rehypeKatex from "rehype-katex";
@@ -32,6 +34,10 @@ export default defineConfig({
   site: "https://astro-blog-ngetehnology.netlify.app/",
   base: "/",
   trailingSlash: "always",
+  prefetch: {
+      prefetchAll: true,
+      defaultStrategy: "hover",
+  },
   image: {
       service: {
           entrypoint: "astro/assets/services/sharp",
@@ -128,7 +134,7 @@ export default defineConfig({
               // 根据页面开关配置过滤sitemap
               const url = new URL(page);
               const pathname = url.pathname;
-              
+
               // 检查各个页面是否启用
               if (pathname === '/anime/' && !siteConfig.pages.anime) {
                   return false;
@@ -142,9 +148,21 @@ export default defineConfig({
               if (pathname === '/skills/' && !siteConfig.pages.skills) {
                   return false;
               }
-              
+
               return true;
           },
+      }),
+      robotsTxt({
+          sitemap: true,
+      }),
+      compress({
+          CSS: true,
+          HTML: {
+              removeAttributeQuotes: false,
+          },
+          Image: false,
+          JavaScript: true,
+          SVG: true,
       }),
 	],
 
