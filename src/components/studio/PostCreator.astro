@@ -1,32 +1,85 @@
 ---
 const today = new Date().toISOString().slice(0, 10);
+
+interface TaxonomyData {
+  categories: string[];
+  tags: string[];
+}
+
+interface Props {
+  taxonomy: TaxonomyData;
+}
+
+const { taxonomy } = Astro.props;
 ---
 
-<section class="grid gap-6 lg:grid-cols-[22rem_minmax(0,1fr)]">
-  <aside class="card-base p-5">
-    <div class="flex items-center justify-between gap-3">
-      <div>
-        <h2 class="text-xl font-bold">Daftar Post</h2>
-        <p class="text-50 mt-2 text-sm">
-          Pilih post untuk edit, atau buat post baru dari form editor.
-        </p>
+<section class="grid gap-6 xl:grid-cols-[20rem_minmax(0,1fr)]">
+  <aside class="space-y-6">
+    <section class="card-base p-5">
+      <div class="flex items-center justify-between gap-3">
+        <div>
+          <h2 class="text-xl font-bold">Daftar Post</h2>
+          <p class="text-50 mt-2 text-sm">
+            Pilih artikel untuk diedit atau mulai tulisan baru.
+          </p>
+        </div>
+        <button class="btn-regular rounded-xl px-4 py-2 text-sm font-semibold" id="post-new-btn" type="button">
+          Post Baru
+        </button>
       </div>
-      <button class="btn-regular rounded-xl px-4 py-2 text-sm font-semibold" id="post-new-btn" type="button">
-        Post Baru
-      </button>
-    </div>
 
-    <div class="mt-4">
-      <input
-        id="post-search"
-        class="studio-input w-full"
-        type="search"
-        placeholder="Cari judul atau slug..."
-      />
-    </div>
+      <div class="mt-4">
+        <input
+          id="post-search"
+          class="studio-input w-full"
+          type="search"
+          placeholder="Cari judul atau slug..."
+        />
+      </div>
 
-    <div id="post-list-status" class="mt-4 text-sm text-50">Memuat daftar post...</div>
-    <div id="post-list" class="mt-4 flex max-h-[44rem] flex-col gap-3 overflow-y-auto pr-1"></div>
+      <div id="post-list-status" class="mt-4 text-sm text-50">Memuat daftar post...</div>
+      <div id="post-list" class="mt-4 flex max-h-[36rem] flex-col gap-3 overflow-y-auto pr-1"></div>
+    </section>
+
+    <section class="card-base p-5">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold">Kategori & Tag</h2>
+          <p class="text-50 mt-2 text-sm">
+            Database lokal ini dipakai ulang saat membuat post.
+          </p>
+        </div>
+        <button class="btn-plain rounded-xl px-4 py-2 text-sm font-semibold" id="taxonomy-save-btn" type="button">
+          Simpan
+        </button>
+      </div>
+
+      <div class="mt-5 space-y-5">
+        <div>
+          <label class="mb-2 block font-medium" for="taxonomy-category-input">Tambah kategori</label>
+          <div class="flex gap-2">
+            <input id="taxonomy-category-input" class="studio-input flex-1" type="text" placeholder="Contoh: Tutorial" />
+            <button class="btn-regular rounded-xl px-4 py-2 text-sm font-semibold" id="taxonomy-category-add-btn" type="button">
+              Tambah
+            </button>
+          </div>
+          <div id="taxonomy-category-list" class="mt-3 flex flex-wrap gap-2"></div>
+        </div>
+
+        <div>
+          <label class="mb-2 block font-medium" for="taxonomy-tag-input">Tambah tag</label>
+          <div class="flex gap-2">
+            <input id="taxonomy-tag-input" class="studio-input flex-1" type="text" placeholder="Contoh: Astro" />
+            <button class="btn-regular rounded-xl px-4 py-2 text-sm font-semibold" id="taxonomy-tag-add-btn" type="button">
+              Tambah
+            </button>
+          </div>
+          <div id="taxonomy-tag-list" class="mt-3 flex flex-wrap gap-2"></div>
+        </div>
+
+        <p id="taxonomy-status" class="text-sm text-50"></p>
+      </div>
+    </section>
   </aside>
 
   <section class="card-base p-6">
@@ -34,7 +87,7 @@ const today = new Date().toISOString().slice(0, 10);
       <div>
         <h2 class="text-xl font-bold" id="editor-title">Buat Post Baru</h2>
         <p class="text-50 mt-2">
-          Form ini menyimpan post ke `src/content/posts/&lt;slug&gt;/index.md` atau memperbarui post yang dipilih.
+          Slug dibuat otomatis dari judul. Ringkasan artikel juga dibuat otomatis dari isi tulisan.
         </p>
       </div>
       <span
@@ -45,111 +98,84 @@ const today = new Date().toISOString().slice(0, 10);
       </span>
     </div>
 
-    <form id="post-form" class="grid gap-4 md:grid-cols-2">
+    <form id="post-form" class="grid gap-4 lg:grid-cols-2">
       <input type="hidden" name="originalSlug" value="" />
+      <input type="hidden" name="category" value="" />
+      <input type="hidden" name="tags" value="" />
 
-      <label class="flex flex-col gap-2 md:col-span-2">
+      <label class="flex flex-col gap-2 lg:col-span-2">
         <span class="font-medium">Judul</span>
         <input class="studio-input" type="text" name="title" required />
       </label>
 
-      <label class="flex flex-col gap-2">
-        <span class="font-medium">Slug</span>
-        <input class="studio-input" type="text" name="slug" placeholder="otomatis dari judul jika kosong" />
-      </label>
+      <div class="rounded-2xl border border-[var(--line-color)] bg-[var(--btn-plain-bg)]/60 p-4 lg:col-span-2">
+        <div class="text-sm font-medium text-70">Slug otomatis</div>
+        <div id="slug-preview" class="mt-2 text-sm text-50">-</div>
+      </div>
 
       <label class="flex flex-col gap-2">
         <span class="font-medium">Tanggal Publish</span>
         <input class="studio-input" type="date" name="published" value={today} required />
       </label>
 
-      <label class="flex flex-col gap-2 md:col-span-2">
-        <span class="font-medium">Deskripsi</span>
-        <textarea class="studio-input min-h-24" name="description"></textarea>
-      </label>
-
-      <label class="flex flex-col gap-2">
+      <div class="flex flex-col gap-2">
         <span class="font-medium">Kategori</span>
-        <input class="studio-input" type="text" name="category" />
-      </label>
-
-      <label class="flex flex-col gap-2">
-        <span class="font-medium">Tags</span>
-        <input class="studio-input" type="text" name="tags" placeholder="Keamanan Siber, Tutorial" />
-      </label>
-
-      <label class="flex flex-col gap-2">
-        <span class="font-medium">Author</span>
-        <input class="studio-input" type="text" name="author" value="NgetehNology" />
-      </label>
-
-      <label class="flex flex-col gap-2">
-        <span class="font-medium">Bahasa</span>
-        <select class="studio-input" name="lang">
-          <option value="id">Indonesia</option>
-          <option value="en">English</option>
+        <select class="studio-input" id="post-category-select">
+          <option value="">Pilih kategori</option>
         </select>
+      </div>
+
+      <label class="flex flex-col gap-2 lg:col-span-2">
+        <span class="font-medium">Tambah kategori baru jika belum ada</span>
+        <input class="studio-input" id="post-category-custom" type="text" placeholder="Kosongkan jika memakai kategori yang sudah ada" />
       </label>
 
-      <label class="flex flex-col gap-2">
-        <span class="font-medium">Tanggal Update</span>
-        <input class="studio-input" type="date" name="updated" />
+      <div class="flex flex-col gap-2 lg:col-span-2">
+        <span class="font-medium">Tags</span>
+        <div id="tag-options" class="flex flex-wrap gap-2"></div>
+      </div>
+
+      <label class="flex flex-col gap-2 lg:col-span-2">
+        <span class="font-medium">Tambah tag baru</span>
+        <input class="studio-input" id="post-new-tags" type="text" placeholder="Pisahkan dengan koma jika lebih dari satu" />
       </label>
 
-      <label class="flex flex-col gap-2">
-        <span class="font-medium">Series</span>
-        <input class="studio-input" type="text" name="series" />
+      <label class="flex flex-col gap-2 lg:col-span-2">
+        <span class="font-medium">Cover artikel</span>
+        <input
+          class="studio-input"
+          type="text"
+          name="image"
+          placeholder="URL cover dari website atau kosongkan jika ingin pakai upload lokal"
+        />
       </label>
 
-      <label class="flex flex-col gap-2">
-        <span class="font-medium">Cover Image URL/Path</span>
-        <input class="studio-input" type="text" name="image" placeholder="./cover.webp atau https://..." />
+      <label class="flex flex-col gap-2 lg:col-span-2">
+        <span class="font-medium">Upload cover lokal</span>
+        <input class="studio-input" type="file" name="coverFile" accept="image/*" />
       </label>
 
-      <label class="flex flex-col gap-2">
-        <span class="font-medium">Upload Cover Lokal</span>
-        <input class="studio-input" type="file" name="coverFile" />
-      </label>
+      <div class="flex flex-wrap gap-4 lg:col-span-2">
+        <label class="flex items-center gap-3">
+          <input type="checkbox" name="draft" value="true" />
+          <span>Simpan sebagai draft</span>
+        </label>
 
-      <label class="flex flex-col gap-2">
-        <span class="font-medium">Source Link</span>
-        <input class="studio-input" type="url" name="sourceLink" />
-      </label>
+        <label class="flex items-center gap-3">
+          <input type="checkbox" name="pinned" value="true" />
+          <span>Pin di daftar artikel</span>
+        </label>
+      </div>
 
-      <label class="flex flex-col gap-2">
-        <span class="font-medium">Nama Lisensi</span>
-        <input class="studio-input" type="text" name="licenseName" />
-      </label>
-
-      <label class="flex flex-col gap-2">
-        <span class="font-medium">URL Lisensi</span>
-        <input class="studio-input" type="url" name="licenseUrl" />
-      </label>
-
-      <label class="flex flex-col gap-2">
-        <span class="font-medium">Password Artikel</span>
-        <input class="studio-input" type="text" name="password" />
-      </label>
-
-      <label class="flex items-center gap-3">
-        <input type="checkbox" name="draft" value="true" />
-        <span>Simpan sebagai draft</span>
-      </label>
-
-      <label class="flex items-center gap-3">
-        <input type="checkbox" name="pinned" value="true" />
-        <span>Pin di daftar artikel</span>
-      </label>
-
-      <label class="flex flex-col gap-2 md:col-span-2">
+      <label class="flex flex-col gap-2 lg:col-span-2">
         <span class="font-medium">Isi Artikel</span>
-        <textarea class="studio-input min-h-[24rem] font-mono text-sm" name="content" required>## Pendahuluan
+        <textarea class="studio-input min-h-[26rem] font-mono text-sm" name="content" required>## Pendahuluan
 
 Tulis artikel Anda di sini.
 </textarea>
       </label>
 
-      <div class="flex flex-wrap items-center gap-3 md:col-span-2">
+      <div class="flex flex-wrap items-center gap-3 lg:col-span-2">
         <button class="btn-regular rounded-xl px-5 py-3 font-semibold" id="post-submit-btn" type="submit">
           Simpan Post
         </button>
@@ -165,7 +191,7 @@ Tulis artikel Anda di sini.
   </section>
 </section>
 
-<script is:inline define:vars={{ today }}>
+<script is:inline define:vars={{ today, initialTaxonomy: taxonomy }}>
   const postForm = document.getElementById("post-form");
   const postStatus = document.getElementById("post-status");
   const postList = document.getElementById("post-list");
@@ -177,24 +203,24 @@ Tulis artikel Anda di sini.
   const editorTitle = document.getElementById("editor-title");
   const editorModeBadge = document.getElementById("editor-mode-badge");
   const submitButton = document.getElementById("post-submit-btn");
+  const slugPreview = document.getElementById("slug-preview");
+  const categorySelect = document.getElementById("post-category-select");
+  const categoryCustomInput = document.getElementById("post-category-custom");
+  const tagOptions = document.getElementById("tag-options");
+  const newTagsInput = document.getElementById("post-new-tags");
+  const taxonomyCategoryInput = document.getElementById("taxonomy-category-input");
+  const taxonomyTagInput = document.getElementById("taxonomy-tag-input");
+  const taxonomyCategoryList = document.getElementById("taxonomy-category-list");
+  const taxonomyTagList = document.getElementById("taxonomy-tag-list");
+  const taxonomyStatus = document.getElementById("taxonomy-status");
 
   const initialFormState = {
     title: "",
-    slug: "",
     originalSlug: "",
     published: today,
-    description: "",
     category: "",
-    tags: "",
-    author: "NgetehNology",
-    lang: "id",
-    updated: "",
-    series: "",
+    tags: [],
     image: "",
-    sourceLink: "",
-    licenseName: "",
-    licenseUrl: "",
-    password: "",
     draft: false,
     pinned: false,
     content: "## Pendahuluan\n\nTulis artikel Anda di sini.\n",
@@ -202,30 +228,209 @@ Tulis artikel Anda di sini.
 
   let studioPosts = [];
   let activeSlug = "";
+  let taxonomyState = {
+    categories: [...(initialTaxonomy.categories || [])],
+    tags: [...(initialTaxonomy.tags || [])],
+  };
+  let selectedTags = new Set();
+
+  function slugify(value) {
+    return value
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .replace(/-{2,}/g, "-");
+  }
+
+  function normalizeUnique(values) {
+    return Array.from(
+      new Set(
+        values
+          .map((value) => String(value || "").trim())
+          .filter(Boolean),
+      ),
+    ).sort((a, b) => a.localeCompare(b));
+  }
+
+  function escapeHtml(value) {
+    return String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;");
+  }
+
+  function syncHiddenFields() {
+    if (!postForm) return;
+    const chosenCategory = categoryCustomInput?.value.trim() || categorySelect?.value || "";
+    postForm.elements.category.value = chosenCategory;
+    postForm.elements.tags.value = Array.from(selectedTags).join(", ");
+  }
+
+  function updateSlugPreview() {
+    const title = postForm?.elements.title.value || "";
+    const slug = slugify(title);
+    slugPreview.textContent = slug ? `/posts/${slug}/` : "-";
+  }
+
+  function renderCategoryOptions(selected = "") {
+    if (!categorySelect) return;
+    const normalizedCategories = normalizeUnique(taxonomyState.categories);
+    taxonomyState.categories = normalizedCategories;
+    categorySelect.innerHTML =
+      '<option value="">Pilih kategori</option>' +
+      normalizedCategories
+        .map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`)
+        .join("");
+
+    if (selected && normalizedCategories.includes(selected)) {
+      categorySelect.value = selected;
+      if (categoryCustomInput) categoryCustomInput.value = "";
+    } else {
+      categorySelect.value = "";
+      if (categoryCustomInput) categoryCustomInput.value = selected;
+    }
+    syncHiddenFields();
+  }
+
+  function renderTagOptions() {
+    if (!tagOptions) return;
+    const normalizedTags = normalizeUnique(taxonomyState.tags);
+    taxonomyState.tags = normalizedTags;
+    tagOptions.innerHTML = normalizedTags
+      .map((tag) => {
+        const activeClass = selectedTags.has(tag)
+          ? "border-[var(--primary)] bg-[var(--btn-regular-bg)] text-[var(--btn-content)]"
+          : "border-[var(--line-color)] bg-[var(--card-bg)] text-70";
+        return `
+          <button
+            type="button"
+            class="studio-chip rounded-full border px-3 py-2 text-sm font-medium transition ${activeClass}"
+            data-tag-option="${escapeHtml(tag)}"
+          >
+            ${escapeHtml(tag)}
+          </button>
+        `;
+      })
+      .join("");
+
+    tagOptions.querySelectorAll("[data-tag-option]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const tag = button.dataset.tagOption;
+        if (!tag) return;
+        if (selectedTags.has(tag)) {
+          selectedTags.delete(tag);
+        } else {
+          selectedTags.add(tag);
+        }
+        syncHiddenFields();
+        renderTagOptions();
+      });
+    });
+  }
+
+  function renderTaxonomyList(container, items, type) {
+    if (!container) return;
+    container.innerHTML = normalizeUnique(items)
+      .map(
+        (item) => `
+          <button
+            type="button"
+            class="studio-taxonomy-item rounded-full border border-[var(--line-color)] bg-[var(--card-bg)] px-3 py-2 text-sm transition hover:border-[var(--primary)]"
+            data-taxonomy-type="${type}"
+            data-taxonomy-value="${escapeHtml(item)}"
+          >
+            ${escapeHtml(item)}
+            <span class="ml-2 text-50">x</span>
+          </button>
+        `,
+      )
+      .join("");
+
+    container.querySelectorAll("[data-taxonomy-value]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const value = button.dataset.taxonomyValue;
+        const targetType = button.dataset.taxonomyType;
+        if (!value || !targetType) return;
+
+        taxonomyState[targetType] = taxonomyState[targetType].filter((item) => item !== value);
+        if (targetType === "tags") {
+          selectedTags.delete(value);
+          renderTagOptions();
+        }
+        if (targetType === "categories" && categorySelect?.value === value) {
+          categorySelect.value = "";
+        }
+        renderTaxonomyPanels();
+        syncHiddenFields();
+      });
+    });
+  }
+
+  function renderTaxonomyPanels() {
+    renderCategoryOptions(postForm?.elements.category.value || categoryCustomInput?.value || "");
+    renderTagOptions();
+    renderTaxonomyList(taxonomyCategoryList, taxonomyState.categories, "categories");
+    renderTaxonomyList(taxonomyTagList, taxonomyState.tags, "tags");
+  }
+
+  function addTaxonomyItem(type, rawValue) {
+    const values = normalizeUnique(rawValue.split(","));
+    if (values.length === 0) return;
+    taxonomyState[type] = normalizeUnique([...taxonomyState[type], ...values]);
+    if (type === "tags") {
+      values.forEach((value) => selectedTags.add(value));
+    }
+    renderTaxonomyPanels();
+    syncHiddenFields();
+  }
+
+  async function saveTaxonomy() {
+    taxonomyStatus.textContent = "Menyimpan database kategori dan tag...";
+    try {
+      const response = await fetch("/api/studio/config/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          section: "postTaxonomy",
+          value: {
+            categories: normalizeUnique(taxonomyState.categories),
+            tags: normalizeUnique(taxonomyState.tags),
+          },
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "Gagal menyimpan taxonomy.");
+      }
+      taxonomyStatus.textContent = "Database kategori dan tag tersimpan.";
+    } catch (error) {
+      taxonomyStatus.textContent = error.message;
+    }
+  }
 
   function applyFormState(payload) {
     if (!postForm) return;
+    selectedTags = new Set(Array.isArray(payload.tags) ? payload.tags : []);
 
     postForm.elements.title.value = payload.title ?? "";
-    postForm.elements.slug.value = payload.slug ?? "";
     postForm.elements.originalSlug.value = payload.originalSlug ?? "";
     postForm.elements.published.value = payload.published ?? "";
-    postForm.elements.description.value = payload.description ?? "";
-    postForm.elements.category.value = payload.category ?? "";
-    postForm.elements.tags.value = payload.tags ?? "";
-    postForm.elements.author.value = payload.author ?? "";
-    postForm.elements.lang.value = payload.lang ?? "id";
-    postForm.elements.updated.value = payload.updated ?? "";
-    postForm.elements.series.value = payload.series ?? "";
     postForm.elements.image.value = payload.image ?? "";
-    postForm.elements.sourceLink.value = payload.sourceLink ?? "";
-    postForm.elements.licenseName.value = payload.licenseName ?? "";
-    postForm.elements.licenseUrl.value = payload.licenseUrl ?? "";
-    postForm.elements.password.value = payload.password ?? "";
     postForm.elements.draft.checked = Boolean(payload.draft);
     postForm.elements.pinned.checked = Boolean(payload.pinned);
     postForm.elements.content.value = payload.content ?? "";
     postForm.elements.coverFile.value = "";
+
+    renderCategoryOptions(payload.category ?? "");
+    renderTagOptions();
+    syncHiddenFields();
+    updateSlugPreview();
   }
 
   function setCreateMode() {
@@ -243,7 +448,7 @@ Tulis artikel Anda di sini.
     applyFormState({
       ...post,
       originalSlug: post.slug,
-      tags: Array.isArray(post.tags) ? post.tags.join(", ") : "",
+      tags: Array.isArray(post.tags) ? post.tags : [],
     });
     editorTitle.textContent = `Edit Post: ${post.title}`;
     editorModeBadge.textContent = "Mode Update";
@@ -284,20 +489,20 @@ Tulis artikel Anda di sini.
     postListStatus.textContent = `${filtered.length} post tersedia.`;
     postList.innerHTML = filtered
       .map((item) => {
-        const meta = [item.published, item.lang?.toUpperCase(), item.draft ? "Draft" : "Published"]
+        const meta = [item.published, item.draft ? "Draft" : "Published"]
           .filter(Boolean)
-          .join(" • ");
+          .join(" | ");
         return `
           <button type="button" class="studio-post-item w-full rounded-2xl border border-[var(--line-color)] p-4 text-left transition hover:border-[var(--primary)] hover:bg-[var(--btn-plain-bg-hover)]" data-post-slug="${item.slug}">
             <div class="flex items-start justify-between gap-3">
               <div>
-                <div class="font-semibold text-90">${item.title}</div>
-                <div class="mt-1 text-xs text-50">${item.slug}</div>
+                <div class="font-semibold text-90">${escapeHtml(item.title)}</div>
+                <div class="mt-1 text-xs text-50">${escapeHtml(item.slug)}</div>
               </div>
               ${item.draft ? '<span class="rounded-full bg-amber-500/15 px-2 py-1 text-[10px] font-semibold text-amber-600 dark:text-amber-300">DRAFT</span>' : ""}
             </div>
-            <div class="mt-3 text-xs text-50">${meta}</div>
-            ${item.category ? `<div class="mt-1 text-xs text-50">${item.category}</div>` : ""}
+            <div class="mt-3 text-xs text-50">${escapeHtml(meta)}</div>
+            ${item.category ? `<div class="mt-1 text-xs text-50">${escapeHtml(item.category)}</div>` : ""}
           </button>
         `;
       })
@@ -341,32 +546,27 @@ Tulis artikel Anda di sini.
     }
   }
 
-  if (searchInput) {
-    searchInput.addEventListener("input", renderPostList);
-  }
+  searchInput?.addEventListener("input", renderPostList);
 
   newButton?.addEventListener("click", () => {
     setCreateMode();
     postStatus.textContent = "Siap membuat post baru.";
   });
 
-  resetButton?.addEventListener("click", () => {
+  resetButton?.addEventListener("click", async () => {
     if (activeSlug) {
-      const existing = studioPosts.find((item) => item.slug === activeSlug);
-      if (existing) {
-        postStatus.textContent = "Memuat ulang detail post aktif...";
-        fetch(`/api/studio/post/?slug=${encodeURIComponent(activeSlug)}`)
-          .then((response) => response.json().then((data) => ({ ok: response.ok, data })))
-          .then(({ ok, data }) => {
-            if (!ok) throw new Error(data.error || "Gagal memuat ulang post.");
-            setEditMode(data.item);
-            postStatus.textContent = "Form dikembalikan ke data terakhir tersimpan.";
-          })
-          .catch((error) => {
-            postStatus.textContent = error.message;
-          });
-        return;
+      try {
+        const response = await fetch(`/api/studio/post/?slug=${encodeURIComponent(activeSlug)}`);
+        const result = await response.json();
+        if (!response.ok) {
+          throw new Error(result.error || "Gagal memuat ulang post.");
+        }
+        setEditMode(result.item);
+        postStatus.textContent = "Form dikembalikan ke data terakhir tersimpan.";
+      } catch (error) {
+        postStatus.textContent = error.message;
       }
+      return;
     }
     setCreateMode();
     postStatus.textContent = "Form direset.";
@@ -401,9 +601,40 @@ Tulis artikel Anda di sini.
     }
   });
 
+  postForm?.elements.title.addEventListener("input", updateSlugPreview);
+  categorySelect?.addEventListener("change", () => {
+    if (categorySelect.value && categoryCustomInput) {
+      categoryCustomInput.value = "";
+    }
+    syncHiddenFields();
+  });
+  categoryCustomInput?.addEventListener("input", syncHiddenFields);
+  newTagsInput?.addEventListener("change", () => {
+    if (!newTagsInput.value.trim()) return;
+    addTaxonomyItem("tags", newTagsInput.value);
+    newTagsInput.value = "";
+  });
+
+  document.getElementById("taxonomy-category-add-btn")?.addEventListener("click", () => {
+    if (!taxonomyCategoryInput?.value.trim()) return;
+    addTaxonomyItem("categories", taxonomyCategoryInput.value);
+    taxonomyCategoryInput.value = "";
+    taxonomyStatus.textContent = "Kategori ditambahkan. Klik Simpan untuk menyimpan permanen.";
+  });
+
+  document.getElementById("taxonomy-tag-add-btn")?.addEventListener("click", () => {
+    if (!taxonomyTagInput?.value.trim()) return;
+    addTaxonomyItem("tags", taxonomyTagInput.value);
+    taxonomyTagInput.value = "";
+    taxonomyStatus.textContent = "Tag ditambahkan. Klik Simpan untuk menyimpan permanen.";
+  });
+
+  document.getElementById("taxonomy-save-btn")?.addEventListener("click", saveTaxonomy);
+
   if (postForm && postStatus) {
     postForm.addEventListener("submit", async (event) => {
       event.preventDefault();
+      syncHiddenFields();
 
       const formData = new FormData(postForm);
       const isUpdate = Boolean(formData.get("originalSlug"));
@@ -412,6 +643,10 @@ Tulis artikel Anda di sini.
       postStatus.textContent = isUpdate ? "Menyimpan perubahan post..." : "Membuat post baru...";
 
       try {
+        if (taxonomyState.categories.length || taxonomyState.tags.length) {
+          await saveTaxonomy();
+        }
+
         const response = await fetch(endpoint, {
           method: "POST",
           body: formData,
@@ -444,6 +679,7 @@ Tulis artikel Anda di sini.
   }
 
   setCreateMode();
+  renderTaxonomyPanels();
   refreshPostList();
 </script>
 
@@ -468,5 +704,10 @@ Tulis artikel Anda di sini.
   .studio-post-item-active {
     border-color: color-mix(in oklab, var(--primary) 65%, transparent);
     background: color-mix(in oklab, var(--primary) 10%, var(--card-bg));
+  }
+
+  .studio-chip:hover,
+  .studio-taxonomy-item:hover {
+    transform: translateY(-1px);
   }
 </style>

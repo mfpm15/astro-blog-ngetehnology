@@ -1,8 +1,9 @@
 ---
 import PostCreator from "@components/studio/PostCreator.astro";
 import StudioShell from "@components/studio/StudioShell.astro";
+import taxonomyData from "../../data/post-taxonomy.json";
 ---
 
 <StudioShell title="Studio Posts" description="Pembuatan artikel baru secara lokal.">
-  <PostCreator />
+  <PostCreator taxonomy={taxonomyData} />
 </StudioShell>

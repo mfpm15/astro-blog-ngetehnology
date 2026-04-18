@@ -18,6 +18,7 @@ const sectionMap = {
   footer: path.join(process.cwd(), "src", "data", "footer.json"),
   musicPlayer: path.join(process.cwd(), "src", "data", "music-player.json"),
   friends: path.join(process.cwd(), "src", "data", "friends.json"),
+  postTaxonomy: path.join(process.cwd(), "src", "data", "post-taxonomy.json"),
   navbarLinks: path.join(process.cwd(), "src", "data", "navbar-links.json"),
   sidebarLayout: path.join(process.cwd(), "src", "data", "sidebar-layout.json"),
   aboutPage: path.join(process.cwd(), "src", "content", "spec", "about.md"),
@@ -38,9 +39,19 @@ function validatePayload(section: Section, value: unknown) {
     return;
   }
 
-  if (section === "friends") {
+  if (section === "friends" || section === "navbarLinks") {
     if (!Array.isArray(value)) {
-      throw new Error("Format friends harus array.");
+      throw new Error(`Format ${section} harus array.`);
+    }
+    return;
+  }
+
+  if (section === "postTaxonomy") {
+    if (!isRecord(value)) {
+      throw new Error("Format postTaxonomy harus object.");
+    }
+    if (!Array.isArray(value.categories) || !Array.isArray(value.tags)) {
+      throw new Error("postTaxonomy harus memiliki array categories dan tags.");
     }
     return;
   }
@@ -59,13 +70,6 @@ function validatePayload(section: Section, value: unknown) {
   ) {
     if (!isRecord(value)) {
       throw new Error(`Format ${section} harus object.`);
-    }
-    return;
-  }
-
-  if (section === "navbarLinks") {
-    if (!Array.isArray(value)) {
-      throw new Error("Format navbarLinks harus array.");
     }
     return;
   }

@@ -1,5 +1,4 @@
----
-import JsonConfigEditor from "@components/studio/JsonConfigEditor.astro";
+import SiteManager from "@components/studio/SiteManager.astro";
 import StudioShell from "@components/studio/StudioShell.astro";
 import announcementData from "../../data/announcement.json";
 import profileData from "../../data/profile.json";
@@ -8,26 +7,10 @@ import siteSettings from "../../data/site-settings.json";
 ---
 
 <StudioShell title="Studio Site" description="Konfigurasi inti situs dan identitas.">
-  <JsonConfigEditor
-    title="Site Metadata"
-    section="site"
-    description="Judul, bahasa situs, logo, favicon, subtitle, dan deskripsi."
-    value={JSON.stringify(siteMetadata, null, 2)}
-  />
-  <JsonConfigEditor
-    title="Site Settings"
-    section="siteSettings"
-    description="Theme color, page toggles, pagination, toc, dan pengaturan inti lainnya."
-    value={JSON.stringify(siteSettings, null, 2)}
-  />
-  <JsonConfigEditor
-    title="Profile"
-    section="profile"
-    value={JSON.stringify(profileData, null, 2)}
-  />
-  <JsonConfigEditor
-    title="Announcement"
-    section="announcement"
-    value={JSON.stringify(announcementData, null, 2)}
+  <SiteManager
+    siteMetadata={siteMetadata}
+    siteSettings={siteSettings}
+    profile={profileData}
+    announcement={announcementData}
   />
 </StudioShell>

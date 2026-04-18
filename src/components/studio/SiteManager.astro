@@ -1,0 +1,413 @@
+---
+interface SiteMetadata {
+  lang: "id" | "en";
+  title: string;
+  subtitle: string;
+  description: string;
+  keywords: string[];
+  logo: { src: string; alt: string };
+  favicon: { src: string; sizes: string };
+}
+
+interface SiteSettings {
+  themeColor: { hue: number; fixed: boolean; defaultMode: string };
+  showLastModified: boolean;
+  generateOgImages: boolean;
+  pages: { anime: boolean; projects: boolean; timeline: boolean; skills: boolean };
+  postListLayout: { defaultMode: string; allowSwitch: boolean };
+  pagination: { postsPerPage: number };
+  toc: { enable: boolean; depth: number };
+}
+
+interface ProfileData {
+  avatar: string;
+  name: string;
+  bio: string;
+  links: Array<{ name: string; icon?: string; url: string }>;
+}
+
+interface AnnouncementData {
+  title: string;
+  content: string;
+  closable: boolean;
+  link: { enable: boolean; text: string; url: string; external: boolean };
+}
+
+interface Props {
+  siteMetadata: SiteMetadata;
+  siteSettings: SiteSettings;
+  profile: ProfileData;
+  announcement: AnnouncementData;
+}
+
+const { siteMetadata, siteSettings, profile, announcement } = Astro.props;
+---
+
+<section class="grid gap-6 xl:grid-cols-2">
+  <section class="card-base p-6">
+    <h2 class="text-xl font-bold">Site Metadata</h2>
+    <p class="text-50 mt-2">Judul, bahasa utama, logo, favicon, dan identitas dasar situs.</p>
+
+    <form id="site-metadata-form" class="mt-5 grid gap-4">
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Bahasa utama</span>
+        <select class="studio-input" name="lang">
+          <option value="id">Indonesia</option>
+          <option value="en">English</option>
+        </select>
+      </label>
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Judul</span>
+        <input class="studio-input" type="text" name="title" />
+      </label>
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Subtitle</span>
+        <input class="studio-input" type="text" name="subtitle" />
+      </label>
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Deskripsi</span>
+        <textarea class="studio-input min-h-28" name="description"></textarea>
+      </label>
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Keywords</span>
+        <input class="studio-input" type="text" name="keywords" placeholder="Pisahkan dengan koma" />
+      </label>
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Logo</span>
+        <input class="studio-input" type="text" name="logoSrc" />
+      </label>
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Alt Logo</span>
+        <input class="studio-input" type="text" name="logoAlt" />
+      </label>
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Favicon</span>
+        <input class="studio-input" type="text" name="faviconSrc" />
+      </label>
+      <div class="flex items-center gap-3">
+        <button class="btn-regular rounded-xl px-5 py-3 font-semibold" type="submit">Simpan Metadata</button>
+        <p id="site-metadata-status" class="text-sm text-50"></p>
+      </div>
+    </form>
+  </section>
+
+  <section class="card-base p-6">
+    <h2 class="text-xl font-bold">Site Settings</h2>
+    <p class="text-50 mt-2">Kontrol tampilan inti, pagination, TOC, dan halaman aktif.</p>
+
+    <form id="site-settings-form" class="mt-5 grid gap-4 md:grid-cols-2">
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Hue Tema</span>
+        <input class="studio-input" type="number" min="0" max="360" name="themeHue" />
+      </label>
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Mode tema default</span>
+        <select class="studio-input" name="defaultMode">
+          <option value="system">System</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </label>
+      <label class="flex items-center gap-3">
+        <input type="checkbox" name="themeFixed" value="true" />
+        <span>Warna tema dikunci</span>
+      </label>
+      <label class="flex items-center gap-3">
+        <input type="checkbox" name="showLastModified" value="true" />
+        <span>Tampilkan tanggal update</span>
+      </label>
+      <label class="flex items-center gap-3">
+        <input type="checkbox" name="generateOgImages" value="true" />
+        <span>Generate OG image</span>
+      </label>
+      <label class="flex items-center gap-3">
+        <input type="checkbox" name="allowSwitch" value="true" />
+        <span>Izinkan switch layout post</span>
+      </label>
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Layout post default</span>
+        <select class="studio-input" name="postListMode">
+          <option value="list">List</option>
+          <option value="grid">Grid</option>
+        </select>
+      </label>
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Post per halaman</span>
+        <input class="studio-input" type="number" min="1" name="postsPerPage" />
+      </label>
+      <label class="flex items-center gap-3">
+        <input type="checkbox" name="tocEnable" value="true" />
+        <span>Aktifkan TOC</span>
+      </label>
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Kedalaman TOC</span>
+        <input class="studio-input" type="number" min="1" max="6" name="tocDepth" />
+      </label>
+      <div class="grid gap-3 md:col-span-2 md:grid-cols-2">
+        <label class="flex items-center gap-3"><input type="checkbox" name="pageAnime" value="true" /><span>Halaman Anime</span></label>
+        <label class="flex items-center gap-3"><input type="checkbox" name="pageProjects" value="true" /><span>Halaman Projects</span></label>
+        <label class="flex items-center gap-3"><input type="checkbox" name="pageTimeline" value="true" /><span>Halaman Timeline</span></label>
+        <label class="flex items-center gap-3"><input type="checkbox" name="pageSkills" value="true" /><span>Halaman Skills</span></label>
+      </div>
+      <div class="flex items-center gap-3 md:col-span-2">
+        <button class="btn-regular rounded-xl px-5 py-3 font-semibold" type="submit">Simpan Settings</button>
+        <p id="site-settings-status" class="text-sm text-50"></p>
+      </div>
+    </form>
+  </section>
+
+  <section class="card-base p-6">
+    <h2 class="text-xl font-bold">Profile</h2>
+    <p class="text-50 mt-2">Identitas profil sidebar dan link sosial.</p>
+
+    <form id="profile-form" class="mt-5 grid gap-4">
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Nama</span>
+        <input class="studio-input" type="text" name="name" />
+      </label>
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Bio</span>
+        <textarea class="studio-input min-h-28" name="bio"></textarea>
+      </label>
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Avatar</span>
+        <input class="studio-input" type="text" name="avatar" />
+      </label>
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Link Sosial</span>
+        <textarea class="studio-input min-h-40 font-mono text-sm" name="linksJson"></textarea>
+      </label>
+      <div class="flex items-center gap-3">
+        <button class="btn-regular rounded-xl px-5 py-3 font-semibold" type="submit">Simpan Profile</button>
+        <p id="profile-status" class="text-sm text-50"></p>
+      </div>
+    </form>
+  </section>
+
+  <section class="card-base p-6">
+    <h2 class="text-xl font-bold">Announcement</h2>
+    <p class="text-50 mt-2">Banner pengumuman yang tampil di sidebar.</p>
+
+    <form id="announcement-form" class="mt-5 grid gap-4">
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Judul</span>
+        <input class="studio-input" type="text" name="title" />
+      </label>
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Isi</span>
+        <textarea class="studio-input min-h-28" name="content"></textarea>
+      </label>
+      <label class="flex items-center gap-3">
+        <input type="checkbox" name="closable" value="true" />
+        <span>Bisa ditutup pengunjung</span>
+      </label>
+      <label class="flex items-center gap-3">
+        <input type="checkbox" name="linkEnable" value="true" />
+        <span>Aktifkan tombol/link</span>
+      </label>
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Teks Link</span>
+        <input class="studio-input" type="text" name="linkText" />
+      </label>
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">URL Link</span>
+        <input class="studio-input" type="text" name="linkUrl" />
+      </label>
+      <label class="flex items-center gap-3">
+        <input type="checkbox" name="linkExternal" value="true" />
+        <span>Link eksternal</span>
+      </label>
+      <div class="flex items-center gap-3">
+        <button class="btn-regular rounded-xl px-5 py-3 font-semibold" type="submit">Simpan Announcement</button>
+        <p id="announcement-status" class="text-sm text-50"></p>
+      </div>
+    </form>
+  </section>
+</section>
+
+<script is:inline define:vars={{ initialSiteMetadata: siteMetadata, initialSiteSettings: siteSettings, initialProfile: profile, initialAnnouncement: announcement }}>
+  function splitCommaList(value) {
+    return String(value || "")
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  async function saveSection(section, value, statusElement) {
+    statusElement.textContent = "Menyimpan...";
+    try {
+      const response = await fetch("/api/studio/config/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ section, value }),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || `Gagal menyimpan ${section}.`);
+      }
+      statusElement.textContent = `${section} tersimpan.`;
+    } catch (error) {
+      statusElement.textContent = error.message;
+    }
+  }
+
+  const siteMetadataForm = document.getElementById("site-metadata-form");
+  const siteSettingsForm = document.getElementById("site-settings-form");
+  const profileForm = document.getElementById("profile-form");
+  const announcementForm = document.getElementById("announcement-form");
+
+  siteMetadataForm.elements.lang.value = initialSiteMetadata.lang || "id";
+  siteMetadataForm.elements.title.value = initialSiteMetadata.title || "";
+  siteMetadataForm.elements.subtitle.value = initialSiteMetadata.subtitle || "";
+  siteMetadataForm.elements.description.value = initialSiteMetadata.description || "";
+  siteMetadataForm.elements.keywords.value = (initialSiteMetadata.keywords || []).join(", ");
+  siteMetadataForm.elements.logoSrc.value = initialSiteMetadata.logo?.src || "";
+  siteMetadataForm.elements.logoAlt.value = initialSiteMetadata.logo?.alt || "";
+  siteMetadataForm.elements.faviconSrc.value = initialSiteMetadata.favicon?.src || "";
+
+  siteSettingsForm.elements.themeHue.value = String(initialSiteSettings.themeColor?.hue ?? 250);
+  siteSettingsForm.elements.defaultMode.value = initialSiteSettings.themeColor?.defaultMode || "system";
+  siteSettingsForm.elements.themeFixed.checked = Boolean(initialSiteSettings.themeColor?.fixed);
+  siteSettingsForm.elements.showLastModified.checked = Boolean(initialSiteSettings.showLastModified);
+  siteSettingsForm.elements.generateOgImages.checked = Boolean(initialSiteSettings.generateOgImages);
+  siteSettingsForm.elements.allowSwitch.checked = Boolean(initialSiteSettings.postListLayout?.allowSwitch);
+  siteSettingsForm.elements.postListMode.value = initialSiteSettings.postListLayout?.defaultMode || "list";
+  siteSettingsForm.elements.postsPerPage.value = String(initialSiteSettings.pagination?.postsPerPage ?? 8);
+  siteSettingsForm.elements.tocEnable.checked = Boolean(initialSiteSettings.toc?.enable);
+  siteSettingsForm.elements.tocDepth.value = String(initialSiteSettings.toc?.depth ?? 3);
+  siteSettingsForm.elements.pageAnime.checked = Boolean(initialSiteSettings.pages?.anime);
+  siteSettingsForm.elements.pageProjects.checked = Boolean(initialSiteSettings.pages?.projects);
+  siteSettingsForm.elements.pageTimeline.checked = Boolean(initialSiteSettings.pages?.timeline);
+  siteSettingsForm.elements.pageSkills.checked = Boolean(initialSiteSettings.pages?.skills);
+
+  profileForm.elements.name.value = initialProfile.name || "";
+  profileForm.elements.bio.value = initialProfile.bio || "";
+  profileForm.elements.avatar.value = initialProfile.avatar || "";
+  profileForm.elements.linksJson.value = JSON.stringify(initialProfile.links || [], null, 2);
+
+  announcementForm.elements.title.value = initialAnnouncement.title || "";
+  announcementForm.elements.content.value = initialAnnouncement.content || "";
+  announcementForm.elements.closable.checked = Boolean(initialAnnouncement.closable);
+  announcementForm.elements.linkEnable.checked = Boolean(initialAnnouncement.link?.enable);
+  announcementForm.elements.linkText.value = initialAnnouncement.link?.text || "";
+  announcementForm.elements.linkUrl.value = initialAnnouncement.link?.url || "";
+  announcementForm.elements.linkExternal.checked = Boolean(initialAnnouncement.link?.external);
+
+  siteMetadataForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    await saveSection(
+      "site",
+      {
+        lang: siteMetadataForm.elements.lang.value,
+        title: siteMetadataForm.elements.title.value.trim(),
+        subtitle: siteMetadataForm.elements.subtitle.value.trim(),
+        description: siteMetadataForm.elements.description.value.trim(),
+        keywords: splitCommaList(siteMetadataForm.elements.keywords.value),
+        logo: {
+          src: siteMetadataForm.elements.logoSrc.value.trim(),
+          alt: siteMetadataForm.elements.logoAlt.value.trim(),
+        },
+        favicon: {
+          src: siteMetadataForm.elements.faviconSrc.value.trim(),
+          sizes: initialSiteMetadata.favicon?.sizes || "32x32",
+        },
+      },
+      document.getElementById("site-metadata-status"),
+    );
+  });
+
+  siteSettingsForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    await saveSection(
+      "siteSettings",
+      {
+        ...initialSiteSettings,
+        themeColor: {
+          hue: Number(siteSettingsForm.elements.themeHue.value || 250),
+          fixed: siteSettingsForm.elements.themeFixed.checked,
+          defaultMode: siteSettingsForm.elements.defaultMode.value,
+        },
+        showLastModified: siteSettingsForm.elements.showLastModified.checked,
+        generateOgImages: siteSettingsForm.elements.generateOgImages.checked,
+        pages: {
+          anime: siteSettingsForm.elements.pageAnime.checked,
+          projects: siteSettingsForm.elements.pageProjects.checked,
+          timeline: siteSettingsForm.elements.pageTimeline.checked,
+          skills: siteSettingsForm.elements.pageSkills.checked,
+        },
+        postListLayout: {
+          defaultMode: siteSettingsForm.elements.postListMode.value,
+          allowSwitch: siteSettingsForm.elements.allowSwitch.checked,
+        },
+        pagination: {
+          postsPerPage: Number(siteSettingsForm.elements.postsPerPage.value || 8),
+        },
+        toc: {
+          enable: siteSettingsForm.elements.tocEnable.checked,
+          depth: Number(siteSettingsForm.elements.tocDepth.value || 3),
+        },
+      },
+      document.getElementById("site-settings-status"),
+    );
+  });
+
+  profileForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    let links = [];
+    try {
+      links = JSON.parse(profileForm.elements.linksJson.value || "[]");
+      if (!Array.isArray(links)) {
+        throw new Error("Link sosial harus berupa array JSON.");
+      }
+    } catch (error) {
+      document.getElementById("profile-status").textContent =
+        error instanceof Error ? error.message : "Format link sosial tidak valid.";
+      return;
+    }
+
+    await saveSection(
+      "profile",
+      {
+        avatar: profileForm.elements.avatar.value.trim(),
+        name: profileForm.elements.name.value.trim(),
+        bio: profileForm.elements.bio.value.trim(),
+        links,
+      },
+      document.getElementById("profile-status"),
+    );
+  });
+
+  announcementForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    await saveSection(
+      "announcement",
+      {
+        title: announcementForm.elements.title.value.trim(),
+        content: announcementForm.elements.content.value.trim(),
+        closable: announcementForm.elements.closable.checked,
+        link: {
+          enable: announcementForm.elements.linkEnable.checked,
+          text: announcementForm.elements.linkText.value.trim(),
+          url: announcementForm.elements.linkUrl.value.trim(),
+          external: announcementForm.elements.linkExternal.checked,
+        },
+      },
+      document.getElementById("announcement-status"),
+    );
+  });
+</script>
+
+<style>
+  .studio-input {
+    border: 1px solid color-mix(in oklab, var(--primary) 16%, transparent);
+    border-radius: 1rem;
+    background: var(--card-bg);
+    padding: 0.875rem 1rem;
+  }
+
+  .studio-input:focus {
+    outline: none;
+    border-color: color-mix(in oklab, var(--primary) 50%, transparent);
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--primary) 14%, transparent);
+  }
+</style>

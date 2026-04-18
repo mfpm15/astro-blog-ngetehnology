@@ -5,6 +5,7 @@ import path from "node:path";
 const PORT = Number(process.env.STUDIO_FILE_SERVER_PORT || 4323);
 const HOST = process.env.STUDIO_FILE_SERVER_HOST || "127.0.0.1";
 const POSTS_DIR = path.join(process.cwd(), "src", "content", "posts");
+const TAXONOMY_PATH = path.join(process.cwd(), "src", "data", "post-taxonomy.json");
 
 function json(response, status, payload) {
   response.writeHead(status, {
@@ -38,6 +39,29 @@ function parseTags(value) {
     .split(",")
     .map((tag) => tag.trim())
     .filter(Boolean);
+}
+
+function normalizeUniqueStrings(values) {
+  return Array.from(
+    new Set(
+      values
+        .map((value) => String(value || "").trim())
+        .filter(Boolean),
+    ),
+  ).sort((a, b) => a.localeCompare(b));
+}
+
+function generateDescriptionFromContent(content) {
+  const plainText = content
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/^#+\s+/gm, "")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/[*_>~-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return plainText.slice(0, 180).trim();
 }
 
 function buildFrontmatter(data) {
@@ -156,6 +180,37 @@ async function pathExists(targetPath) {
   } catch {
     return false;
   }
+}
+
+async function readTaxonomy() {
+  if (!(await pathExists(TAXONOMY_PATH))) {
+    return { categories: [], tags: [] };
+  }
+
+  const raw = await fs.readFile(TAXONOMY_PATH, "utf8");
+  const parsed = JSON.parse(raw);
+  return {
+    categories: Array.isArray(parsed.categories) ? parsed.categories.map(String) : [],
+    tags: Array.isArray(parsed.tags) ? parsed.tags.map(String) : [],
+  };
+}
+
+async function saveTaxonomy(data) {
+  const normalized = {
+    categories: normalizeUniqueStrings(data.categories || []),
+    tags: normalizeUniqueStrings(data.tags || []),
+  };
+  await fs.writeFile(TAXONOMY_PATH, `${JSON.stringify(normalized, null, 2)}\n`, "utf8");
+  return normalized;
+}
+
+async function syncTaxonomyFromPost(postData) {
+  const taxonomy = await readTaxonomy();
+  if (postData.category) {
+    taxonomy.categories.push(postData.category);
+  }
+  taxonomy.tags.push(...postData.tags);
+  return saveTaxonomy(taxonomy);
 }
 
 async function listPostEntries() {
@@ -300,7 +355,6 @@ async function parsePostPayload(request) {
   const formData = await formRequest.formData();
 
   const title = String(formData.get("title") || "").trim();
-  const description = String(formData.get("description") || "").trim();
   const content = String(formData.get("content") || "").trim();
   const published = String(formData.get("published") || "").trim();
   const rawSlug = String(formData.get("slug") || "").trim();
@@ -311,24 +365,26 @@ async function parsePostPayload(request) {
     formData,
     data: {
       title,
-      description,
+      description:
+        String(formData.get("description") || "").trim() ||
+        generateDescriptionFromContent(content),
       content,
       published,
-      updated: String(formData.get("updated") || "").trim(),
+      updated: "",
       slug,
       originalSlug,
       image: String(formData.get("image") || "").trim(),
       tags: parseTags(String(formData.get("tags") || "")),
       category: String(formData.get("category") || "").trim(),
       draft: parseBoolean(formData.get("draft")),
-      lang: String(formData.get("lang") || "id").trim() || "id",
+      lang: "id",
       pinned: parseBoolean(formData.get("pinned")),
-      author: String(formData.get("author") || "").trim(),
-      series: String(formData.get("series") || "").trim(),
-      sourceLink: String(formData.get("sourceLink") || "").trim(),
-      licenseName: String(formData.get("licenseName") || "").trim(),
-      licenseUrl: String(formData.get("licenseUrl") || "").trim(),
-      password: String(formData.get("password") || "").trim(),
+      author: "NgetehNology",
+      series: "",
+      sourceLink: "",
+      licenseName: "",
+      licenseUrl: "",
+      password: "",
     },
   };
 }
@@ -381,6 +437,7 @@ async function handleCreatePost(request, response) {
   }
 
   await fs.writeFile(target.filePath, buildMarkdown(data), "utf8");
+  await syncTaxonomyFromPost(data);
 
   return json(response, 200, {
     ok: true,
@@ -432,6 +489,7 @@ async function handleUpdatePost(request, response) {
   }
 
   await fs.writeFile(nextTarget.filePath, buildMarkdown(data), "utf8");
+  await syncTaxonomyFromPost(data);
 
   if (existing.path !== nextTarget.filePath) {
     if (existing.storageType === "directory") {
@@ -485,6 +543,7 @@ const sectionMap = {
   footer: path.join(process.cwd(), "src", "data", "footer.json"),
   musicPlayer: path.join(process.cwd(), "src", "data", "music-player.json"),
   friends: path.join(process.cwd(), "src", "data", "friends.json"),
+  postTaxonomy: TAXONOMY_PATH,
   navbarLinks: path.join(process.cwd(), "src", "data", "navbar-links.json"),
   sidebarLayout: path.join(process.cwd(), "src", "data", "sidebar-layout.json"),
   aboutPage: path.join(process.cwd(), "src", "content", "spec", "about.md"),
@@ -502,6 +561,16 @@ function validateConfigPayload(section, value) {
   if (section === "friends" || section === "navbarLinks") {
     if (!Array.isArray(value)) {
       throw new Error(`Format ${section} harus array.`);
+    }
+    return;
+  }
+
+  if (section === "postTaxonomy") {
+    if (!isRecord(value)) {
+      throw new Error("Format postTaxonomy harus object.");
+    }
+    if (!Array.isArray(value.categories) || !Array.isArray(value.tags)) {
+      throw new Error("postTaxonomy harus memiliki array categories dan tags.");
     }
     return;
   }
