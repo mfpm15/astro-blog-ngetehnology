@@ -1,0 +1,53 @@
+{
+  "enable": true,
+  "mode": "banner",
+  "src": {
+    "desktop": "/assets/images/d1.webp",
+    "mobile": "/assets/images/m1.webp"
+  },
+  "position": "0% 20%",
+  "banner": {
+    "homeText": {
+      "enable": true,
+      "title": "NgetehNology",
+      "subtitle": [
+        "Belajar Keamanan Siber Sambil Ngeteh",
+        "Dari Pemula Hingga Mahir"
+      ],
+      "typewriter": {
+        "enable": true,
+        "speed": 100,
+        "deleteSpeed": 50,
+        "pauseTime": 2000
+      }
+    },
+    "credit": {
+      "enable": {
+        "desktop": true,
+        "mobile": false
+      },
+      "text": {
+        "desktop": "Source",
+        "mobile": "Mobile Credit"
+      },
+      "url": {
+        "desktop": "#",
+        "mobile": ""
+      }
+    },
+    "navbar": {
+      "transparentMode": "semifull"
+    },
+    "waves": {
+      "enable": {
+        "desktop": true,
+        "mobile": true
+      }
+    }
+  },
+  "overlay": {
+    "zIndex": -1,
+    "opacity": 0.8,
+    "blur": 1
+  }
+}

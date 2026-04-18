@@ -1,0 +1,57 @@
+---
+import MainGridLayout from "@layouts/MainGridLayout.astro";
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+
+const navItems = [
+  { href: "/studio/", label: "Overview" },
+  { href: "/studio/posts/", label: "Posts" },
+  { href: "/studio/site/", label: "Site" },
+  { href: "/studio/appearance/", label: "Appearance" },
+  { href: "/studio/navigation/", label: "Navigation" },
+  { href: "/studio/integrations/", label: "Integrations" },
+  { href: "/studio/pages/", label: "Pages" },
+];
+---
+
+<MainGridLayout title={title} description={description ?? title}>
+  <div class="grid gap-6 lg:grid-cols-[16rem_1fr]">
+    <aside class="card-base h-fit p-4">
+      <div class="mb-4">
+        <h1 class="text-xl font-bold">Studio</h1>
+        <p class="text-50 mt-1 text-sm">
+          Pengelolaan lokal tanpa `/admin`.
+        </p>
+      </div>
+      <nav class="flex flex-col gap-2">
+        {
+          navItems.map((item) => {
+            const active = Astro.url.pathname === item.href;
+            return (
+              <a
+                href={item.href}
+                class:list={[
+                  "rounded-xl px-4 py-3 text-sm font-medium transition",
+                  active
+                    ? "bg-[var(--primary)] text-white"
+                    : "btn-plain text-90",
+                ]}
+              >
+                {item.label}
+              </a>
+            );
+          })
+        }
+      </nav>
+    </aside>
+
+    <section class="space-y-6">
+      <slot />
+    </section>
+  </div>
+</MainGridLayout>

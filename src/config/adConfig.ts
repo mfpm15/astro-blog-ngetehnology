@@ -1,40 +1,41 @@
 import type { AdConfig } from "../types/config";
 
-// 这里只是配置广告内容，如果要开关请在sidebarConfig.ts中控制侧边栏组件的的启用组件即可
+// Konten iklan diatur di sini. Untuk menyalakan/mematikan widget,
+// gunakan pengaturan komponen sidebar.
 
-// 广告配置1 - 纯图片广告（无边距）
+// Konfigurasi iklan 1 - banner gambar penuh tanpa padding
 export const adConfig1: AdConfig = {
   image: {
     src: "/assets/images/d1.webp",
-    alt: "广告横幅",
+    alt: "Banner iklan",
     link: "#",
     external: true,
   },
-  closable: true, // 是否可关闭
+  closable: true, // Bisa ditutup
   displayCount: -1,
   padding: {
-    all: "0", // 零边距，图片占满整个组件
-    // all: "1rem", // 默认边距
-    // top: "0", // 仅顶部无边距
-    // right: "1rem", // 仅右侧无边距
-    // bottom: "1rem", // 仅底部无边距
-    // left: "1rem", // 仅左侧无边距
+    all: "0", // Tanpa padding agar gambar memenuhi komponen
+    // all: "1rem", // Padding default
+    // top: "0", // Tanpa padding bagian atas
+    // right: "1rem", // Atur padding kanan
+    // bottom: "1rem", // Atur padding bawah
+    // left: "1rem", // Atur padding kiri
   },
 };
 
-// 广告配置2 - 完整内容广告
+// Konfigurasi iklan 2 - banner dukungan lengkap
 export const adConfig2: AdConfig = {
-  title: "支持博主",
+  title: "Dukung Blog Ini",
   content:
-    "如果您觉得本站内容对您有帮助，欢迎支持我们的创作！您的支持是我们持续更新的动力。",
+    "Jika konten di situs ini membantu Anda, dukung pengembangannya. Dukungan Anda membantu kami terus menulis dan memperbarui konten.",
   image: {
     src: "/assets/images/d2.webp",
-    alt: "支持博主",
+    alt: "Dukung blog ini",
     link: "about/",
     external: false,
   },
   link: {
-    text: "支持一下",
+    text: "Berikan Dukungan",
     url: "about/",
     external: false,
   },

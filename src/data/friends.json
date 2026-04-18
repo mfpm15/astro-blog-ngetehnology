@@ -1,0 +1,14 @@
+[
+  {
+    "title": "NgetehNology",
+    "imgurl": "/assets/images/logo.png",
+    "desc": "Blog tentang Keamanan Siber dan Teknologi.",
+    "siteurl": "https://github.com/mfpm15/astro-blog-ngetehnology",
+    "tags": [
+      "Blog",
+      "Teknologi"
+    ],
+    "weight": 10,
+    "enabled": true
+  }
+]

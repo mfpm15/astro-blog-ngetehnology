@@ -1,0 +1,21 @@
+{
+  "lang": "id",
+  "title": "NgetehNology",
+  "subtitle": "Panduan Keamanan Siber untuk Pemula",
+  "description": "NgetehNology adalah sebuah blog yang membahas tentang keamanan siber, teknologi, dan tutorial untuk pemula.",
+  "keywords": [
+    "NgetehNology",
+    "Keamanan Siber",
+    "Teknologi",
+    "Tutorial",
+    "Blog"
+  ],
+  "logo": {
+    "src": "/assets/images/logo.png",
+    "alt": "Logo NgetehNology"
+  },
+  "favicon": {
+    "src": "/assets/images/logo.png",
+    "sizes": "32x32"
+  }
+}

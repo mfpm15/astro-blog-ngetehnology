@@ -7,7 +7,7 @@ interface Props {
 
 const { config } = Astro.props;
 
-// 获取位置和尺寸配置
+// Ambil konfigurasi posisi dan ukuran.
 const position = config.position || {
   corner: "bottom-right" as const,
   offsetX: 20,
@@ -84,14 +84,14 @@ const size = config.size || { width: 280, height: 250 };
 
     canvas.addEventListener("click", handleClick);
 
-    // 添加拖拽功能
+    // Tambahkan kemampuan drag.
     let isDragging = false;
     let dragStart = { x: 0, y: 0 };
     let containerStart = { x: 0, y: 0 };
 
-    // 鼠标事件
+    // Event mouse.
     container.addEventListener("mousedown", (e) => {
-      if (e.button !== 0) return; // 只响应左键
+      if (e.button !== 0) return; // Hanya tombol kiri.
       isDragging = true;
       dragStart = { x: e.clientX, y: e.clientY };
 
@@ -111,7 +111,7 @@ const size = config.size || { width: 280, height: 250 };
       const newX = containerStart.x + deltaX;
       const newY = containerStart.y + deltaY;
 
-      // 边界检查
+      // Batasi agar tetap di dalam viewport.
       const maxX = window.innerWidth - container.offsetWidth;
       const maxY = window.innerHeight - container.offsetHeight;
 
@@ -131,7 +131,7 @@ const size = config.size || { width: 280, height: 250 };
       }
     });
 
-    // 触摸事件（移动端支持）
+    // Event sentuh untuk perangkat mobile.
     container.addEventListener("touchstart", (e) => {
       if (e.touches.length !== 1) return;
       isDragging = true;
@@ -154,7 +154,7 @@ const size = config.size || { width: 280, height: 250 };
       const newX = containerStart.x + deltaX;
       const newY = containerStart.y + deltaY;
 
-      // 边界检查
+      // Batasi agar tetap di dalam viewport.
       const maxX = window.innerWidth - container.offsetWidth;
       const maxY = window.innerHeight - container.offsetHeight;
 
@@ -173,10 +173,10 @@ const size = config.size || { width: 280, height: 250 };
       isDragging = false;
     });
 
-    // 设置初始光标样式
+    // Set cursor awal.
     container.style.cursor = "grab";
 
-    // 窗口大小变化时重新检查边界
+    // Cek ulang posisi saat viewport berubah.
     window.addEventListener("resize", () => {
       const rect = container.getBoundingClientRect();
       const maxX = window.innerWidth - container.offsetWidth;
@@ -253,28 +253,28 @@ const size = config.size || { width: 280, height: 250 };
     showMessage();
   }
 
-  // 全局变量，跟踪当前显示的消息容器和隐藏定时器
+  // Simpan referensi bubble pesan aktif beserta timer-nya.
   let currentMessageContainer = null;
   let hideMessageTimer = null;
 
   // Show random message with advanced styling (same as Spine)
   function showMessage() {
     const messages = config.interactive?.clickMessages || [
-      "你好！伊利雅~",
-      "有什么需要帮助的吗？",
-      "今天天气真不错呢！",
-      "要不要一起玩游戏？",
-      "记得按时休息哦！",
+      "Halo, Illya siap menemani.",
+      "Ada yang ingin dibantu?",
+      "Cuacanya terasa menyenangkan hari ini.",
+      "Mau lanjut eksplor situs ini bersama?",
+      "Jangan lupa istirahat yang cukup.",
     ];
 
     const randomMessage = messages[Math.floor(Math.random() * messages.length)];
 
-    // 防止空消息或重复调用
+    // Cegah pesan kosong atau pemanggilan ganda.
     if (!randomMessage || !randomMessage.trim()) {
       return;
     }
 
-    // 立即清除之前的消息
+    // Hapus pesan sebelumnya terlebih dahulu.
     if (currentMessageContainer) {
       clearTimeout(hideMessageTimer);
       if (currentMessageContainer.parentNode) {
@@ -283,7 +283,7 @@ const size = config.size || { width: 280, height: 250 };
       currentMessageContainer = null;
     }
 
-    // 确保DOM中没有残留的消息容器
+    // Pastikan tidak ada container pesan lama tertinggal.
     const existingMessages = document.querySelectorAll(
       ".live2d-message-container"
     );
@@ -293,25 +293,25 @@ const size = config.size || { width: 280, height: 250 };
       }
     });
 
-    // 检测暗色主题
+    // Deteksi mode gelap.
     const isDarkMode =
       document.documentElement.classList.contains("dark") ||
       window.matchMedia("(prefers-color-scheme: dark)").matches;
 
-    // 创建消息容器
+    // Buat container pesan.
     const messageContainer = document.createElement("div");
     messageContainer.className = "live2d-message-container";
 
-    // 创建消息元素
+    // Buat elemen pesan.
     const messageEl = document.createElement("div");
     messageEl.className = "live2d-message";
     messageEl.textContent = randomMessage;
 
-    // 创建箭头元素
+    // Buat panah bubble.
     const arrowEl = document.createElement("div");
     arrowEl.className = "live2d-message-arrow";
 
-    // 设置容器样式
+    // Gaya dasar container.
     Object.assign(messageContainer.style, {
       position: "fixed",
       zIndex: "1001",
@@ -321,7 +321,7 @@ const size = config.size || { width: 280, height: 250 };
       transition: "all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
     });
 
-    // 设置消息框美化样式（支持暗色主题）
+    // Gaya bubble pesan, termasuk dukungan tema gelap.
     const messageStyles = {
       position: "relative",
       background: isDarkMode
@@ -351,12 +351,12 @@ const size = config.size || { width: 280, height: 250 };
     };
     Object.assign(messageEl.style, messageStyles);
 
-    // 设置箭头样式（居中显示）
+    // Gaya panah bubble.
     Object.assign(arrowEl.style, {
       position: "absolute",
       top: "100%",
       left: "50%",
-      transform: "translateX(-50%)", // 箭头居中
+      transform: "translateX(-50%)", // Pusatkan panah.
       width: "0",
       height: "0",
       borderLeft: "8px solid transparent",
@@ -367,33 +367,33 @@ const size = config.size || { width: 280, height: 250 };
       filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))",
     });
 
-    // 组装消息框元素
+    // Susun elemen bubble.
     messageEl.appendChild(arrowEl);
     messageContainer.appendChild(messageEl);
 
-    // 添加到页面并保存引用
+    // Tempel ke dokumen dan simpan referensinya.
     document.body.appendChild(messageContainer);
     currentMessageContainer = messageContainer;
 
-    // 将消息显示在 Live2D 模型头顶居中
+    // Posisikan bubble di atas model Live2D.
     const container = document.getElementById("live2d-widget");
     if (container) {
       const rect = container.getBoundingClientRect();
 
-      // 消息框居中显示在模型上方
+      // Pusat bubble mengikuti tengah model.
       const containerCenterX = rect.left + rect.width / 2;
 
-      // 使用估算的消息框尺寸进行初步定位
-      const estimatedMessageWidth = 240; // 使用maxWidth作为估算
-      const estimatedMessageHeight = 60; // 估算高度
-      const screenPadding = 10; // 距离屏幕边缘的最小距离
+      // Gunakan estimasi ukuran bubble untuk posisi awal.
+      const estimatedMessageWidth = 240; // Gunakan maxWidth sebagai estimasi.
+      const estimatedMessageHeight = 60; // Estimasi tinggi awal.
+      const screenPadding = 10; // Jarak aman dari tepi layar.
 
-      // 计算消息框的实际位置（考虑translateX(-50%)的影响）
+      // Hitung posisi awal bubble.
       let messageX = containerCenterX;
-      let messageY = rect.top - estimatedMessageHeight - 25; // 距离模型顶部25px
+      let messageY = rect.top - estimatedMessageHeight - 25; // Beri jarak 25 px dari bagian atas model.
 
-      // 屏幕边界检查 - 水平方向
-      const minX = screenPadding + estimatedMessageWidth / 2; // 考虑translateX(-50%)
+      // Batas layar horizontal.
+      const minX = screenPadding + estimatedMessageWidth / 2; // Perhitungkan offset translateX(-50%).
       const maxX =
         window.innerWidth - screenPadding - estimatedMessageWidth / 2;
 
@@ -403,14 +403,14 @@ const size = config.size || { width: 280, height: 250 };
         messageX = maxX;
       }
 
-      // 屏幕边界检查 - 垂直方向
+      // Batas layar vertikal.
       const minY = screenPadding;
       const maxY = window.innerHeight - estimatedMessageHeight - screenPadding;
 
       if (messageY < minY) {
-        // 如果上方空间不够，显示在模型下方
+        // Jika ruang atas sempit, pindahkan bubble ke bawah model.
         messageY = rect.bottom + 25;
-        // 调整箭头方向（显示在下方）
+        // Balik arah panah.
         arrowEl.style.top = "0";
         arrowEl.style.bottom = "auto";
         arrowEl.style.borderTop = "none";
@@ -421,17 +421,17 @@ const size = config.size || { width: 280, height: 250 };
         messageY = maxY;
       }
 
-      // 设置位置
+      // Terapkan posisi awal.
       messageContainer.style.left = messageX + "px";
       messageContainer.style.top = messageY + "px";
 
-      // 在消息框渲染后，进行精确的边界调整
+      // Setelah dirender, rapikan lagi posisinya.
       setTimeout(() => {
         const actualMessageRect = messageContainer.getBoundingClientRect();
         const actualWidth = actualMessageRect.width;
         const actualHeight = actualMessageRect.height;
 
-        // 重新计算水平位置
+        // Hitung ulang posisi horizontal.
         let adjustedX = containerCenterX;
         const actualMinX = screenPadding + actualWidth / 2;
         const actualMaxX = window.innerWidth - screenPadding - actualWidth / 2;
@@ -442,11 +442,11 @@ const size = config.size || { width: 280, height: 250 };
           adjustedX = actualMaxX;
         }
 
-        // 重新计算垂直位置
+        // Hitung ulang posisi vertikal.
         let adjustedY = rect.top - actualHeight - 25;
         const actualMinY = screenPadding;
         const actualMaxY = window.innerHeight - actualHeight - screenPadding;
-        let isAboveModel = true; // 标记消息框是否在模型上方
+        let isAboveModel = true; // Penanda apakah bubble ada di atas model.
 
         if (adjustedY < actualMinY) {
           adjustedY = rect.bottom + 25;
@@ -455,21 +455,21 @@ const size = config.size || { width: 280, height: 250 };
           adjustedY = actualMaxY;
         }
 
-        // 计算箭头应该指向的位置（模型中心）
+        // Hitung arah panah ke pusat model.
         const modelCenterX = rect.left + rect.width / 2;
-        const messageCenterX = adjustedX; // 消息框中心位置
-        const arrowOffsetX = modelCenterX - messageCenterX; // 箭头相对于消息框中心的偏移
+        const messageCenterX = adjustedX; // Posisi pusat bubble.
+        const arrowOffsetX = modelCenterX - messageCenterX; // Offset panah terhadap pusat bubble.
 
-        // 限制箭头偏移范围，避免超出消息框边界
-        const maxOffset = actualWidth / 2 - 20; // 留出20px边距
+        // Batasi offset panah agar tidak keluar bubble.
+        const maxOffset = actualWidth / 2 - 20; // Sisakan margin 20 px.
         const clampedOffsetX = Math.max(
           -maxOffset,
           Math.min(maxOffset, arrowOffsetX)
         );
 
-        // 根据最终位置调整箭头方向和位置
+        // Sesuaikan arah panah berdasarkan posisi final.
         if (isAboveModel) {
-          // 消息框在模型上方，箭头向下
+          // Bubble di atas model, panah mengarah ke bawah.
           Object.assign(arrowEl.style, {
             position: "absolute",
             top: "100%",
@@ -487,7 +487,7 @@ const size = config.size || { width: 280, height: 250 };
             filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))",
           });
         } else {
-          // 消息框在模型下方，箭头向上
+          // Bubble di bawah model, panah mengarah ke atas.
           Object.assign(arrowEl.style, {
             position: "absolute",
             top: "0",
@@ -506,20 +506,20 @@ const size = config.size || { width: 280, height: 250 };
           });
         }
 
-        // 应用调整后的位置
+        // Terapkan posisi akhir.
         messageContainer.style.left = adjustedX + "px";
         messageContainer.style.top = adjustedY + "px";
-      }, 50); // 增加延迟确保消息框完全渲染
+      }, 50); // Beri jeda singkat agar bubble selesai dirender.
     }
 
-    // 显示动画
+    // Animasi muncul.
     setTimeout(() => {
       messageContainer.style.opacity = "1";
       messageContainer.style.transform =
         "translateY(0) translateX(-50%) scale(1)";
-    }, 100); // 延迟到边界调整完成后
+    }, 100);
 
-    // 自动隐藏
+    // Sembunyikan otomatis.
     const displayTime = config.interactive?.messageDisplayTime || 3000;
     hideMessageTimer = setTimeout(() => {
       messageContainer.style.opacity = "0";
@@ -529,7 +529,7 @@ const size = config.size || { width: 280, height: 250 };
         if (messageContainer.parentNode) {
           messageContainer.parentNode.removeChild(messageContainer);
         }
-        // 清除引用
+        // Bersihkan referensi.
         if (currentMessageContainer === messageContainer) {
           currentMessageContainer = null;
         }
@@ -632,7 +632,7 @@ const size = config.size || { width: 280, height: 250 };
   // Initialize when ready (only once)
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => {
-      // 检查是否已经初始化
+      // Cegah inisialisasi ganda.
       if (!window.live2dModelInitialized) {
         loadLive2DSDK();
         window.live2dModelInitialized = true;
@@ -640,7 +640,7 @@ const size = config.size || { width: 280, height: 250 };
       handleResponsive();
     });
   } else {
-    // 检查是否已经初始化
+    // Cegah inisialisasi ganda.
     if (!window.live2dModelInitialized) {
       loadLive2DSDK();
       window.live2dModelInitialized = true;
@@ -651,16 +651,16 @@ const size = config.size || { width: 280, height: 250 };
   // Handle window resize for responsive behavior
   window.addEventListener("resize", handleResponsive);
 
-  // 监听 Swup 页面切换事件（如果使用了 Swup）
+  // Saat halaman berganti via Swup, cukup perbarui visibilitas.
   if (typeof window.swup !== "undefined" && window.swup.hooks) {
     window.swup.hooks.on("content:replace", () => {
-      // 只更新响应式显示，不重新创建模型
+      // Tidak perlu membuat ulang model, cukup update tampilannya.
       setTimeout(() => {
         handleResponsive();
       }, 100);
     });
   } else {
-    // 如果 Swup 还未加载，监听启用事件
+    // Jika Swup belum aktif, tunggu event enable.
     document.addEventListener("swup:enable", () => {
       if (window.swup && window.swup.hooks) {
         window.swup.hooks.on("content:replace", () => {
@@ -677,8 +677,8 @@ const size = config.size || { width: 280, height: 250 };
   .live2d-widget {
     position: fixed;
     z-index: 999;
-    pointer-events: auto; /* 启用指针事件以支持拖拽 */
-    cursor: grab; /* 默认显示拖拽光标 */
+    pointer-events: auto; /* Aktifkan pointer events agar drag bekerja. */
+    cursor: grab; /* Cursor default untuk drag. */
   }
 
   #live2d-canvas {
@@ -693,7 +693,7 @@ const size = config.size || { width: 280, height: 250 };
     opacity: 1;
   }
 
-  /* 拖拽时的光标样式 */
+  /* Gaya cursor saat drag aktif. */
   .live2d-widget:active {
     cursor: grabbing;
   }

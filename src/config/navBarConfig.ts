@@ -1,70 +1,46 @@
+import navbarLinksData from "../data/navbar-links.json";
 import type { NavBarConfig, NavBarLink } from "../types/config";
-import { LinkPreset } from "../types/config";
 import { siteConfig } from "./siteConfig";
 
-// Hasilkan konfigurasi bilah navigasi secara dinamis berdasarkan sakelar halaman
-const getDynamicNavBarConfig = (): NavBarConfig => {
-  const links: (NavBarLink | LinkPreset)[] = [
-    LinkPreset.Home,
-    LinkPreset.Archive,
-  ];
+const pageAvailability = {
+  "/anime/": siteConfig.pages.anime,
+  "/projects/": siteConfig.pages.projects,
+  "/skills/": siteConfig.pages.skills,
+  "/timeline/": siteConfig.pages.timeline,
+} as const;
 
-  // Tentukan apakah akan menambahkan halaman anime berdasarkan konfigurasi
-  if (siteConfig.pages.anime) {
-    links.push(LinkPreset.Anime);
-  }
+function isEnabledUrl(url: string) {
+  return pageAvailability[url as keyof typeof pageAvailability] ?? true;
+}
 
-  // Mendukung tautan bilah navigasi kustom dan menu multi-level
-  links.push({
-    name: "Tautan",
-    url: "/links/",
-    icon: "material-symbols:link",
-    children: [
-      {
-        name: "GitHub",
-        url: "https://github.com/mfpm15/astro-blog-ngetehnology",
-        external: true,
-        icon: "fa6-brands:github",
-      },
-    ],
-  });
+function normalizeLinks(links: NavBarLink[]): NavBarLink[] {
+  return links
+    .filter((link) => isEnabledUrl(link.url))
+    .map((link) => ({
+      ...link,
+      children: link.children
+        ? normalizeLinks(link.children as NavBarLink[])
+        : undefined,
+    }));
+}
 
-  links.push(LinkPreset.Friends);
-
-  // Hasilkan item menu Proyek, Keahlian, Pengalaman secara dinamis berdasarkan sakelar halaman di config
-  const otherChildren: NavBarLink[] = [];
-
-  if (siteConfig.pages.projects) {
-    otherChildren.push({
-      name: "Proyek Saya",
-      url: "/projects/",
-      icon: "material-symbols:work",
-    });
-  }
-
-  if (siteConfig.pages.skills) {
-    otherChildren.push({
-      name: "Keahlian Saya",
-      url: "/skills/",
-      icon: "material-symbols:psychology",
-    });
-  }
-
-  if (siteConfig.pages.timeline) {
-    otherChildren.push({
-      name: "Pengalaman Saya",
-      url: "/timeline/",
-      icon: "material-symbols:timeline",
-    });
-  }
-
-  links.push({
-    name: "Tentang",
-    url: "/content/",
-    icon: "material-symbols:info",
-    children: [LinkPreset.About, ...otherChildren],
-  });
-  return { links };
+const studioLink: NavBarLink = {
+  name: "Studio",
+  url: "/studio/",
+  icon: "material-symbols:edit-square-outline",
 };
 
-export const navBarConfig: NavBarConfig = getDynamicNavBarConfig();
+const normalizedLinks = normalizeLinks(navbarLinksData as NavBarLink[]);
+
+export const navBarConfig: NavBarConfig = {
+  links: normalizedLinks.map((link) => {
+    if (!import.meta.env.DEV || link.name !== "Tautan") {
+      return link;
+    }
+
+    return {
+      ...link,
+      children: [studioLink, ...(link.children ?? [])],
+    };
+  }),
+};

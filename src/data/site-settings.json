@@ -1,0 +1,29 @@
+{
+  "themeColor": {
+    "hue": 250,
+    "fixed": false,
+    "defaultMode": "system"
+  },
+  "bangumi": {
+    "userId": "1163581"
+  },
+  "showLastModified": true,
+  "generateOgImages": false,
+  "pages": {
+    "anime": true,
+    "projects": true,
+    "timeline": true,
+    "skills": true
+  },
+  "postListLayout": {
+    "defaultMode": "list",
+    "allowSwitch": true
+  },
+  "pagination": {
+    "postsPerPage": 8
+  },
+  "toc": {
+    "enable": true,
+    "depth": 3
+  }
+}

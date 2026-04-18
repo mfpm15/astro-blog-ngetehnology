@@ -1,13 +1,9 @@
 import type { AnnouncementConfig } from "../types/config";
+import announcementData from "../data/announcement.json";
 
 export const announcementConfig: AnnouncementConfig = {
-  title: "Pengumuman", // Judul pengumuman
-  content: "Selamat datang di blog saya! Ini adalah contoh pengumuman.", // Isi pengumuman
-  closable: true, // Izinkan pengguna untuk menutup pengumuman
-  link: {
-    enable: true, // Aktifkan tautan
-    text: "Pelajari Lebih Lanjut", // Teks tautan
-    url: "/about/", // URL tautan
-    external: false, // Tautan internal
-  },
+  title: announcementData.title,
+  content: announcementData.content,
+  closable: announcementData.closable,
+  link: announcementData.link as AnnouncementConfig["link"],
 };

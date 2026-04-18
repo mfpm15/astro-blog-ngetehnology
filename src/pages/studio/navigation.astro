@@ -1,0 +1,19 @@
+---
+import JsonConfigEditor from "@components/studio/JsonConfigEditor.astro";
+import StudioShell from "@components/studio/StudioShell.astro";
+import navbarLinksData from "../../data/navbar-links.json";
+import sidebarLayoutData from "../../data/sidebar-layout.json";
+---
+
+<StudioShell title="Studio Navigation" description="Konfigurasi navbar dan sidebar.">
+  <JsonConfigEditor
+    title="Navbar Links"
+    section="navbarLinks"
+    value={JSON.stringify(navbarLinksData, null, 2)}
+  />
+  <JsonConfigEditor
+    title="Sidebar Layout"
+    section="sidebarLayout"
+    value={JSON.stringify(sidebarLayoutData, null, 2)}
+  />
+</StudioShell>

@@ -1,0 +1,31 @@
+---
+import JsonConfigEditor from "@components/studio/JsonConfigEditor.astro";
+import StudioShell from "@components/studio/StudioShell.astro";
+import commentData from "../../data/comment.json";
+import footerData from "../../data/footer.json";
+import licenseData from "../../data/license.json";
+import musicPlayerData from "../../data/music-player.json";
+---
+
+<StudioShell title="Studio Integrations" description="Konfigurasi fitur integrasi dan widget tambahan.">
+  <JsonConfigEditor
+    title="Comment Config"
+    section="comment"
+    value={JSON.stringify(commentData, null, 2)}
+  />
+  <JsonConfigEditor
+    title="Music Player"
+    section="musicPlayer"
+    value={JSON.stringify(musicPlayerData, null, 2)}
+  />
+  <JsonConfigEditor
+    title="License"
+    section="license"
+    value={JSON.stringify(licenseData, null, 2)}
+  />
+  <JsonConfigEditor
+    title="Footer"
+    section="footer"
+    value={JSON.stringify(footerData, null, 2)}
+  />
+</StudioShell>

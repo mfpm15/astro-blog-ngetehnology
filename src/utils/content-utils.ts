@@ -1,7 +1,7 @@
 import { type CollectionEntry, getCollection } from "astro:content";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
-import { getCategoryUrl } from "@utils/url-utils";
+import { getCategoryUrl, getPostSlugFromId } from "@utils/url-utils";
 
 // Mengambil postingan dan mengurutkannya berdasarkan tanggal publikasi
 async function getRawSortedPosts() {
@@ -26,11 +26,11 @@ export async function getSortedPosts() {
 	const sorted = await getRawSortedPosts();
 
 	for (let i = 1; i < sorted.length; i++) {
-		sorted[i].data.nextSlug = sorted[i - 1].slug;
+		sorted[i].data.nextSlug = getPostSlugFromId(sorted[i - 1].id);
 		sorted[i].data.nextTitle = sorted[i - 1].data.title;
 	}
 	for (let i = 0; i < sorted.length - 1; i++) {
-		sorted[i].data.prevSlug = sorted[i + 1].slug;
+		sorted[i].data.prevSlug = getPostSlugFromId(sorted[i + 1].id);
 		sorted[i].data.prevTitle = sorted[i + 1].data.title;
 	}
 
@@ -45,7 +45,7 @@ export async function getSortedPostsList(): Promise<PostForList[]> {
 
 	// hapus post.body
 	const sortedPostsList = sortedFullPosts.map((post) => ({
-		slug: post.slug,
+		slug: getPostSlugFromId(post.id),
 		data: post.data,
 	}));
 

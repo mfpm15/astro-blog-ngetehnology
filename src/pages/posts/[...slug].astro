@@ -6,8 +6,9 @@ import Markdown from "@components/misc/Markdown.astro";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
+import { render } from "astro:content";
 import { getSortedPosts } from "@utils/content-utils";
-import { getDir, getPostUrlBySlug } from "@utils/url-utils";
+import { getDir, getPostSlugFromId, getPostUrlBySlug } from "@utils/url-utils";
 import { Icon } from "astro-icon/components";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -17,18 +18,19 @@ import PostMetadata from "../../components/PostMeta.astro";
 import { profileConfig } from "../../config/profileConfig";
 import { siteConfig } from "../../config/siteConfig";
 import { formatDateToYYYYMMDD } from "../../utils/date-utils";
+
+export const prerender = true;
+
 export async function getStaticPaths() {
   const blogEntries = await getSortedPosts();
   return blogEntries.map((entry) => ({
-    params: { slug: entry.slug },
+    params: { slug: getPostSlugFromId(entry.id) },
     props: { entry },
   }));
 }
 
 const { entry } = Astro.props;
-const { Content, headings } = await entry.render();
-
-const { remarkPluginFrontmatter } = await entry.render();
+const { Content, headings, remarkPluginFrontmatter } = await render(entry);
 
 // ...existing code...
 
@@ -62,7 +64,7 @@ const jsonLd = {
   description={entry.data.description}
   lang={entry.data.lang}
   setOGTypeArticle={true}
-  postSlug={entry.slug}
+  postSlug={getPostSlugFromId(entry.id)}
   headings={headings}
 >
   <script
@@ -140,7 +142,7 @@ const jsonLd = {
           updated={entry.data.updated}
           tags={entry.data.tags}
           category={entry.data.category}
-          slug={entry.slug}
+          slug={getPostSlugFromId(entry.id)}
         />
         {
           !entry.data.image && (
@@ -179,7 +181,7 @@ const jsonLd = {
         licenseConfig.enable && (
           <License
             title={entry.data.title}
-            slug={entry.slug}
+            slug={getPostSlugFromId(entry.id)}
             pubDate={entry.data.published}
             author={entry.data.author}
             sourceLink={entry.data.sourceLink}

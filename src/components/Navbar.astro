@@ -11,6 +11,7 @@ import Search from "./Search.svelte";
 import DisplaySettings from "./widget/DisplaySettings.svelte";
 import DropdownMenu from "./widget/DropdownMenu.astro";
 import NavMenuPanel from "./widget/NavMenuPanel.astro";
+import LanguageSwitch from "./LanguageSwitch.astro";
 
 const className = Astro.props.class;
 
@@ -40,11 +41,11 @@ let links: NavBarLink[] = navBarConfig.links.map(
                                 {siteConfig.logoIcon?.type === "icon" ? (
                                     <Icon name={siteConfig.logoIcon.value || "material-symbols:home-pin-outline"} class="text-[1.75rem] mb-1 mr-2" />
                                 ) : siteConfig.logoIcon?.type === "image" ? (
-                                    <img src={siteConfig.logoIcon.value} alt={siteConfig.logoIcon.alt || siteConfig.title} class="h-[1.75rem] w-[1.75rem] mb-1 mr-2 object-contain" loading="lazy" />
+                                    <img src={siteConfig.logoIcon.value} alt={siteConfig.logoIcon.alt || siteConfig.title} class="h-9 w-9 mr-3 rounded-full object-cover ring-1 ring-black/10 dark:ring-white/10" loading="lazy" />
                                 ) : (
                                     <Icon name="material-symbols:home-pin-outline" class="text-[1.75rem] mb-1 mr-2" />
                                 )}
-                {siteConfig.title}
+                <span class="tracking-[0.02em]">{siteConfig.title}</span>
             </div>
         </a>
         <div class="hidden md:flex items-center space-x-1">
@@ -61,6 +62,7 @@ let links: NavBarLink[] = navBarConfig.links.map(
                         <Icon name="material-symbols:palette-outline" class="text-[1.25rem]"></Icon>
                     </button>
             )}
+            <LanguageSwitch />
             <LayoutSwitchButton client:only="svelte" currentLayout={siteConfig.postListLayout.defaultMode}></LayoutSwitchButton>
             <LightDarkSwitch client:only="svelte"></LightDarkSwitch>
             <button aria-label="Menu" name="Nav Menu" class="btn-plain scale-animation rounded-lg w-11 h-11 active:scale-90 md:!hidden" id="nav-menu-switch">
@@ -100,6 +102,16 @@ function loadButtonScript() {
             let menuPanel = document.getElementById("nav-menu-panel");
             if (menuPanel) {
                 menuPanel.classList.toggle("float-panel-closed");
+            }
+        };
+    }
+
+    let languageBtn = document.getElementById("language-menu-switch");
+    if (languageBtn) {
+        languageBtn.onclick = function () {
+            let languagePanel = document.getElementById("language-menu-panel");
+            if (languagePanel) {
+                languagePanel.classList.toggle("float-panel-closed");
             }
         };
     }

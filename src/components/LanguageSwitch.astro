@@ -1,0 +1,51 @@
+---
+import { siteConfig } from "../config";
+
+const currentUrl = Astro.url.href;
+const currentPath = `${Astro.url.pathname}${Astro.url.search}`;
+const translateUrl = `https://translate.google.com/translate?sl=auto&tl=en&u=${encodeURIComponent(currentUrl)}`;
+const activeLabel = siteConfig.lang === "en" ? "EN" : "ID";
+---
+
+<div class="relative">
+  <button
+    aria-label="Language Options"
+    class="btn-plain scale-animation rounded-lg h-11 px-3 active:scale-90 font-semibold text-sm"
+    id="language-menu-switch"
+    type="button"
+  >
+    {activeLabel}
+  </button>
+
+  <div
+    id="language-menu-panel"
+    class="float-panel float-panel-closed absolute right-0 top-14 w-64 rounded-2xl border border-[var(--line-color)] bg-[var(--card-bg)] p-3 shadow-2xl"
+  >
+    <div class="px-2 pb-2">
+      <div class="text-sm font-semibold text-90">Bahasa</div>
+      <p class="mt-1 text-xs text-50">
+        Indonesia memakai konten asli situs. English memakai terjemahan otomatis halaman aktif untuk jangkauan global.
+      </p>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <a
+        href={currentPath || "/"}
+        class="rounded-xl px-3 py-3 transition hover:bg-[var(--btn-plain-bg-hover)]"
+      >
+        <div class="font-medium text-90">Bahasa Indonesia</div>
+        <div class="mt-1 text-xs text-50">Konten asli situs</div>
+      </a>
+
+      <a
+        href={translateUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="rounded-xl px-3 py-3 transition hover:bg-[var(--btn-plain-bg-hover)]"
+      >
+        <div class="font-medium text-90">English</div>
+        <div class="mt-1 text-xs text-50">Open current page with automatic translation</div>
+      </a>
+    </div>
+  </div>
+</div>

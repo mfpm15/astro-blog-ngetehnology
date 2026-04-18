@@ -1,96 +1,95 @@
 <script lang="ts">
-    // 导入 Svelte 的生命周期函数和过渡效果
+    // Impor lifecycle Svelte dan efek transisi yang dibutuhkan.
     
-    // 导入 Icon 组件，用于显示图标
+    // Impor komponen Icon untuk menampilkan ikon.
     import Icon from "@iconify/svelte";
     import { onDestroy, onMount } from "svelte";
-    import { slide } from "svelte/transition";
-    // 从配置文件中导入音乐播放器配置
+    // Ambil konfigurasi music player dari file config.
     import { musicPlayerConfig } from "../../config/musicConfig";
-    // 导入国际化相关的 Key 和 i18n 实例
+    // Impor key internasionalisasi dan helper i18n.
     import Key from "../../i18n/i18nKey";
     import { i18n } from "../../i18n/translation";
     
-    // 从配置中获取各种设置
+    // Ambil seluruh pengaturan turunan dari config.
     const config = musicPlayerConfig;
     
-    // 音乐播放器模式，可选 "local" 或 "meting"
+    // Mode player: "local" atau "meting".
     let mode = config.mode ?? "meting";
     
-    // Meting API 配置
+    // Konfigurasi Meting API.
     let meting_api = config.meting?.api ?? "https://www.bilibili.uno/api?server=:server&type=:type&id=:id&auth=:auth&r=:r";
     let meting_id = config.meting?.playlist?.id ?? "8814137515";
     let meting_server = config.meting?.playlist?.server ?? "netease";
     let meting_type = config.meting?.playlist?.type ?? "playlist";
     let fallback_apis = config.meting?.fallbackApis ?? [];
     
-    // 本地音乐配置
+    // Konfigurasi playlist lokal.
     let local_playlist = config.local?.playlist ?? [];
     
-    // 行为配置
+    // Konfigurasi perilaku player.
     let autoplay = config.behavior?.autoplay ?? false;
     let default_volume = config.behavior?.defaultVolume ?? 0.7;
     let default_shuffle = config.behavior?.defaultShuffle ?? false;
     let default_repeat = config.behavior?.defaultRepeat ?? 0;
     
-    // 位置配置
+    // Konfigurasi posisi.
     let position_bottom = config.behavior?.position?.bottom ?? 16;
     let position_right = config.behavior?.position?.right ?? 16;
     let position_left = config.behavior?.position?.left ?? "auto";
     
     
-    // UI 配置
+    // Konfigurasi UI.
     let show_playlist_button = config.ui?.display?.showPlaylistButton ?? true;
     let show_volume_control = config.ui?.display?.showVolumeControl ?? true;
     let show_shuffle_button = config.ui?.display?.showShuffleButton ?? true;
     let show_repeat_button = config.ui?.display?.showRepeatButton ?? true;
     let show_skip_buttons = config.ui?.display?.showSkipButtons ?? true;
     
-    // 播放列表配置
+    // Konfigurasi daftar putar.
     let playlist_max_height = config.ui?.playlist?.maxHeight ?? 384;
     let playlist_width = config.ui?.playlist?.width ?? 320;
     let show_track_numbers = config.ui?.playlist?.showTrackNumbers ?? true;
     let show_duration = config.ui?.playlist?.showDuration ?? true;
     
-    // 动画配置
+    // Konfigurasi animasi.
     let cover_rotation_enable = config.ui?.animation?.coverRotation?.enable ?? true;
     let cover_rotation_speed = config.ui?.animation?.coverRotation?.speed ?? 3;
     let cover_rotation_pause_hover = config.ui?.animation?.coverRotation?.pauseOnHover ?? true;
     
-    // 错误处理配置
+    // Konfigurasi penanganan error.
     let show_error_messages = config.errorHandling?.showErrorMessages ?? true;
     let error_display_duration = config.errorHandling?.errorDisplayDuration ?? 3000;
     let auto_skip_on_error = config.errorHandling?.autoSkipOnError ?? true;
     
     
-    // 播放状态，默认为 false (未播放)
+    // Status playback, default `false`.
     let isPlaying = false;
-    // 播放器是否展开，默认为 false
+    // Apakah player sedang terbuka penuh.
     let isExpanded = false;
-    // 播放器是否折叠贴边，默认为 true（默认显示折叠状态）
+    // Apakah player sedang dalam mode ringkas menempel di sisi layar.
     let isCollapsed = true;
-    // 是否显示播放列表，默认为 false
+    // Apakah daftar putar sedang ditampilkan.
     let showPlaylist = false;
-    // 当前播放时间，默认为 0
+    // Posisi waktu playback saat ini.
     let currentTime = 0;
-    // 歌曲总时长，默认为 0
+    // Durasi lagu aktif.
     let duration = 0;
-    // 音量，从配置中获取默认值
+    // Volume mengikuti default config.
     let volume = default_volume;
-    // 是否静音，默认为 false
+    // Apakah player sedang mute.
     let isMuted = false;
-    // 是否正在加载，默认为 false
+    // Apakah audio sedang loading.
     let isLoading = false;
-    // 是否随机播放，从配置中获取默认值
+    // Apakah mode shuffle aktif.
     let isShuffled = default_shuffle;
-    // 循环模式，从配置中获取默认值
+    // Mode repeat aktif.
     let isRepeating = default_repeat;
-    // 错误信息，默认为空字符串
+    // Pesan error aktif.
     let errorMessage = "";
-    // 是否显示错误信息，默认为 false
+    // Tampilkan toast error.
     let showError = false;
     
-    // 当前歌曲信息
+    // Data lagu yang sedang aktif.
     let currentSong = {
         title: "Loading ...",
         artist: "Loading ...", 
@@ -116,7 +115,7 @@
         if (!meting_api || !meting_id) return;
         isLoading = true;
         
-        // 尝试主API
+        // Coba endpoint utama lebih dulu.
         const apis = [meting_api, ...fallback_apis];
         
         for (let i = 0; i < apis.length; i++) {
@@ -133,8 +132,8 @@
                 
                 const list = await res.json();
                 playlist = list.map((song) => {
-                    let title = song.name ?? song.title ?? "未知歌曲";
-                    let artist = song.artist ?? song.author ?? "未知艺术家";
+                    let title = song.name ?? song.title ?? "Unknown Track";
+                    let artist = song.artist ?? song.author ?? "Unknown Artist";
                     let dur = song.duration ?? 0;
                     if (dur > 10000) dur = Math.floor(dur / 1000);
                     if (!Number.isFinite(dur) || dur <= 0) dur = 0;
@@ -152,13 +151,13 @@
                     loadSong(playlist[0]);
                 }
                 isLoading = false;
-                return; // 成功获取，退出循环
+                return; // Berhasil mengambil playlist, hentikan loop.
                 
             } catch (e) {
                 console.warn(`API ${i + 1} failed:`, e);
                 if (i === apis.length - 1) {
-                    // 所有API都失败了
-                    showErrorMessage("所有 Meting API 都无法访问，请检查网络连接");
+                    // Semua API gagal diakses.
+                    showErrorMessage("Semua API Meting tidak dapat diakses. Periksa koneksi jaringan.");
                     isLoading = false;
                 }
             }
@@ -189,7 +188,7 @@
             isExpanded = false;
             showPlaylist = false;
         } else {
-            // 从折叠状态展开时，直接显示完整播放器
+            // Saat keluar dari mode ringkas, langsung tampilkan player penuh.
             isExpanded = true;
             showPlaylist = false;
         }
@@ -224,7 +223,7 @@
         } else {
             newIndex = currentIndex < playlist.length - 1 ? currentIndex + 1 : 0;
         }
-        console.log('nextSong 调用', { currentIndex, newIndex, playlistLength: playlist.length, isShuffled });
+        console.log('nextSong called', { currentIndex, newIndex, playlistLength: playlist.length, isShuffled });
         playSong(newIndex);
     }
     
@@ -292,11 +291,11 @@
     
     function handleLoadError(event: Event) {
         isLoading = false;
-        showErrorMessage(`无法播放 "${currentSong.title}"，正在尝试下一首...`);
+        showErrorMessage(`Tidak dapat memutar "${currentSong.title}", mencoba lagu berikutnya...`);
         if (auto_skip_on_error && playlist.length > 1) {
             setTimeout(() => nextSong(), 1000);
         } else if (playlist.length <= 1) {
-            showErrorMessage("播放列表中没有可用的歌曲");
+            showErrorMessage("Tidak ada lagu yang bisa diputar di playlist ini.");
         }
     }
     
@@ -360,23 +359,23 @@
             currentTime = audio.currentTime;
         });
         audio.addEventListener("ended", () => {
-            console.log('歌曲播放结束', { isRepeating, currentIndex, playlistLength: playlist.length, isShuffled });
+            console.log('song playback ended', { isRepeating, currentIndex, playlistLength: playlist.length, isShuffled });
             if (isRepeating === 1) {
-                // 单曲循环：重新播放当前歌曲
-                console.log('单曲循环：重新播放当前歌曲');
+                // Ulangi lagu yang sama.
+                console.log('repeat one: replay current track');
                 audio.currentTime = 0;
                 audio.play().catch(() => {});
             } else if (isRepeating === 2) {
-                // 列表循环：播放下一首
-                console.log('列表循环：播放下一首');
+                // Ulangi playlist dengan lanjut ke lagu berikutnya.
+                console.log('repeat all: play next track');
                 nextSong();
             } else if (currentIndex < playlist.length - 1 || isShuffled) {
-                // 非循环模式：如果还有下一首或随机播放，则播放下一首
-                console.log('非循环模式：播放下一首');
+                // Tanpa repeat, lanjut ke lagu berikutnya jika masih tersedia atau shuffle aktif.
+                console.log('no repeat: play next track');
                 nextSong();
             } else {
-                // 非循环模式：播放列表结束，停止播放
-                console.log('非循环模式：播放列表结束，停止播放');
+                // Tanpa repeat, hentikan saat playlist selesai.
+                console.log('no repeat: playlist finished, stop playback');
                 isPlaying = false;
             }
         });
@@ -399,7 +398,7 @@
         
         if (mode === "meting") {
             fetchMetingPlaylist().then(() => {
-                // 如果启用了自动播放，则开始播放
+                // Jika autoplay aktif, mulai playback otomatis.
                 if (autoplay && playlist.length > 0) {
                     setTimeout(() => {
                         if (audio && audio.readyState >= 2) {
@@ -409,11 +408,11 @@
                 }
             });
         } else {
-            // 使用本地播放列表，不发送任何API请求
+            // Gunakan playlist lokal tanpa request API.
             playlist = [...local_playlist];
             if (playlist.length > 0) {
                 loadSong(playlist[0]);
-                // 如果启用了自动播放，则开始播放
+                // Jika autoplay aktif, mulai playback otomatis.
                 if (autoplay) {
                     setTimeout(() => {
                         if (audio && audio.readyState >= 2) {
@@ -422,7 +421,7 @@
                     }, 1000);
                 }
             } else {
-                showErrorMessage("本地播放列表为空");
+                showErrorMessage("Playlist lokal masih kosong.");
             }
         }
     });
@@ -454,14 +453,14 @@
          style="bottom: {position_bottom}px; right: {position_right}px; {position_left !== 'auto' ? `left: ${position_left}px;` : ''}; --rotation-speed: {cover_rotation_speed}s; --rotation-pause-hover: {cover_rotation_pause_hover ? 'paused' : 'running'};">
 
         
-        <!-- 折叠贴边状态 - 只显示封面和展开按钮 -->
+        <!-- Mode ringkas menempel di sisi layar. -->
         <div class="collapsed-player card-base bg-[var(--float-panel-bg)] dark:bg-zinc-800/90 dark:backdrop-blur-md dark:border dark:border-zinc-700/50 rounded-2xl p-3 transition-all duration-500 ease-in-out"
              style="width: 90px; height: 80px; background-color: var(--card-bg); "
              class:opacity-0={!isCollapsed}
              class:scale-95={!isCollapsed}
              class:pointer-events-none={!isCollapsed}>
             <div class="flex items-center gap-2 h-full">
-                <!-- 封面区域 -->
+                <!-- Area cover lagu. -->
                 <div class="cover-container relative w-12 h-12 rounded-full overflow-hidden cursor-pointer flex-shrink-0"
                      on:click={togglePlay}
                      on:keydown={(e) => {
@@ -472,7 +471,7 @@
                      }}
                      tabindex="0"
                      role="button"
-                     aria-label={isPlaying ? "暂停音乐" : "播放音乐"}>
+                     aria-label={isPlaying ? "Pause music" : "Play music"}>
                     {#if currentSong.cover}
                         <img src={currentSong.cover} 
                              alt="{currentSong.title} - {currentSong.artist}"
@@ -485,7 +484,7 @@
                             <Icon icon="fa6-solid:music" class="text-white text-lg" />
                         </div>
                     {/if}
-                    <!-- 播放状态指示器 -->
+                    <!-- Indikator status playback. -->
                     {#if isPlaying}
                         <div class="absolute inset-0 bg-black/20 flex items-center justify-center">
                             <div class="w-4 h-4 bg-white/90 rounded-full flex items-center justify-center">
@@ -495,7 +494,7 @@
                     {/if}
                 </div>
                 
-                <!-- 展开按钮 -->
+                <!-- Tombol buka player penuh. -->
                 <button class="expand-btn w-8 h-8 rounded-full btn-regular border border-[var(--line-divider)] hover:border-[var(--primary)] active:scale-95 transition-all duration-200 flex items-center justify-center flex-shrink-0"
                         on:click={toggleCollapsed}
                         on:keydown={(e) => {
@@ -505,13 +504,13 @@
                             }
                         }}
                         tabindex="0"
-                        aria-label="展开音乐播放器">
+                        aria-label="Open music player">
                     <Icon icon="fa6-solid:chevron-left" class="text-[var(--primary)] text-sm" />
                 </button>
             </div>
         </div>
         
-        <!-- 展开状态的完整播放器（封面圆形） -->
+        <!-- Player penuh saat dibuka. -->
         <div class="expanded-player card-base bg-[var(--float-panel-bg)] dark:bg-zinc-800/90 dark:backdrop-blur-md dark:border dark:border-zinc-700/50 rounded-2xl p-4 transition-all duration-500 ease-in-out"
              style="width: 320px; background-color: var(--card-bg);"
              class:opacity-0={!isExpanded}
@@ -520,7 +519,7 @@
             <div class="flex items-center gap-4 mb-4">
                 <div class="cover-container relative w-16 h-16 rounded-full overflow-hidden flex-shrink-0"
                      title="{currentSong.title} - {currentSong.artist}">
-                    <img src={getAssetPath(currentSong.cover)} alt="封面"
+                    <img src={getAssetPath(currentSong.cover)} alt="Album cover"
                          class="w-full h-full object-cover transition-transform duration-300"
                          class:spinning={isPlaying && !isLoading && cover_rotation_enable}
                          class:animate-pulse={isLoading}
@@ -558,7 +557,7 @@
                      }}
                      role="slider"
                      tabindex="0"
-                     aria-label="播放进度"
+                     aria-label="Playback progress"
                      aria-valuemin="0"
                      aria-valuemax="100"
                      aria-valuenow={duration > 0 ? (currentTime / duration * 100) : 0}>
@@ -567,7 +566,7 @@
                 </div>
             </div>
             <div class="controls flex items-center justify-center gap-2 mb-4">
-                <!-- 随机按钮高亮 -->
+                <!-- Highlight tombol shuffle saat aktif. -->
                 {#if show_shuffle_button}
                 <button class="w-10 h-10 rounded-lg"
                         class:btn-regular={isShuffled}
@@ -601,7 +600,7 @@
                     <Icon icon="material-symbols:skip-next" class="text-xl" />
                 </button>
                 {/if}
-                <!-- 循环按钮高亮 -->
+                <!-- Highlight tombol repeat saat aktif. -->
                 {#if show_repeat_button}
                 <button class="w-10 h-10 rounded-lg"
                         class:btn-regular={isRepeating > 0}
@@ -639,7 +638,7 @@
                      }}
                      role="slider"
                      tabindex="0"
-                     aria-label="音量控制"
+                     aria-label="Volume control"
                      aria-valuemin="0"
                      aria-valuemax="100"
                      aria-valuenow={volume * 100}>
@@ -680,7 +679,7 @@
                              }}
                              role="button"
                              tabindex="0"
-                             aria-label="播放 {song.title} - {song.artist}">
+                             aria-label="Play {song.title} - {song.artist}">
                             {#if show_track_numbers}
                             <div class="w-6 h-6 flex items-center justify-center">
                                 {#if index === currentIndex && isPlaying}
@@ -692,7 +691,7 @@
                                 {/if}
                             </div>
                             {/if}
-                            <!-- 歌单列表内封面仍为圆角矩形 -->
+                            <!-- Cover di daftar putar tetap memakai sudut membulat. -->
                             <div class="w-10 h-10 rounded-lg overflow-hidden bg-[var(--btn-regular-bg)] flex-shrink-0">
                                 <img src={getAssetPath(song.cover)} alt={song.title} class="w-full h-full object-cover" />
                             </div>
@@ -855,7 +854,7 @@
             height: 12px;
         }
     }
-    /* 自定义旋转动画，停止时保持当前位置 */
+    /* Animasi rotasi kustom yang berhenti di posisi terakhir. */
     @keyframes spin-continuous {
         from {
             transform: rotate(0deg);
@@ -878,13 +877,13 @@
         animation-play-state: var(--rotation-pause-hover, running);
     }
     
-    /* 让主题色按钮更有视觉反馈 */
+    /* Beri umpan balik visual yang lebih kuat pada tombol tema utama. */
     button.bg-\[var\(--primary\)\] {
         box-shadow: 0 0 0 2px var(--primary);
         border: none;
     }
     
-    /* 播放列表自定义滚动条样式 */
+    /* Gaya scrollbar khusus untuk playlist. */
     .scrollbar-custom {
         scrollbar-width: thin;
         scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
@@ -913,7 +912,7 @@
         background-color: rgba(156, 163, 175, 0.7);
     }
     
-    /* 暗色模式下的滚动条样式 */
+    /* Gaya scrollbar pada mode gelap. */
     :global(.dark) .scrollbar-custom {
         scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
     }

@@ -1,0 +1,32 @@
+---
+import JsonConfigEditor from "@components/studio/JsonConfigEditor.astro";
+import StudioShell from "@components/studio/StudioShell.astro";
+import expressiveCodeData from "../../data/expressive-code.json";
+import fontConfigData from "../../data/font-config.json";
+import sakuraData from "../../data/sakura.json";
+import wallpaperData from "../../data/wallpaper.json";
+---
+
+<StudioShell title="Studio Appearance" description="Konfigurasi tampilan situs.">
+  <JsonConfigEditor
+    title="Wallpaper"
+    section="wallpaper"
+    value={JSON.stringify(wallpaperData, null, 2)}
+  />
+  <JsonConfigEditor
+    title="Font Config"
+    section="fontConfig"
+    value={JSON.stringify(fontConfigData, null, 2)}
+  />
+  <JsonConfigEditor
+    title="Expressive Code"
+    section="expressiveCode"
+    value={JSON.stringify(expressiveCodeData, null, 2)}
+  />
+  <JsonConfigEditor
+    title="Sakura"
+    section="sakura"
+    description="Saat ini saya nonaktifkan default agar efek bunga tidak mengganggu. Bila ingin aktif lagi, ubah `enable`."
+    value={JSON.stringify(sakuraData, null, 2)}
+  />
+</StudioShell>

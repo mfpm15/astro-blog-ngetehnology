@@ -1,7 +1,4 @@
+import licenseData from "../data/license.json";
 import type { LicenseConfig } from "../types/config";
 
-export const licenseConfig: LicenseConfig = {
-  enable: false,
-  name: "CC BY-NC-SA 4.0",
-  url: "https://creativecommons.org/licenses/by-nc-sa/4.0/",
-};
+export const licenseConfig: LicenseConfig = licenseData as LicenseConfig;

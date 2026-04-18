@@ -2,7 +2,7 @@
 import { spineModelConfig } from "../../config/pioConfig";
 ---
 
-<!-- Spine Web Player CSS 将在 script 中动态加载 -->{
+<!-- CSS Spine Web Player dimuat dinamis di script. -->{
   spineModelConfig.enable && (
     <div
       id="spine-model-container"
@@ -23,30 +23,30 @@ import { spineModelConfig } from "../../config/pioConfig";
 }
 
 <script define:vars={{ spineModelConfig }}>
-  // 动态加载 Spine CSS（带本地备用）
+  // Muat CSS Spine secara dinamis dengan fallback lokal.
   function loadSpineCSS() {
     if (!spineModelConfig.enable) return;
 
-    // 检查是否已经加载
+    // Cek apakah stylesheet sudah dimuat.
     const existingLink = document.querySelector('link[href*="spine-player"]');
     if (existingLink) return;
 
-    // 首先尝试加载 CDN CSS
+    // Coba muat stylesheet dari CDN lebih dulu.
     const cdnLink = document.createElement("link");
     cdnLink.rel = "stylesheet";
     cdnLink.href =
       "https://unpkg.com/@esotericsoftware/spine-player@4.2.*/dist/spine-player.min.css";
 
-    // 监听加载失败事件，自动回退到本地文件
+    // Jika gagal, fallback ke file lokal.
     cdnLink.onerror = function () {
       console.warn("⚠️ Spine CSS CDN failed, trying local fallback...");
 
-      // 移除失败的 CDN link
+      // Hapus link CDN yang gagal.
       if (cdnLink.parentNode) {
         cdnLink.parentNode.removeChild(cdnLink);
       }
 
-      // 创建本地备用 CSS link
+      // Pasang stylesheet fallback lokal.
       const localLink = document.createElement("link");
       localLink.rel = "stylesheet";
       localLink.href = "/pio/static/spine-player.min.css";
@@ -60,24 +60,24 @@ import { spineModelConfig } from "../../config/pioConfig";
     document.head.appendChild(cdnLink);
   }
 
-  // 全局变量，跟踪当前显示的消息容器和隐藏定时器
+  // Simpan referensi bubble pesan yang sedang aktif.
   let currentMessageContainer = null;
   let hideMessageTimer = null;
-  let isClickProcessing = false; // 防止重复点击的标志
-  let lastClickTime = 0; // 记录最后一次点击时间
+  let isClickProcessing = false; // Cegah klik ganda beruntun.
+  let lastClickTime = 0; // Catat waktu klik terakhir.
 
-  // 全局变量，防止重复初始化
+  // Cegah inisialisasi dobel.
   window.spineModelInitialized = window.spineModelInitialized || false;
   window.spinePlayerInstance = window.spinePlayerInstance || null;
 
-  // 消息显示函数
+  // Tampilkan bubble pesan di dekat model.
   function showMessage(message) {
-    // 防止空消息或重复调用
+    // Abaikan pesan kosong.
     if (!message || !message.trim()) {
       return;
     }
 
-    // 立即清除之前的消息
+    // Hapus pesan sebelumnya lebih dulu.
     if (currentMessageContainer) {
       clearTimeout(hideMessageTimer);
       if (currentMessageContainer.parentNode) {
@@ -86,7 +86,7 @@ import { spineModelConfig } from "../../config/pioConfig";
       currentMessageContainer = null;
     }
 
-    // 确保DOM中没有残留的消息容器
+    // Pastikan tidak ada container pesan lama tertinggal.
     const existingMessages = document.querySelectorAll(
       ".spine-message-container"
     );
@@ -95,25 +95,25 @@ import { spineModelConfig } from "../../config/pioConfig";
         msg.parentNode.removeChild(msg);
       }
     });
-    // 检测暗色主题
+    // Deteksi mode gelap.
     const isDarkMode =
       document.documentElement.classList.contains("dark") ||
       window.matchMedia("(prefers-color-scheme: dark)").matches;
 
-    // 创建消息容器
+    // Buat container pesan.
     const messageContainer = document.createElement("div");
     messageContainer.className = "spine-message-container";
 
-    // 创建消息元素
+    // Buat elemen pesan.
     const messageEl = document.createElement("div");
     messageEl.className = "spine-message";
     messageEl.textContent = message;
 
-    // 创建箭头元素
+    // Buat panah bubble.
     const arrowEl = document.createElement("div");
     arrowEl.className = "spine-message-arrow";
 
-    // 设置容器样式
+    // Gaya dasar container.
     Object.assign(messageContainer.style, {
       position: "fixed",
       zIndex: "1001",
@@ -123,7 +123,7 @@ import { spineModelConfig } from "../../config/pioConfig";
       transition: "all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
     });
 
-    // 设置消息框美化样式（支持暗色主题）
+    // Gaya bubble pesan, termasuk dukungan tema gelap.
     const messageStyles = {
       position: "relative",
       background: isDarkMode
@@ -153,12 +153,12 @@ import { spineModelConfig } from "../../config/pioConfig";
     };
     Object.assign(messageEl.style, messageStyles);
 
-    // 设置箭头样式（居中显示）
+    // Gaya panah bubble.
     Object.assign(arrowEl.style, {
       position: "absolute",
       top: "100%",
       left: "50%",
-      transform: "translateX(-50%)", // 箭头居中
+      transform: "translateX(-50%)", // Pusatkan panah.
       width: "0",
       height: "0",
       borderLeft: "8px solid transparent",
@@ -169,33 +169,33 @@ import { spineModelConfig } from "../../config/pioConfig";
       filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))",
     });
 
-    // 组装消息框元素
+    // Susun elemen bubble.
     messageEl.appendChild(arrowEl);
     messageContainer.appendChild(messageEl);
 
-    // 添加到页面并保存引用
+    // Tempel ke dokumen dan simpan referensinya.
     document.body.appendChild(messageContainer);
     currentMessageContainer = messageContainer;
 
-    // 将消息显示在 firefly 头顶居中
+    // Posisikan pesan di atas model Firefly.
     const container = document.getElementById("spine-model-container");
     if (container) {
       const rect = container.getBoundingClientRect();
 
-      // 消息框居中显示在模型上方
+      // Posisikan bubble di atas model.
       const containerCenterX = rect.left + rect.width / 2;
 
-      // 使用估算的消息框尺寸进行初步定位
-      const estimatedMessageWidth = 240; // 使用maxWidth作为估算
-      const estimatedMessageHeight = 60; // 估算高度
-      const screenPadding = 10; // 距离屏幕边缘的最小距离
+      // Gunakan estimasi ukuran bubble untuk posisi awal.
+      const estimatedMessageWidth = 240; // Estimasi lebar awal.
+      const estimatedMessageHeight = 60; // Estimasi tinggi awal.
+      const screenPadding = 10; // Jarak aman dari tepi layar.
 
-      // 计算消息框的实际位置（考虑translateX(-50%)的影响）
+      // Hitung posisi aktual bubble.
       let messageX = containerCenterX;
-      let messageY = rect.top - estimatedMessageHeight - 25; // 距离模型顶部25px
+      let messageY = rect.top - estimatedMessageHeight - 25; // Beri jarak 25 px dari bagian atas model.
 
-      // 屏幕边界检查 - 水平方向
-      const minX = screenPadding + estimatedMessageWidth / 2; // 考虑translateX(-50%)
+      // Batas layar horizontal.
+      const minX = screenPadding + estimatedMessageWidth / 2; // Perhitungkan offset translateX(-50%).
       const maxX =
         window.innerWidth - screenPadding - estimatedMessageWidth / 2;
 
@@ -205,14 +205,14 @@ import { spineModelConfig } from "../../config/pioConfig";
         messageX = maxX;
       }
 
-      // 屏幕边界检查 - 垂直方向
+      // Batas layar vertikal.
       const minY = screenPadding;
       const maxY = window.innerHeight - estimatedMessageHeight - screenPadding;
 
       if (messageY < minY) {
-        // 如果上方空间不够，显示在模型下方
+        // Jika ruang atas sempit, pindahkan ke bawah model.
         messageY = rect.bottom + 25;
-        // 调整箭头方向（显示在下方）
+        // Balik arah panah.
         arrowEl.style.top = "0";
         arrowEl.style.bottom = "auto";
         arrowEl.style.borderTop = "none";
@@ -223,17 +223,17 @@ import { spineModelConfig } from "../../config/pioConfig";
         messageY = maxY;
       }
 
-      // 设置位置
+      // Terapkan posisi awal.
       messageContainer.style.left = messageX + "px";
       messageContainer.style.top = messageY + "px";
 
-      // 在消息框渲染后，进行精确的边界调整
+      // Setelah dirender, rapikan lagi posisinya.
       setTimeout(() => {
         const actualMessageRect = messageContainer.getBoundingClientRect();
         const actualWidth = actualMessageRect.width;
         const actualHeight = actualMessageRect.height;
 
-        // 重新计算水平位置
+        // Hitung ulang posisi horizontal.
         let adjustedX = containerCenterX;
         const actualMinX = screenPadding + actualWidth / 2;
         const actualMaxX = window.innerWidth - screenPadding - actualWidth / 2;
@@ -244,11 +244,11 @@ import { spineModelConfig } from "../../config/pioConfig";
           adjustedX = actualMaxX;
         }
 
-        // 重新计算垂直位置
+        // Hitung ulang posisi vertikal.
         let adjustedY = rect.top - actualHeight - 25;
         const actualMinY = screenPadding;
         const actualMaxY = window.innerHeight - actualHeight - screenPadding;
-        let isAboveModel = true; // 标记消息框是否在模型上方
+        let isAboveModel = true; // Penanda posisi bubble terhadap model.
 
         if (adjustedY < actualMinY) {
           adjustedY = rect.bottom + 25;
@@ -257,21 +257,21 @@ import { spineModelConfig } from "../../config/pioConfig";
           adjustedY = actualMaxY;
         }
 
-        // 计算箭头应该指向的位置（模型中心）
+        // Hitung arah panah ke pusat model.
         const modelCenterX = rect.left + rect.width / 2;
-        const messageCenterX = adjustedX; // 消息框中心位置
-        const arrowOffsetX = modelCenterX - messageCenterX; // 箭头相对于消息框中心的偏移
+        const messageCenterX = adjustedX; // Posisi pusat bubble pesan.
+        const arrowOffsetX = modelCenterX - messageCenterX; // Offset panah terhadap pusat bubble.
 
-        // 限制箭头偏移范围，避免超出消息框边界
-        const maxOffset = actualWidth / 2 - 20; // 留出20px边距
+        // Batasi offset panah agar tidak keluar bubble.
+        const maxOffset = actualWidth / 2 - 20; // Sisakan margin 20 px.
         const clampedOffsetX = Math.max(
           -maxOffset,
           Math.min(maxOffset, arrowOffsetX)
         );
 
-        // 根据最终位置调整箭头方向和位置
+        // Sesuaikan arah panah berdasarkan posisi final.
         if (isAboveModel) {
-          // 消息框在模型上方，箭头向下
+          // Bubble berada di atas model, panah mengarah ke bawah.
           Object.assign(arrowEl.style, {
             position: "absolute",
             top: "100%",
@@ -289,7 +289,7 @@ import { spineModelConfig } from "../../config/pioConfig";
             filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))",
           });
         } else {
-          // 消息框在模型下方，箭头向上
+          // Bubble berada di bawah model, panah mengarah ke atas.
           Object.assign(arrowEl.style, {
             position: "absolute",
             top: "0",
@@ -308,20 +308,20 @@ import { spineModelConfig } from "../../config/pioConfig";
           });
         }
 
-        // 应用调整后的位置
+        // Terapkan posisi akhir.
         messageContainer.style.left = adjustedX + "px";
         messageContainer.style.top = adjustedY + "px";
-      }, 50); // 增加延迟确保消息框完全渲染
+      }, 50); // Beri jeda singkat agar bubble selesai dirender.
     }
 
-    // 显示动画
+    // Animasi muncul.
     setTimeout(() => {
       messageContainer.style.opacity = "1";
       messageContainer.style.transform =
         "translateY(0) translateX(-50%) scale(1)";
-    }, 100); // 延迟到边界调整完成后
+    }, 100);
 
-    // 自动隐藏
+    // Sembunyikan otomatis.
     const displayTime = spineModelConfig.interactive.messageDisplayTime || 3000;
     hideMessageTimer = setTimeout(() => {
       messageContainer.style.opacity = "0";
@@ -331,7 +331,7 @@ import { spineModelConfig } from "../../config/pioConfig";
         if (messageContainer.parentNode) {
           messageContainer.parentNode.removeChild(messageContainer);
         }
-        // 清除引用
+        // Bersihkan referensi.
         if (currentMessageContainer === messageContainer) {
           currentMessageContainer = null;
         }
@@ -339,14 +339,14 @@ import { spineModelConfig } from "../../config/pioConfig";
     }, displayTime);
   }
 
-  // 更新响应式显示
+  // Perbarui visibilitas responsif.
   function updateResponsiveDisplay() {
     if (!spineModelConfig.enable) return;
 
     const container = document.getElementById("spine-model-container");
     if (!container) return;
 
-    // 检查移动端显示设置
+    // Ikuti aturan hideOnMobile.
     if (
       spineModelConfig.responsive.hideOnMobile &&
       window.innerWidth <= spineModelConfig.responsive.mobileBreakpoint
@@ -357,11 +357,11 @@ import { spineModelConfig } from "../../config/pioConfig";
     }
   }
 
-  // 清理函数
+  // Bersihkan instance model yang ada.
   function cleanupSpineModel() {
     console.log("🧹 Cleaning up existing Spine model...");
 
-    // 清理现有的消息显示
+    // Bersihkan bubble pesan yang masih aktif.
     if (currentMessageContainer) {
       clearTimeout(hideMessageTimer);
       if (currentMessageContainer.parentNode) {
@@ -370,7 +370,7 @@ import { spineModelConfig } from "../../config/pioConfig";
       currentMessageContainer = null;
     }
 
-    // 清理所有消息容器
+    // Bersihkan semua container pesan.
     const existingMessages = document.querySelectorAll(
       ".spine-message-container"
     );
@@ -380,7 +380,7 @@ import { spineModelConfig } from "../../config/pioConfig";
       }
     });
 
-    // 清理现有的播放器实例
+    // Bersihkan instance player aktif.
     if (window.spinePlayerInstance) {
       try {
         if (window.spinePlayerInstance.dispose) {
@@ -392,20 +392,20 @@ import { spineModelConfig } from "../../config/pioConfig";
       window.spinePlayerInstance = null;
     }
 
-    // 清理容器内容
+    // Kosongkan container player.
     const playerContainer = document.getElementById("spine-player-container");
     if (playerContainer) {
       playerContainer.innerHTML = "";
     }
 
-    // 重置初始化标志
+    // Reset penanda inisialisasi.
     window.spineModelInitialized = false;
   }
 
   async function initSpineModel() {
     if (!spineModelConfig.enable) return;
 
-    // 检查是否已经初始化
+    // Cegah inisialisasi ganda.
     if (window.spineModelInitialized) {
       console.log("⏭️ Spine model already initialized, skipping...");
       return;
@@ -413,13 +413,13 @@ import { spineModelConfig } from "../../config/pioConfig";
 
     console.log("🎯 Initializing Spine Model...");
 
-    // 先清理可能存在的旧实例
+    // Bersihkan instance lama jika ada.
     cleanupSpineModel();
 
-    // 首先加载 CSS
+    // Muat CSS terlebih dahulu.
     loadSpineCSS();
 
-    // 加载 Spine Web Player 运行时
+    // Muat runtime Spine Web Player.
     const loadSpineRuntime = () => {
       return new Promise((resolve, reject) => {
         if (typeof window.spine !== "undefined") {
@@ -439,7 +439,7 @@ import { spineModelConfig } from "../../config/pioConfig";
         script.onerror = (error) => {
           console.warn("⚠️ CDN failed, trying local fallback...");
 
-          // 尝试本地回退
+          // Coba fallback lokal.
           const fallbackScript = document.createElement("script");
           fallbackScript.src = "/pio/static/spine-player.min.js";
           fallbackScript.onload = () => {
@@ -455,7 +455,7 @@ import { spineModelConfig } from "../../config/pioConfig";
       });
     };
 
-    // 等待 Spine 库加载
+    // Tunggu library Spine selesai dimuat.
     const waitForSpine = () => {
       return new Promise((resolve, reject) => {
         let attempts = 0;
@@ -477,13 +477,13 @@ import { spineModelConfig } from "../../config/pioConfig";
     };
 
     try {
-      // 首先加载 Spine 运行时
+      // Muat runtime lebih dulu.
       await loadSpineRuntime();
 
-      // 然后等待 Spine 对象可用
+      // Tunggu objek Spine tersedia.
       await waitForSpine();
 
-      // 检查移动端显示设置
+      // Hormati aturan tampilan mobile.
       if (
         spineModelConfig.responsive.hideOnMobile &&
         window.innerWidth <= spineModelConfig.responsive.mobileBreakpoint
@@ -493,25 +493,25 @@ import { spineModelConfig } from "../../config/pioConfig";
         return;
       }
 
-      // 标记为已初始化
+      // Tandai sebagai sudah terinisialisasi.
       window.spineModelInitialized = true;
 
-      // 创建 SpinePlayer
+      // Buat instance SpinePlayer.
       const player = new window.spine.SpinePlayer("spine-player-container", {
         skeleton: spineModelConfig.model.path,
         atlas: spineModelConfig.model.path.replace(".json", ".atlas"),
         animation: "idle",
-        backgroundColor: "#00000000", // 透明背景
-        showControls: false, // 隐藏控件
+        backgroundColor: "#00000000", // Latar transparan.
+        showControls: false, // Sembunyikan kontrol bawaan.
         alpha: true,
         premultipliedAlpha: false,
         success: (player) => {
           console.log("🎉 Spine model loaded successfully!");
 
-          // 保存播放器实例引用
+          // Simpan referensi player aktif.
           window.spinePlayerInstance = player;
 
-          // 初始化完成后设置默认姿态
+          // Set pose awal setelah model siap.
           setTimeout(() => {
             if (player.skeleton) {
               try {
@@ -523,23 +523,23 @@ import { spineModelConfig } from "../../config/pioConfig";
             }
           }, 500);
 
-          // 设置交互功能
+          // Aktifkan interaksi bila diizinkan.
           if (spineModelConfig.interactive.enabled) {
             const canvas = document.querySelector(
               "#spine-player-container canvas"
             );
             if (canvas) {
               canvas.addEventListener("click", () => {
-                // 防抖处理：防止重复点击
+                // Debounce klik agar tidak dobel.
                 const currentTime = Date.now();
                 if (isClickProcessing || currentTime - lastClickTime < 500) {
-                  return; // 500ms 内重复点击忽略
+                  return; // Abaikan klik beruntun dalam 500 ms.
                 }
 
                 isClickProcessing = true;
                 lastClickTime = currentTime;
 
-                // 随机播放点击动画
+                // Putar animasi klik acak.
                 const clickAnims =
                   spineModelConfig.interactive.clickAnimations ||
                   (spineModelConfig.interactive.clickAnimation
@@ -552,7 +552,7 @@ import { spineModelConfig } from "../../config/pioConfig";
                       clickAnims[Math.floor(Math.random() * clickAnims.length)];
                     player.setAnimation(randomClickAnim, false);
 
-                    // 动画播放完成后回到待机状态
+                    // Setelah animasi selesai, kembali ke idle.
                     setTimeout(() => {
                       const idleAnims =
                         spineModelConfig.interactive.idleAnimations;
@@ -565,7 +565,7 @@ import { spineModelConfig } from "../../config/pioConfig";
                   }
                 }
 
-                // 显示随机消息
+                // Tampilkan pesan acak.
                 const messages = spineModelConfig.interactive.clickMessages;
                 if (messages && messages.length > 0) {
                   const randomMessage =
@@ -573,13 +573,13 @@ import { spineModelConfig } from "../../config/pioConfig";
                   showMessage(randomMessage);
                 }
 
-                // 500ms 后重置防抖标志
+                // Reset status debounce.
                 setTimeout(() => {
                   isClickProcessing = false;
                 }, 500);
               });
 
-              // 设置待机动画循环
+              // Atur loop animasi idle.
               if (spineModelConfig.interactive.idleAnimations.length > 1) {
                 setInterval(() => {
                   try {
@@ -596,16 +596,16 @@ import { spineModelConfig } from "../../config/pioConfig";
             }
           }
 
-          // 添加拖拽功能
+          // Tambahkan kemampuan drag.
           const container = document.getElementById("spine-model-container");
           if (container) {
             let isDragging = false;
             let dragStart = { x: 0, y: 0 };
             let containerStart = { x: 0, y: 0 };
 
-            // 鼠标事件
+            // Event mouse.
             container.addEventListener("mousedown", (e) => {
-              if (e.button !== 0) return; // 只响应左键
+              if (e.button !== 0) return; // Hanya tombol kiri.
               isDragging = true;
               dragStart = { x: e.clientX, y: e.clientY };
 
@@ -625,7 +625,7 @@ import { spineModelConfig } from "../../config/pioConfig";
               const newX = containerStart.x + deltaX;
               const newY = containerStart.y + deltaY;
 
-              // 边界检查
+              // Batasi agar tetap di dalam viewport.
               const maxX = window.innerWidth - container.offsetWidth;
               const maxY = window.innerHeight - container.offsetHeight;
 
@@ -645,7 +645,7 @@ import { spineModelConfig } from "../../config/pioConfig";
               }
             });
 
-            // 触摸事件（移动端支持）
+            // Event sentuh untuk perangkat mobile.
             container.addEventListener("touchstart", (e) => {
               if (e.touches.length !== 1) return;
               isDragging = true;
@@ -668,7 +668,7 @@ import { spineModelConfig } from "../../config/pioConfig";
               const newX = containerStart.x + deltaX;
               const newY = containerStart.y + deltaY;
 
-              // 边界检查
+              // Batasi agar tetap di dalam viewport.
               const maxX = window.innerWidth - container.offsetWidth;
               const maxY = window.innerHeight - container.offsetHeight;
 
@@ -687,10 +687,10 @@ import { spineModelConfig } from "../../config/pioConfig";
               isDragging = false;
             });
 
-            // 设置初始光标样式
+            // Set cursor awal.
             container.style.cursor = "grab";
 
-            // 窗口大小变化时重新检查边界
+            // Cek ulang posisi saat viewport berubah.
             window.addEventListener("resize", () => {
               const rect = container.getBoundingClientRect();
               const maxX = window.innerWidth - container.offsetWidth;
@@ -717,7 +717,7 @@ import { spineModelConfig } from "../../config/pioConfig";
             errorDiv.style.display = "block";
             errorDiv.innerHTML = `
               <div style="color: #ff4444; padding: 20px; text-align: center; font-size: 14px;">
-                <div>⚠️ Spine 模型加载失败</div>
+                <div>⚠️ Gagal memuat model Spine</div>
                 <div style="font-size: 12px; margin-top: 8px; color: #888;">${reason}</div>
               </div>
             `;
@@ -730,7 +730,7 @@ import { spineModelConfig } from "../../config/pioConfig";
     } catch (error) {
       console.error("Spine model initialization error:", error);
 
-      // 重置初始化标志，允许重试
+      // Reset penanda agar bisa dicoba lagi.
       window.spineModelInitialized = false;
 
       const errorDiv = document.getElementById("spine-error");
@@ -738,38 +738,38 @@ import { spineModelConfig } from "../../config/pioConfig";
         errorDiv.style.display = "block";
         errorDiv.innerHTML = `
           <div style="color: #ff4444; padding: 20px; text-align: center; font-size: 14px;">
-            <div>⚠️ Spine 运行时加载失败</div>
-            <div style="font-size: 12px; margin-top: 8px; color: #888;">${error instanceof Error ? error.message : "未知错误"}</div>
+            <div>⚠️ Gagal memuat runtime Spine</div>
+            <div style="font-size: 12px; margin-top: 8px; color: #888;">${error instanceof Error ? error.message : "Unknown error"}</div>
           </div>
         `;
       }
     }
   }
 
-  // 监听页面卸载事件，清理资源
+  // Bersihkan resource saat halaman ditutup.
   window.addEventListener("beforeunload", cleanupSpineModel);
 
-  // 监听 Swup 页面切换事件（如果使用了 Swup）
+  // Saat halaman berganti via Swup, cukup perbarui visibilitasnya.
   if (typeof window.swup !== "undefined" && window.swup.hooks) {
     window.swup.hooks.on("content:replace", () => {
-      // 只更新响应式显示，不重新创建模型
+      // Tidak perlu membuat ulang model, cukup update tampilannya.
       setTimeout(() => {
         updateResponsiveDisplay();
       }, 100);
     });
   }
 
-  // 监听 popstate 事件（浏览器前进后退）
+  // Dengarkan navigasi browser maju-mundur.
   window.addEventListener("popstate", () => {
     setTimeout(() => {
       updateResponsiveDisplay();
     }, 100);
   });
 
-  // 监听窗口大小变化
+  // Dengarkan resize window.
   window.addEventListener("resize", updateResponsiveDisplay);
 
-  // 页面加载完成后初始化（只初始化一次）
+  // Inisialisasi sekali saat halaman siap.
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initSpineModel);
   } else {

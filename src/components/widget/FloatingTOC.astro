@@ -16,7 +16,7 @@ for (const heading of headings) {
 }
 ---
 
-<!-- 悬浮TOC按钮 -->
+<!-- Tombol TOC melayang -->
 <div class="floating-toc-wrapper hidden lg:block">
   <div
     id="floating-toc-btn"
@@ -32,7 +32,7 @@ for (const heading of headings) {
   </div>
 </div>
 
-<!-- 悬浮TOC面板 -->
+<!-- Panel TOC melayang -->
 <div
   id="floating-toc-panel"
   class="floating-toc-panel hide fixed w-80 max-h-[24rem] overflow-hidden rounded-2xl shadow-2xl backdrop-blur-lg border border-white/20 bg-white/60 dark:bg-black/60 dark:border-white/10 z-50"
@@ -64,7 +64,7 @@ for (const heading of headings) {
       id="floating-toc-content"
       style="width: 100%; max-width: 100%;"
     >
-      <!-- TOC内容将由JavaScript动态生成 -->
+      <!-- Isi TOC dirender dinamis lewat JavaScript -->
     </div>
   </div>
 </div>
@@ -110,7 +110,7 @@ for (const heading of headings) {
 		background-color: rgba(255, 255, 255, 0.95)
 		border-color: rgba(0, 0, 0, 0.2)
 
-/* 暗色主题样式 */
+/* Gaya tema gelap */
 :global(.dark) .floating-toc-btn
 	background-color: var(--card-bg)
 	border: 1px solid rgba(255, 255, 255, 0.15)
@@ -153,7 +153,7 @@ for (const heading of headings) {
 	contain: layout
 	align-items: flex-start
 
-/* 使用与旧版TOC相同的样式 */
+/* Gunakan gaya yang konsisten dengan TOC versi sebelumnya */
 .toc-content a
 	display: flex
 	align-items: center
@@ -175,7 +175,7 @@ for (const heading of headings) {
 	&.visible
 		background: var(--toc-btn-active)
 
-/* 确保文本内容不会溢出 */
+/* Pastikan teks tidak meluber */
 .toc-content a div:last-child
 	overflow: hidden
 	text-overflow: ellipsis
@@ -185,13 +185,13 @@ for (const heading of headings) {
 	max-width: calc(100% - 2rem)
 	box-sizing: border-box
 
-/* 徽章容器固定宽度 */
+/* Lebar badge dibuat tetap */
 .toc-content a div:first-child
 	flex-shrink: 0
 	width: 1.25rem
 	height: 1.25rem
 
-/* 活动指示器样式 */
+/* Gaya indikator aktif */
 #floating-active-indicator
 	position: absolute
 	left: 0
@@ -201,7 +201,7 @@ for (const heading of headings) {
 	transition: all 0.2s ease
 	z-index: -1
 
-/* 响应式调整 */
+/* Penyesuaian responsif */
 @media (max-width: 1024px)
 	.floating-toc-btn
 		right: 1rem
@@ -246,7 +246,7 @@ for (const heading of headings) {
 		max-width: 16rem
 		max-height: 16rem
 
-/* 高缩放比例适配 */
+/* Adaptasi untuk zoom tinggi */
 @media (min-resolution: 2dppx)
 	.floating-toc-btn
 		right: max(0.5rem, 2rem - 2vw)
@@ -256,7 +256,7 @@ for (const heading of headings) {
 		right: max(0.5rem, 2rem - 2vw) !important
 		bottom: calc(max(12rem, 16rem - 5vh) + 6rem) !important
 
-/* 超小屏幕适配 */
+/* Adaptasi layar sangat kecil */
 @media (max-width: 360px)
 	.floating-toc-btn
 		right: 0.25rem
@@ -273,7 +273,7 @@ for (const heading of headings) {
 		max-width: 14rem
 		max-height: 12rem
 
-/* 横屏模式适配 */
+/* Adaptasi mode landscape */
 @media (orientation: landscape) and (max-height: 500px)
 	.floating-toc-btn
 		bottom: 4rem
@@ -284,7 +284,7 @@ for (const heading of headings) {
 		right: 0.5rem !important
 		max-height: 12rem
 
-/* 确保按钮始终在可视区域内 */
+/* Pastikan tombol selalu berada di area terlihat */
 .floating-toc-btn
 	min-width: 2rem
 	min-height: 2rem
@@ -293,13 +293,13 @@ for (const heading of headings) {
 	max-height: 4rem
 	border-radius: 1rem !important
 
-/* 高DPI屏幕优化 */
+/* Optimasi layar high-DPI */
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi)
 	.floating-toc-btn
 		image-rendering: -webkit-optimize-contrast
 		image-rendering: crisp-edges
 
-/* 极低分辨率适配 */
+/* Adaptasi resolusi sangat rendah */
 @media (max-width: 320px)
 	.floating-toc-btn
 		right: 0.125rem
@@ -316,16 +316,16 @@ for (const heading of headings) {
 		max-width: 12rem
 		max-height: 14rem
 
-/* 确保按钮在容器内正确显示 */
+/* Pastikan tombol tampil benar di dalam container */
 .floating-toc-wrapper
 	overflow: visible
 	z-index: 999
 
-/* 按钮激活状态 */
+/* Status aktif tombol */
 .floating-toc-btn:active
 	transform: scale(0.95)
 
-/* 滚动条样式 */
+/* Gaya scrollbar */
 .floating-toc-panel::-webkit-scrollbar
 	width: 6px
 
@@ -347,7 +347,7 @@ for (const heading of headings) {
 .floating-toc-panel::-webkit-scrollbar-thumb:active
 	background: linear-gradient(180deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.4) 100%)
 
-/* 暗色主题半透明效果 */
+/* Efek semi-transparan tema gelap */
 :global(.dark) .floating-toc-panel
 	background-color: rgba(0, 0, 0, 0.6) !important
 	backdrop-filter: blur(20px)
@@ -356,7 +356,7 @@ for (const heading of headings) {
 :global(.dark) .floating-toc-panel .p-4
 	background-color: rgba(0, 0, 0, 0.8) !important
 
-/* 暗色主题滚动条 */
+/* Scrollbar tema gelap */
 :global(.dark) .floating-toc-panel::-webkit-scrollbar-thumb
 	background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 100%)
 	border: 1px solid rgba(0, 0, 0, 0.1)
@@ -368,7 +368,7 @@ for (const heading of headings) {
 :global(.dark) .floating-toc-panel::-webkit-scrollbar-thumb:active
 	background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.4) 100%)
 
-/* Firefox 滚动条样式 */
+/* Gaya scrollbar Firefox */
 .floating-toc-panel
 	scrollbar-width: thin
 	scrollbar-color: rgba(0, 0, 0, 0.2) transparent
@@ -385,11 +385,11 @@ for (const heading of headings) {
     window.activeHeadingId = "";
     window.observer = null;
     window.minDepth = 10;
-    window.maxLevel = 3; // 默认显示3级标题
-    window.scrollTimeout = null; // 滚动节流定时器
+    window.maxLevel = 3; // Default tampil sampai 3 level heading.
+    window.scrollTimeout = null; // Timer throttle scroll.
   }
 
-  // 使用全局变量，避免重复声明
+  // Gunakan variabel global agar tidak dobel inisialisasi.
   floatingTOCBtn = window.floatingTOCBtn;
   floatingTOCPanel = window.floatingTOCPanel;
   tocItems = window.tocItems;
@@ -417,19 +417,19 @@ for (const heading of headings) {
     };
 
     function updateActiveHeading() {
-      // 直接更新TOC活动状态，检测所有可见标题
+      // Perbarui status TOC aktif berdasarkan heading yang terlihat.
       updateTOCActiveState();
     }
 
     function updateTOCActiveState() {
       if (!tocItems) return;
 
-      // 移除所有活动状态
+      // Hapus semua status aktif lebih dulu.
       tocItems.forEach((item) => {
         item.classList.remove("visible");
       });
 
-      // 获取所有在屏幕可视区域内的标题
+      // Ambil semua heading yang sedang terlihat di viewport.
       const contentContainer =
         document.querySelector(".custom-md") ||
         document.querySelector(".prose") ||
@@ -444,7 +444,7 @@ for (const heading of headings) {
       const windowHeight = window.innerHeight;
       const offset = 100;
 
-      // 找到所有在屏幕可视区域内的标题
+      // Cari semua heading yang sedang terlihat di area layar.
       const visibleHeadingIds = [];
       headings.forEach((heading) => {
         if (heading.id) {
@@ -457,7 +457,7 @@ for (const heading of headings) {
         }
       });
 
-      // 如果没有找到任何可见标题，选择最接近屏幕顶部的标题
+      // Jika tidak ada heading terlihat, pilih yang paling dekat ke atas layar.
       if (visibleHeadingIds.length === 0 && headings.length > 0) {
         let closestHeading = null;
         let minDistance = Infinity;
@@ -479,18 +479,18 @@ for (const heading of headings) {
         }
       }
 
-      // 找到对应的TOC项并添加活动状态
+      // Tandai item TOC yang sesuai sebagai aktif.
       const activeItems = tocItems.filter((item) => {
         const headingId = item.dataset.headingId;
         return visibleHeadingIds.includes(headingId);
       });
 
-      // 添加活动状态
+      // Terapkan status aktif.
       activeItems.forEach((item) => {
         item.classList.add("visible");
       });
 
-      // 更新活动指示器
+      // Perbarui indikator aktif.
       updateActiveIndicator(activeItems);
     }
 
@@ -503,7 +503,7 @@ for (const heading of headings) {
         return;
       }
 
-      // 为每个活动项单独创建指示器区域
+      // Hitung area indikator hanya untuk item aktif yang terlihat.
       const tocContent = document.getElementById("floating-toc-content");
       const tocPanel = document.getElementById("floating-toc-panel");
 
@@ -512,18 +512,18 @@ for (const heading of headings) {
       const contentRect = tocContent.getBoundingClientRect();
       const panelRect = tocPanel.getBoundingClientRect();
 
-      // 计算可视区域范围
-      const visibleTop = Math.max(0, panelRect.top + 60); // 考虑面板头部高度
-      const visibleBottom = panelRect.bottom - 20; // 考虑面板底部边距
+      // Hitung area panel yang benar-benar terlihat.
+      const visibleTop = Math.max(0, panelRect.top + 60); // Perhitungkan tinggi header panel.
+      const visibleBottom = panelRect.bottom - 20; // Perhitungkan jarak bawah panel.
 
-      // 找到所有在可视区域内的活动项
+      // Cari item aktif yang berada di area terlihat.
       const visibleActiveItems = [];
       activeItems.forEach((item) => {
         const itemRect = item.getBoundingClientRect();
         const itemTop = itemRect.top;
         const itemBottom = itemRect.bottom;
 
-        // 检查活动项是否在可视区域内
+        // Periksa apakah item aktif ada di area terlihat.
         if (itemTop < visibleBottom && itemBottom > visibleTop) {
           visibleActiveItems.push({
             element: item,
@@ -538,7 +538,7 @@ for (const heading of headings) {
         return;
       }
 
-      // 计算指示器位置，只包裹可见的活动项
+      // Hitung posisi indikator berdasarkan item aktif yang terlihat.
       const firstVisible = visibleActiveItems[0];
       const lastVisible = visibleActiveItems[visibleActiveItems.length - 1];
 
@@ -549,7 +549,7 @@ for (const heading of headings) {
       indicator.style.height = `${height}px`;
       indicator.style.opacity = "1";
 
-      // 自动滚动到活动项
+      // Scroll otomatis ke item aktif.
       const firstActive = activeItems[0];
       if (firstActive) {
         scrollToActiveItem(firstActive, tocContent, tocPanel);
@@ -559,24 +559,24 @@ for (const heading of headings) {
     function scrollToActiveItem(activeItem, tocContent, tocPanel) {
       if (!activeItem || !tocContent) return;
 
-      // 清除之前的定时器
+      // Bersihkan timer sebelumnya.
       if (scrollTimeout) {
         clearTimeout(scrollTimeout);
       }
 
-      // 使用节流机制，避免滚动过于频繁
+      // Throttle agar scroll tidak terlalu sering.
       scrollTimeout = setTimeout(() => {
-        // 使用scrollIntoView方法，更简单可靠
+        // scrollIntoView dipakai karena lebih sederhana dan stabil.
         activeItem.scrollIntoView({
           behavior: "smooth",
-          block: "center", // 将活动项滚动到可视区域中心
+          block: "center", // Posisikan item aktif ke tengah panel.
           inline: "nearest",
         });
-      }, 100); // 100ms延迟
+      }, 100); // Jeda 100 ms.
     }
 
     function setupIntersectionObserver() {
-      // 只在文章内容容器内查找标题
+      // Hanya cari heading di dalam container artikel.
       const contentContainer =
         document.querySelector(".custom-md") ||
         document.querySelector(".prose") ||
@@ -594,7 +594,7 @@ for (const heading of headings) {
 
       observer = new IntersectionObserver(
         (entries) => {
-          // 当任何标题进入或离开可视区域时，更新TOC状态
+          // Saat heading masuk atau keluar dari viewport, perbarui status TOC.
           updateTOCActiveState();
         },
         {
@@ -621,14 +621,14 @@ for (const heading of headings) {
       const tocContent = document.getElementById("floating-toc-content");
       if (!tocContent) return;
 
-      // 检查是否为文章页面
+      // Pastikan ini benar-benar halaman artikel.
       if (!isPostPage()) {
-        // 如果不是文章页面，隐藏TOC
+        // Jika bukan halaman artikel, kosongkan TOC.
         tocContent.innerHTML = "";
         return;
       }
 
-      // 只在文章内容容器内查找标题
+      // Batasi pencarian heading ke area artikel.
       const contentContainer =
         document.querySelector(".custom-md") ||
         document.querySelector(".prose") ||
@@ -643,7 +643,7 @@ for (const heading of headings) {
         "h1, h2, h3, h4, h5, h6"
       );
 
-      // 计算最小深度
+      // Hitung depth minimum heading.
       let currentMinDepth = 10;
       headings.forEach((heading) => {
         const depth = parseInt(heading.tagName.charAt(1));
@@ -659,7 +659,7 @@ for (const heading of headings) {
 
       if (filteredHeadings.length === 0) {
         tocContent.innerHTML =
-          '<div class="text-center py-8 text-gray-500 dark:text-gray-400"><p>当前页面没有目录</p></div>';
+          '<div class="text-center py-8 text-gray-500 dark:text-gray-400"><p>Halaman ini belum memiliki daftar isi</p></div>';
         return;
       }
 
@@ -671,12 +671,12 @@ for (const heading of headings) {
           depth === minDepth ? "" : depth === minDepth + 1 ? "pl-4" : "pl-8";
         const levelClass = `level-${depth}`;
 
-        // 确保标题有ID
+        // Pastikan setiap heading punya ID.
         if (!heading.id) {
           return;
         }
 
-        // 使用与旧版TOC相同的徽章样式
+        // Samakan gaya badge dengan TOC versi sebelumnya.
         const badgeContent =
           depth === minDepth
             ? heading1Count++
@@ -709,13 +709,13 @@ for (const heading of headings) {
     }
 
     function updateTOCVisibility() {
-      // 检查是否为文章页面
+      // Pastikan ini halaman artikel.
       if (!isPostPage()) {
         floatingTOCBtn.classList.add("hide");
         return;
       }
 
-      // 在文章页面始终显示按钮
+      // Di halaman artikel, tombol selalu ditampilkan.
       floatingTOCBtn.classList.remove("hide");
     }
 
@@ -723,40 +723,40 @@ for (const heading of headings) {
       const anchor = event.target.closest('a[href^="#"]');
       if (!anchor) return;
 
-      // 标记这是TOC内部导航，防止其他事件关闭TOC
+      // Tandai ini sebagai navigasi internal TOC agar event lain tidak menutup panel.
       window.tocInternalNavigation = true;
 
-      event.stopPropagation(); // 阻止事件冒泡
-      event.preventDefault(); // 阻止默认行为
+      event.stopPropagation(); // Hentikan bubbling event.
+      event.preventDefault(); // Cegah perilaku default.
 
-      // 从href属性获取ID
+      // Ambil ID dari atribut href.
       const href = anchor.getAttribute("href");
       const id = href ? href.substring(1) : "";
       const targetElement = document.getElementById(id);
 
       if (targetElement) {
-        // 计算目标位置，考虑导航栏高度
+        // Hitung posisi target dengan memperhitungkan tinggi navbar.
         const navbarHeight = 80;
         const targetTop =
           targetElement.getBoundingClientRect().top +
           window.pageYOffset -
           navbarHeight;
 
-        // 平滑滚动到目标位置
+        // Gulir halus ke posisi target.
         window.scrollTo({
           top: targetTop,
           behavior: "smooth",
         });
       }
 
-      // 点击后不关闭TOC面板，保持打开状态
+      // Biarkan panel tetap terbuka setelah item TOC diklik.
     }
 
     function initFloatingTOC() {
       floatingTOCBtn = document.getElementById("floating-toc-btn");
       floatingTOCPanel = document.getElementById("floating-toc-panel");
 
-      // 更新全局变量
+      // Perbarui variabel global.
       window.floatingTOCBtn = floatingTOCBtn;
       window.floatingTOCPanel = floatingTOCPanel;
 
@@ -764,43 +764,43 @@ for (const heading of headings) {
         return;
       }
 
-      // 立即检查是否为文章页面，如果不是则立即隐藏按钮
+      // Langsung cek apakah ini halaman artikel. Jika bukan, sembunyikan tombol.
       if (!isPostPage()) {
         floatingTOCBtn.classList.add("hide");
         return;
       }
 
-      // 生成TOC内容
+      // Bangun isi TOC.
       generateTOCContent();
 
-      // 设置点击监听 - 使用capture模式确保优先处理
+      // Pasang click handler dengan capture agar diproses lebih dulu.
       const tocContent = document.getElementById("floating-toc-content");
       if (tocContent) {
         tocContent.addEventListener("click", handleTOCClick, { capture: true });
       }
 
-      // 设置滚动监听
+      // Pasang listener scroll.
       window.addEventListener("scroll", updateActiveHeading);
 
-      // 设置交叉观察器
+      // Pasang intersection observer.
       setupIntersectionObserver();
 
-      // 初始化活动状态
+      // Inisialisasi status aktif.
       updateActiveHeading();
       updateTOCVisibility();
 
-      // 延迟再次更新，确保DOM完全渲染
+      // Update lagi setelah jeda singkat agar DOM benar-benar siap.
       setTimeout(() => {
         updateActiveHeading();
       }, 100);
 
-      // 设置自动关闭功能
+      // Aktifkan perilaku auto-close.
       setupAutoClose();
     }
 
-    // 页面离开时自动关闭TOC
+    // Tutup TOC otomatis saat halaman berubah.
     function setupAutoClose() {
-      // 关闭TOC的通用函数
+      // Fungsi umum untuk menutup TOC.
       function closeTOC() {
         if (floatingTOCPanel && !floatingTOCPanel.classList.contains("hide")) {
           floatingTOCPanel.classList.add("hide");
@@ -808,20 +808,20 @@ for (const heading of headings) {
         }
       }
 
-      // 监听页面卸载
+      // Dengarkan unload halaman.
       window.addEventListener("beforeunload", closeTOC);
 
-      // 监听页面隐藏（移动端）
+      // Dengarkan saat halaman disembunyikan.
       document.addEventListener("visibilitychange", () => {
         if (document.hidden) {
           closeTOC();
         }
       });
 
-      // 监听路由变化（如果使用SPA）
+      // Dengarkan perubahan route.
       window.addEventListener("popstate", closeTOC);
 
-      // 监听Swup页面切换（如果使用Swup）
+      // Dengarkan transisi halaman via Swup.
       try {
         if (
           typeof window.swup !== "undefined" &&
@@ -832,26 +832,26 @@ for (const heading of headings) {
           window.swup.on("contentReplaced", closeTOC);
         }
       } catch (e) {
-        // Swup not available
+        // Swup tidak tersedia.
       }
 
-      // 监听Turbo页面切换（如果使用Turbo）
+      // Dengarkan transisi halaman via Turbo.
       if (typeof window.Turbo !== "undefined" && window.Turbo) {
         document.addEventListener("turbo:visit", closeTOC);
         document.addEventListener("turbo:load", closeTOC);
       }
 
-      // 监听Astro页面切换
+      // Dengarkan transisi halaman Astro.
       document.addEventListener("astro:page-load", closeTOC);
       document.addEventListener("astro:before-preparation", closeTOC);
 
-      // 监听外部链接点击（不处理锚点链接）
+      // Tutup TOC saat pindah lewat link non-anchor.
       document.addEventListener(
         "click",
         (e) => {
           const link = e.target.closest("a");
           if (link && link.href) {
-            // 只处理外部链接，锚点链接不关闭TOC
+            // Anchor internal tidak perlu menutup TOC.
             const href = link.getAttribute("href");
             const isExternalLink =
               href && !href.startsWith("#") && !href.startsWith("javascript:");
@@ -860,7 +860,7 @@ for (const heading of headings) {
               return;
             }
 
-            // 检查是否点击的是TOC内部的链接
+            // Abaikan klik pada link internal TOC sendiri.
             const tocPanel = document.getElementById("floating-toc-panel");
             const tocContent = document.getElementById("floating-toc-content");
 
@@ -872,7 +872,7 @@ for (const heading of headings) {
               return;
             }
 
-            // 检查是否是TOC内部导航
+            // Abaikan jika ini navigasi internal TOC.
             if (window.tocInternalNavigation) {
               return;
             }
@@ -883,7 +883,7 @@ for (const heading of headings) {
         { capture: false }
       );
 
-      // 监听表单提交
+      // Tutup TOC saat form dikirim.
       document.addEventListener("submit", (e) => {
         const form = e.target;
         if (form.action) {
@@ -891,30 +891,29 @@ for (const heading of headings) {
         }
       });
 
-      // 监听页面开始卸载
+      // Dengarkan pagehide.
       window.addEventListener("pagehide", closeTOC);
 
-      // 监听页面可见性变化（更可靠）
+      // Cek juga perubahan visibilitas halaman.
       document.addEventListener("visibilitychange", () => {
         if (document.hidden) {
           closeTOC();
         }
       });
 
-      // 监听页面卸载前
+      // Dengarkan unload final.
       window.addEventListener("unload", closeTOC);
 
-      // 监听hashchange事件，但排除TOC内部的锚点链接
+      // Dengarkan hashchange, kecuali dari TOC internal.
       window.addEventListener("hashchange", (e) => {
-        // 检查是否是TOC内部点击导致的hashchange
         if (window.tocInternalNavigation) {
-          window.tocInternalNavigation = false; // 重置标记
+          window.tocInternalNavigation = false; // Reset penanda internal.
           return;
         }
         closeTOC();
       });
 
-      // 监听pushState和replaceState（手动路由变化）
+      // Tangani pushState dan replaceState untuk route manual.
       const originalPushState = history.pushState;
       const originalReplaceState = history.replaceState;
 
@@ -928,11 +927,11 @@ for (const heading of headings) {
         return originalReplaceState.apply(this, args);
       };
 
-      // 监听URL变化（最可靠的方法）
+      // Pantau perubahan URL sebagai fallback paling aman.
       let currentUrl = window.location.href;
       const checkUrlChange = () => {
         if (window.location.href !== currentUrl) {
-          // 检查是否是TOC内部导航导致的URL变化
+          // Abaikan perubahan URL dari navigasi TOC internal.
           if (window.tocInternalNavigation) {
             currentUrl = window.location.href;
             return;
@@ -942,21 +941,21 @@ for (const heading of headings) {
         }
       };
 
-      // 定期检查URL变化
+      // Periksa perubahan URL secara berkala.
       setInterval(checkUrlChange, 100);
 
-      // 监听页面焦点变化 - 但排除TOC内部的焦点变化
+      // Tutup saat kehilangan fokus, kecuali dari interaksi TOC sendiri.
       window.addEventListener("blur", (e) => {
-        // 检查是否是TOC内部导航
+        // Abaikan navigasi internal TOC.
         if (window.tocInternalNavigation) {
           return;
         }
         closeTOC();
       });
 
-      // 监听页面失去焦点 - 但排除TOC内部的焦点变化
+      // Tutup saat focusout, kecuali fokus pindah di dalam TOC.
       document.addEventListener("focusout", (e) => {
-        // 检查焦点是否转移到了TOC内部
+        // Abaikan jika fokus pindah ke elemen di dalam TOC.
         const tocPanel = document.getElementById("floating-toc-panel");
         const tocContent = document.getElementById("floating-toc-content");
         const relatedTarget = e.relatedTarget;
@@ -971,7 +970,7 @@ for (const heading of headings) {
           return;
         }
 
-        // 检查是否是TOC内部导航
+        // Abaikan navigasi internal TOC.
         if (window.tocInternalNavigation) {
           return;
         }
@@ -980,17 +979,17 @@ for (const heading of headings) {
       });
     }
 
-    // 页面加载完成后初始化
+    // Inisialisasi setelah halaman siap.
     document.addEventListener("DOMContentLoaded", initFloatingTOC);
 
-    // 如果页面已经加载完成，立即初始化
+    // Jika halaman sudah siap, inisialisasi langsung.
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", initFloatingTOC);
     } else {
       initFloatingTOC();
     }
 
-    // 监听页面切换（Swup）
+    // Inisialisasi ulang setelah transisi Swup.
     if (typeof window !== "undefined" && window.swup) {
       window.swup.hooks.on("visit:end", () => {
         setTimeout(() => {

@@ -1,64 +1,87 @@
 # NgetehNology Blog
 
-Ini adalah repositori untuk blog NgetehNology, sebuah blog yang didedikasikan untuk keamanan siber dan teknologi. Proyek ini menggunakan template [Firefly](https://github.com/CuteLeaf/Firefly) sebagai dasarnya.
+Repo ini adalah blog NgetehNology berbasis Firefly dan Astro. Fokus pengembangan saat ini adalah fondasi yang rapi: konfigurasi yang makin data-driven, pengalaman menulis yang tidak lagi bergantung pada `/admin`, dan build yang stabil di Astro 6.
 
----
+## Stack
 
-## ✨ Fitur Utama (dari Template Asli)
+- Astro 6
+- Firefly theme base
+- Tailwind CSS
+- Svelte components
+- Astro Content Collections
 
-⚡ **Pembuatan Situs Statis**: Dibangun dengan [Astro](https://astro.build/) untuk kecepatan muat super cepat dan SEO yang optimal.
+## Prasyarat
 
-🎨 **Desain Modern**: Antarmuka yang bersih dan indah dengan dukungan kustomisasi warna tema.
+- Node.js 22 atau lebih baru
+- pnpm 9
 
-📱 **Ramah Seluler**: Pengalaman responsif yang sempurna, dengan optimisasi khusus untuk perangkat seluler.
+## Menjalankan Secara Lokal
 
-🔧 **Sangat Dapat Dikonfigurasi**: Sebagian besar modul fungsional dapat disesuaikan melalui file konfigurasi di `src/config/`.
+```bash
+pnpm install
+pnpm dev
+```
 
-## 🚀 Memulai Proyek Secara Lokal
+Server pengembangan akan tersedia di `http://127.0.0.1:4321`.
 
-### Prasyarat
+## Build
 
-- Node.js versi 22 atau lebih rendah
-- pnpm versi 9 atau lebih rendah
+```bash
+pnpm build
+```
 
-### Menjalankan di Komputer Lokal
+## Workflow Konten
 
-1.  **Clone Repositori (jika memulai dari awal):**
-    ```bash
-    git clone https://github.com/mfpm15/astro-blog-ngetehnology.git
-    cd astro-blog-ngetehnology
-    ```
+Pembuatan post tidak lagi diarahkan ke `/admin` dan tidak lagi mengandalkan alur manual lama.
 
-2.  **Instal Dependensi:**
-    ```bash
-    # Jika pnpm belum terinstal, instal terlebih dahulu
-    npm install -g pnpm
-    
-    # Instal dependensi proyek
-    pnpm install
-    ```
+Jalankan:
 
-3.  **Jalankan Server Pengembangan:**
-    ```bash
-    pnpm dev
-    ```
-    Blog akan tersedia di `http://localhost:4321`.
+```bash
+pnpm dev
+```
 
-### Mengelola Konten
+Lalu buka:
 
-- **Secara Lokal**: Buat file Markdown baru di dalam direktori `src/content/posts/`.
-- **Menggunakan Dashboard**: Akses dashboard admin di `http://localhost:4321/admin/` untuk membuat dan mengedit postingan (memerlukan konfigurasi Netlify Identity saat di-deploy).
+```text
+http://127.0.0.1:4321/studio/
+```
 
-## 🧞 Perintah yang Tersedia
+Studio lokal saat ini menangani:
+
+- pembuatan post baru langsung ke `src/content/posts/<slug>/index.md`
+- metadata situs
+- wallpaper
+- profile
+- announcement
+- friend links
+- sidebar layout
+- halaman `about`
+- halaman `friends`
+
+## Lokasi Konten Penting
+
+- post blog: `src/content/posts/`
+- halaman about: `src/content/spec/about.md`
+- halaman friends: `src/content/spec/friends.md`
+- metadata situs: `src/data/site-metadata.json`
+- wallpaper: `src/data/wallpaper.json`
+- profile: `src/data/profile.json`
+- announcement: `src/data/announcement.json`
+- friend links: `src/data/friends.json`
+- sidebar layout: `src/data/sidebar-layout.json`
+
+## Perintah Yang Tersedia
 
 | Perintah | Aksi |
-|:---------------------------|:---------------------------------------------------|
-| `pnpm install` | Menginstal dependensi proyek |
-| `pnpm dev` | Menjalankan server pengembangan lokal di `localhost:4321` |
-| `pnpm build` | Mem-build situs untuk produksi ke direktori `./dist/` |
-| `pnpm preview` | Menjalankan pratinjau lokal dari situs yang sudah di-build |
-| `pnpm new-post <filename>` | Membuat file postingan baru (secara lokal) |
+| --- | --- |
+| `pnpm dev` | Menjalankan server pengembangan |
+| `pnpm build` | Build produksi + index search |
+| `pnpm preview` | Menjalankan hasil build secara lokal |
+| `pnpm check` | Validasi Astro / TypeScript |
+| `pnpm run new-post` | Menampilkan pengarah ke `/studio/` |
 
-## 📄 Lisensi
+## Referensi
 
-Proyek ini menggunakan lisensi MIT. Lihat file [LICENSE](../LICENSE) untuk detailnya.
+- Firefly docs: https://docs-firefly.cuteleaf.cn/en/guide/getting-started.html
+- Astro: https://astro.build/
+- Upgrade guide Astro 6: https://docs.astro.build/en/guides/upgrade-to/v6/

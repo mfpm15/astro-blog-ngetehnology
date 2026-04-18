@@ -33,7 +33,11 @@ import netlify from "@astrojs/netlify";
 export default defineConfig({
   site: "https://astro-blog-ngetehnology.netlify.app/",
   base: "/",
+  output: "server",
   trailingSlash: "always",
+  legacy: {
+      collectionsBackwardsCompat: true,
+  },
   prefetch: {
       prefetchAll: true,
       defaultStrategy: "hover",
@@ -221,6 +225,14 @@ export default defineConfig({
 	},
 
   vite: {
+      server: {
+          proxy: {
+              "/api/studio": {
+                  target: "http://127.0.0.1:4323",
+                  changeOrigin: false,
+              },
+          },
+      },
       build: {
           rollupOptions: {
               onwarn(warning, warn) {

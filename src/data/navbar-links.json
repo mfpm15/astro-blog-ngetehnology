@@ -1,0 +1,62 @@
+[
+  {
+    "name": "Beranda",
+    "url": "/",
+    "icon": "material-symbols:home"
+  },
+  {
+    "name": "Arsip",
+    "url": "/archive/",
+    "icon": "material-symbols:archive"
+  },
+  {
+    "name": "Anime",
+    "url": "/anime/",
+    "icon": "material-symbols:movie"
+  },
+  {
+    "name": "Tautan",
+    "url": "/friends/",
+    "icon": "material-symbols:link",
+    "children": [
+      {
+        "name": "GitHub",
+        "url": "https://github.com/mfpm15/astro-blog-ngetehnology",
+        "external": true,
+        "icon": "fa6-brands:github"
+      }
+    ]
+  },
+  {
+    "name": "Teman",
+    "url": "/friends/",
+    "icon": "material-symbols:group"
+  },
+  {
+    "name": "Tentang",
+    "url": "/about/",
+    "icon": "material-symbols:info",
+    "children": [
+      {
+        "name": "Tentang",
+        "url": "/about/",
+        "icon": "material-symbols:person"
+      },
+      {
+        "name": "Proyek Saya",
+        "url": "/projects/",
+        "icon": "material-symbols:work"
+      },
+      {
+        "name": "Keahlian Saya",
+        "url": "/skills/",
+        "icon": "material-symbols:psychology"
+      },
+      {
+        "name": "Pengalaman Saya",
+        "url": "/timeline/",
+        "icon": "material-symbols:timeline"
+      }
+    ]
+  }
+]

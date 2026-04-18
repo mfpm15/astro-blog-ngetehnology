@@ -1,0 +1,472 @@
+---
+const today = new Date().toISOString().slice(0, 10);
+---
+
+<section class="grid gap-6 lg:grid-cols-[22rem_minmax(0,1fr)]">
+  <aside class="card-base p-5">
+    <div class="flex items-center justify-between gap-3">
+      <div>
+        <h2 class="text-xl font-bold">Daftar Post</h2>
+        <p class="text-50 mt-2 text-sm">
+          Pilih post untuk edit, atau buat post baru dari form editor.
+        </p>
+      </div>
+      <button class="btn-regular rounded-xl px-4 py-2 text-sm font-semibold" id="post-new-btn" type="button">
+        Post Baru
+      </button>
+    </div>
+
+    <div class="mt-4">
+      <input
+        id="post-search"
+        class="studio-input w-full"
+        type="search"
+        placeholder="Cari judul atau slug..."
+      />
+    </div>
+
+    <div id="post-list-status" class="mt-4 text-sm text-50">Memuat daftar post...</div>
+    <div id="post-list" class="mt-4 flex max-h-[44rem] flex-col gap-3 overflow-y-auto pr-1"></div>
+  </aside>
+
+  <section class="card-base p-6">
+    <div class="mb-4 flex items-start justify-between gap-4">
+      <div>
+        <h2 class="text-xl font-bold" id="editor-title">Buat Post Baru</h2>
+        <p class="text-50 mt-2">
+          Form ini menyimpan post ke `src/content/posts/&lt;slug&gt;/index.md` atau memperbarui post yang dipilih.
+        </p>
+      </div>
+      <span
+        id="editor-mode-badge"
+        class="rounded-full bg-[var(--btn-regular-bg)] px-3 py-1 text-xs font-semibold text-[var(--btn-content)]"
+      >
+        Mode Create
+      </span>
+    </div>
+
+    <form id="post-form" class="grid gap-4 md:grid-cols-2">
+      <input type="hidden" name="originalSlug" value="" />
+
+      <label class="flex flex-col gap-2 md:col-span-2">
+        <span class="font-medium">Judul</span>
+        <input class="studio-input" type="text" name="title" required />
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Slug</span>
+        <input class="studio-input" type="text" name="slug" placeholder="otomatis dari judul jika kosong" />
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Tanggal Publish</span>
+        <input class="studio-input" type="date" name="published" value={today} required />
+      </label>
+
+      <label class="flex flex-col gap-2 md:col-span-2">
+        <span class="font-medium">Deskripsi</span>
+        <textarea class="studio-input min-h-24" name="description"></textarea>
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Kategori</span>
+        <input class="studio-input" type="text" name="category" />
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Tags</span>
+        <input class="studio-input" type="text" name="tags" placeholder="Keamanan Siber, Tutorial" />
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Author</span>
+        <input class="studio-input" type="text" name="author" value="NgetehNology" />
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Bahasa</span>
+        <select class="studio-input" name="lang">
+          <option value="id">Indonesia</option>
+          <option value="en">English</option>
+        </select>
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Tanggal Update</span>
+        <input class="studio-input" type="date" name="updated" />
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Series</span>
+        <input class="studio-input" type="text" name="series" />
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Cover Image URL/Path</span>
+        <input class="studio-input" type="text" name="image" placeholder="./cover.webp atau https://..." />
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Upload Cover Lokal</span>
+        <input class="studio-input" type="file" name="coverFile" />
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Source Link</span>
+        <input class="studio-input" type="url" name="sourceLink" />
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Nama Lisensi</span>
+        <input class="studio-input" type="text" name="licenseName" />
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">URL Lisensi</span>
+        <input class="studio-input" type="url" name="licenseUrl" />
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Password Artikel</span>
+        <input class="studio-input" type="text" name="password" />
+      </label>
+
+      <label class="flex items-center gap-3">
+        <input type="checkbox" name="draft" value="true" />
+        <span>Simpan sebagai draft</span>
+      </label>
+
+      <label class="flex items-center gap-3">
+        <input type="checkbox" name="pinned" value="true" />
+        <span>Pin di daftar artikel</span>
+      </label>
+
+      <label class="flex flex-col gap-2 md:col-span-2">
+        <span class="font-medium">Isi Artikel</span>
+        <textarea class="studio-input min-h-[24rem] font-mono text-sm" name="content" required>## Pendahuluan
+
+Tulis artikel Anda di sini.
+</textarea>
+      </label>
+
+      <div class="flex flex-wrap items-center gap-3 md:col-span-2">
+        <button class="btn-regular rounded-xl px-5 py-3 font-semibold" id="post-submit-btn" type="submit">
+          Simpan Post
+        </button>
+        <button class="btn-plain rounded-xl px-5 py-3 font-semibold" id="post-delete-btn" type="button" hidden>
+          Hapus Post
+        </button>
+        <button class="btn-plain rounded-xl px-5 py-3 font-semibold" id="post-reset-btn" type="button">
+          Reset Form
+        </button>
+        <p id="post-status" class="text-sm text-50"></p>
+      </div>
+    </form>
+  </section>
+</section>
+
+<script is:inline define:vars={{ today }}>
+  const postForm = document.getElementById("post-form");
+  const postStatus = document.getElementById("post-status");
+  const postList = document.getElementById("post-list");
+  const postListStatus = document.getElementById("post-list-status");
+  const searchInput = document.getElementById("post-search");
+  const newButton = document.getElementById("post-new-btn");
+  const resetButton = document.getElementById("post-reset-btn");
+  const deleteButton = document.getElementById("post-delete-btn");
+  const editorTitle = document.getElementById("editor-title");
+  const editorModeBadge = document.getElementById("editor-mode-badge");
+  const submitButton = document.getElementById("post-submit-btn");
+
+  const initialFormState = {
+    title: "",
+    slug: "",
+    originalSlug: "",
+    published: today,
+    description: "",
+    category: "",
+    tags: "",
+    author: "NgetehNology",
+    lang: "id",
+    updated: "",
+    series: "",
+    image: "",
+    sourceLink: "",
+    licenseName: "",
+    licenseUrl: "",
+    password: "",
+    draft: false,
+    pinned: false,
+    content: "## Pendahuluan\n\nTulis artikel Anda di sini.\n",
+  };
+
+  let studioPosts = [];
+  let activeSlug = "";
+
+  function applyFormState(payload) {
+    if (!postForm) return;
+
+    postForm.elements.title.value = payload.title ?? "";
+    postForm.elements.slug.value = payload.slug ?? "";
+    postForm.elements.originalSlug.value = payload.originalSlug ?? "";
+    postForm.elements.published.value = payload.published ?? "";
+    postForm.elements.description.value = payload.description ?? "";
+    postForm.elements.category.value = payload.category ?? "";
+    postForm.elements.tags.value = payload.tags ?? "";
+    postForm.elements.author.value = payload.author ?? "";
+    postForm.elements.lang.value = payload.lang ?? "id";
+    postForm.elements.updated.value = payload.updated ?? "";
+    postForm.elements.series.value = payload.series ?? "";
+    postForm.elements.image.value = payload.image ?? "";
+    postForm.elements.sourceLink.value = payload.sourceLink ?? "";
+    postForm.elements.licenseName.value = payload.licenseName ?? "";
+    postForm.elements.licenseUrl.value = payload.licenseUrl ?? "";
+    postForm.elements.password.value = payload.password ?? "";
+    postForm.elements.draft.checked = Boolean(payload.draft);
+    postForm.elements.pinned.checked = Boolean(payload.pinned);
+    postForm.elements.content.value = payload.content ?? "";
+    postForm.elements.coverFile.value = "";
+  }
+
+  function setCreateMode() {
+    activeSlug = "";
+    applyFormState(initialFormState);
+    editorTitle.textContent = "Buat Post Baru";
+    editorModeBadge.textContent = "Mode Create";
+    submitButton.textContent = "Simpan Post";
+    deleteButton.hidden = true;
+    highlightActiveItem();
+  }
+
+  function setEditMode(post) {
+    activeSlug = post.slug;
+    applyFormState({
+      ...post,
+      originalSlug: post.slug,
+      tags: Array.isArray(post.tags) ? post.tags.join(", ") : "",
+    });
+    editorTitle.textContent = `Edit Post: ${post.title}`;
+    editorModeBadge.textContent = "Mode Update";
+    submitButton.textContent = "Simpan Perubahan";
+    deleteButton.hidden = false;
+    highlightActiveItem();
+  }
+
+  function highlightActiveItem() {
+    const items = postList?.querySelectorAll("[data-post-slug]");
+    items?.forEach((item) => {
+      const isActive = item.dataset.postSlug === activeSlug;
+      item.classList.toggle("studio-post-item-active", isActive);
+    });
+  }
+
+  function renderPostList() {
+    if (!postList || !postListStatus) return;
+
+    const keyword = (searchInput?.value || "").trim().toLowerCase();
+    const filtered = studioPosts.filter((item) => {
+      if (!keyword) return true;
+      return (
+        item.title.toLowerCase().includes(keyword) ||
+        item.slug.toLowerCase().includes(keyword) ||
+        (item.category || "").toLowerCase().includes(keyword)
+      );
+    });
+
+    if (filtered.length === 0) {
+      postList.innerHTML = "";
+      postListStatus.textContent = keyword
+        ? "Tidak ada post yang cocok dengan pencarian."
+        : "Belum ada post.";
+      return;
+    }
+
+    postListStatus.textContent = `${filtered.length} post tersedia.`;
+    postList.innerHTML = filtered
+      .map((item) => {
+        const meta = [item.published, item.lang?.toUpperCase(), item.draft ? "Draft" : "Published"]
+          .filter(Boolean)
+          .join(" • ");
+        return `
+          <button type="button" class="studio-post-item w-full rounded-2xl border border-[var(--line-color)] p-4 text-left transition hover:border-[var(--primary)] hover:bg-[var(--btn-plain-bg-hover)]" data-post-slug="${item.slug}">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <div class="font-semibold text-90">${item.title}</div>
+                <div class="mt-1 text-xs text-50">${item.slug}</div>
+              </div>
+              ${item.draft ? '<span class="rounded-full bg-amber-500/15 px-2 py-1 text-[10px] font-semibold text-amber-600 dark:text-amber-300">DRAFT</span>' : ""}
+            </div>
+            <div class="mt-3 text-xs text-50">${meta}</div>
+            ${item.category ? `<div class="mt-1 text-xs text-50">${item.category}</div>` : ""}
+          </button>
+        `;
+      })
+      .join("");
+
+    postList.querySelectorAll("[data-post-slug]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        const slug = button.dataset.postSlug;
+        postStatus.textContent = "Memuat detail post...";
+        try {
+          const response = await fetch(`/api/studio/post/?slug=${encodeURIComponent(slug)}`);
+          const result = await response.json();
+          if (!response.ok) {
+            throw new Error(result.error || "Gagal memuat detail post.");
+          }
+          setEditMode(result.item);
+          postStatus.textContent = `Detail post "${result.item.slug}" dimuat.`;
+        } catch (error) {
+          postStatus.textContent = error.message;
+        }
+      });
+    });
+
+    highlightActiveItem();
+  }
+
+  async function refreshPostList() {
+    if (!postListStatus) return;
+    postListStatus.textContent = "Memuat daftar post...";
+    try {
+      const response = await fetch("/api/studio/posts/");
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "Gagal mengambil daftar post.");
+      }
+      studioPosts = result.items || [];
+      renderPostList();
+    } catch (error) {
+      postListStatus.textContent = error.message;
+      if (postList) postList.innerHTML = "";
+    }
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener("input", renderPostList);
+  }
+
+  newButton?.addEventListener("click", () => {
+    setCreateMode();
+    postStatus.textContent = "Siap membuat post baru.";
+  });
+
+  resetButton?.addEventListener("click", () => {
+    if (activeSlug) {
+      const existing = studioPosts.find((item) => item.slug === activeSlug);
+      if (existing) {
+        postStatus.textContent = "Memuat ulang detail post aktif...";
+        fetch(`/api/studio/post/?slug=${encodeURIComponent(activeSlug)}`)
+          .then((response) => response.json().then((data) => ({ ok: response.ok, data })))
+          .then(({ ok, data }) => {
+            if (!ok) throw new Error(data.error || "Gagal memuat ulang post.");
+            setEditMode(data.item);
+            postStatus.textContent = "Form dikembalikan ke data terakhir tersimpan.";
+          })
+          .catch((error) => {
+            postStatus.textContent = error.message;
+          });
+        return;
+      }
+    }
+    setCreateMode();
+    postStatus.textContent = "Form direset.";
+  });
+
+  deleteButton?.addEventListener("click", async () => {
+    const slug = postForm?.elements.originalSlug.value || activeSlug;
+    if (!slug) return;
+
+    const confirmed = window.confirm(`Hapus post "${slug}"? Tindakan ini tidak bisa dibatalkan.`);
+    if (!confirmed) return;
+
+    postStatus.textContent = `Menghapus post "${slug}"...`;
+
+    try {
+      const response = await fetch("/api/studio/post/delete/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ slug }),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "Gagal menghapus post.");
+      }
+      setCreateMode();
+      postStatus.textContent = `Post "${slug}" berhasil dihapus.`;
+      await refreshPostList();
+    } catch (error) {
+      postStatus.textContent = error.message;
+    }
+  });
+
+  if (postForm && postStatus) {
+    postForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const formData = new FormData(postForm);
+      const isUpdate = Boolean(formData.get("originalSlug"));
+      const endpoint = isUpdate ? "/api/studio/post/update/" : "/api/studio/post/";
+
+      postStatus.textContent = isUpdate ? "Menyimpan perubahan post..." : "Membuat post baru...";
+
+      try {
+        const response = await fetch(endpoint, {
+          method: "POST",
+          body: formData,
+        });
+        const result = await response.json();
+        if (!response.ok) {
+          throw new Error(result.error || "Gagal menyimpan post.");
+        }
+
+        postStatus.textContent = isUpdate
+          ? `Post diperbarui: ${result.path}`
+          : `Post dibuat: ${result.path}`;
+
+        await refreshPostList();
+
+        if (result.slug) {
+          const detailResponse = await fetch(`/api/studio/post/?slug=${encodeURIComponent(result.slug)}`);
+          const detail = await detailResponse.json();
+          if (!detailResponse.ok) {
+            throw new Error(detail.error || "Gagal memuat hasil simpan.");
+          }
+          setEditMode(detail.item);
+        } else {
+          setCreateMode();
+        }
+      } catch (error) {
+        postStatus.textContent = error.message;
+      }
+    });
+  }
+
+  setCreateMode();
+  refreshPostList();
+</script>
+
+<style>
+  .studio-input {
+    border: 1px solid color-mix(in oklab, var(--primary) 16%, transparent);
+    border-radius: 1rem;
+    background: var(--card-bg);
+    padding: 0.875rem 1rem;
+    transition:
+      border-color 150ms ease,
+      box-shadow 150ms ease,
+      background-color 150ms ease;
+  }
+
+  .studio-input:focus {
+    outline: none;
+    border-color: color-mix(in oklab, var(--primary) 50%, transparent);
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--primary) 14%, transparent);
+  }
+
+  .studio-post-item-active {
+    border-color: color-mix(in oklab, var(--primary) 65%, transparent);
+    background: color-mix(in oklab, var(--primary) 10%, var(--card-bg));
+  }
+</style>

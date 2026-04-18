@@ -1,0 +1,85 @@
+---
+interface Props {
+  title: string;
+  section: string;
+  value: string;
+  description?: string;
+}
+
+const { title, section, value, description } = Astro.props;
+const formId = `studio-markdown-${section}`;
+const statusId = `${formId}-status`;
+---
+
+<section class="card-base p-6">
+  <div class="mb-4">
+    <h2 class="text-xl font-bold">{title}</h2>
+    {description && <p class="text-50 mt-2">{description}</p>}
+  </div>
+
+  <form id={formId} class="space-y-4">
+    <textarea
+      class="studio-input min-h-[24rem] w-full font-mono text-sm"
+      name="markdown"
+    >{value}</textarea>
+    <div class="flex items-center gap-3">
+      <button class="btn-regular rounded-xl px-5 py-3 font-semibold" type="submit">
+        Simpan
+      </button>
+      <p id={statusId} class="text-sm text-50"></p>
+    </div>
+  </form>
+</section>
+
+<script is:inline define:vars={{ formId, statusId, section }}>
+  const form = document.getElementById(formId);
+  const status = document.getElementById(statusId);
+
+  if (form && status) {
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const formData = new FormData(form);
+      const markdown = String(formData.get("markdown") || "");
+      status.textContent = "Menyimpan...";
+
+      try {
+        const response = await fetch("/api/studio/config/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            section,
+            value: markdown,
+          }),
+        });
+        const result = await response.json();
+        if (!response.ok) {
+          throw new Error(result.error || "Gagal menyimpan markdown.");
+        }
+        status.textContent = `Konten ${section} tersimpan.`;
+      } catch (error) {
+        status.textContent = error.message;
+      }
+    });
+  }
+</script>
+
+<style>
+  .studio-input {
+    border: 1px solid color-mix(in oklab, var(--primary) 16%, transparent);
+    border-radius: 1rem;
+    background: var(--card-bg);
+    padding: 0.875rem 1rem;
+    transition:
+      border-color 150ms ease,
+      box-shadow 150ms ease;
+  }
+
+  .studio-input:focus {
+    outline: none;
+    border-color: color-mix(in oklab, var(--primary) 50%, transparent);
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--primary) 14%, transparent);
+  }
+</style>

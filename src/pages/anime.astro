@@ -5,21 +5,21 @@ import I18nKey from "../i18n/i18nKey";
 import { i18n } from "../i18n/translation";
 import MainGridLayout from "../layouts/MainGridLayout.astro";
 
-// 检查页面是否启用
+// Pastikan halaman anime memang diaktifkan.
 if (!siteConfig.pages.anime) {
   return Astro.redirect("/404/");
 }
 
-// 服务器端只传递配置信息到客户端
+// Hanya kirim konfigurasi yang dibutuhkan ke klien.
 const BANGUMI_USER_ID = siteConfig.bangumi?.userId || "your-user-id";
 
-// 收藏状态映射
+// Pemetaan status koleksi Bangumi.
 const COLLECTION_TYPES = {
-  1: { key: "wish", name: "想看", icon: "⏰", color: "amber" },
-  2: { key: "done", name: "看过", icon: "✅", color: "blue" },
-  3: { key: "doing", name: "在看", icon: "▶️", color: "green" },
-  4: { key: "onhold", name: "搁置", icon: "⏸️", color: "orange" },
-  5: { key: "dropped", name: "抛弃", icon: "❌", color: "red" },
+  1: { key: "wish", name: "Want to Watch", icon: "⏰", color: "amber" },
+  2: { key: "done", name: "Completed", icon: "✅", color: "blue" },
+  3: { key: "doing", name: "Watching", icon: "▶️", color: "green" },
+  4: { key: "onhold", name: "On Hold", icon: "⏸️", color: "orange" },
+  5: { key: "dropped", name: "Dropped", icon: "❌", color: "red" },
 } as const;
 ---
 
@@ -31,7 +31,7 @@ const COLLECTION_TYPES = {
     class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32"
   >
     <div class="card-base z-10 px-9 py-6 relative w-full">
-      <!-- 页面标题 -->
+      <!-- Judul halaman -->
       <div class="relative w-full mb-8">
         <div class="mb-6">
           <h1 class="text-4xl font-bold text-black/90 dark:text-white/90 mb-2">
@@ -41,30 +41,30 @@ const COLLECTION_TYPES = {
             {i18n(I18nKey.animeSubtitle)}
           </p>
           <h2 class="text-black/75 dark:text-white/75">
-            由于一些限制，可能需要F5刷新一次页面才会加载追番数据，目前还没有很好的解决方法
+            Karena keterbatasan dari sumber data, terkadang Anda perlu menekan F5 sekali agar koleksi anime berhasil dimuat.
           </h2>
         </div>
 
-        <!-- 筛选控件 -->
+        <!-- Kontrol filter -->
         <div class="mb-8">
           <div class="filter-container">
-            <button class="filter-tag active" data-status="all">全部</button>
-            <button class="filter-tag" data-status="doing">在看</button>
-            <button class="filter-tag" data-status="done">看过</button>
-            <button class="filter-tag" data-status="wish">想看</button>
-            <button class="filter-tag" data-status="onhold">搁置</button>
-            <button class="filter-tag" data-status="dropped">抛弃</button>
+            <button class="filter-tag active" data-status="all">Semua</button>
+            <button class="filter-tag" data-status="doing">Sedang Ditonton</button>
+            <button class="filter-tag" data-status="done">Selesai</button>
+            <button class="filter-tag" data-status="wish">Ingin Ditonton</button>
+            <button class="filter-tag" data-status="onhold">Ditunda</button>
+            <button class="filter-tag" data-status="dropped">Ditinggalkan</button>
           </div>
         </div>
       </div>
 
-      <!-- 动漫列表 -->
+      <!-- Daftar anime -->
       <div class="mb-8">
         <h2 class="text-2xl font-bold text-black/90 dark:text-white/90 mb-4">
           {i18n(I18nKey.animeList)}
         </h2>
 
-        <!-- 加载状态 -->
+        <!-- Status loading -->
         <div id="loadingState" class="text-center py-16">
           <div
             class="inline-flex items-center justify-center w-16 h-16 bg-[var(--btn-regular-bg)] rounded-full mb-6 border border-[var(--line-divider)]"
@@ -77,14 +77,14 @@ const COLLECTION_TYPES = {
           <h3
             class="text-xl font-semibold text-black/80 dark:text-white/80 mb-3"
           >
-            正在加载追番数据...
+            Sedang memuat koleksi anime...
           </h3>
           <p class="text-black/60 dark:text-white/60">
-            请稍候，正在从 Bangumi 获取您的收藏信息
+            Mohon tunggu, data koleksi sedang diambil dari Bangumi.
           </p>
         </div>
 
-        <!-- 错误状态 -->
+        <!-- Status error -->
         <div id="errorState" class="hidden text-center py-16">
           <div
             class="inline-flex items-center justify-center w-16 h-16 bg-[var(--btn-regular-bg)] rounded-full mb-6 border border-[var(--line-divider)]"
@@ -102,9 +102,9 @@ const COLLECTION_TYPES = {
                 d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
           </div>
-          <h3 class="text-xl font-semibold text-red-500 mb-3">数据加载失败</h3>
+          <h3 class="text-xl font-semibold text-red-500 mb-3">Gagal Memuat Data</h3>
           <p class="text-black/60 dark:text-white/60 mb-6">
-            无法连接到 Bangumi API，请检查网络连接或稍后重试
+            Tidak dapat terhubung ke API Bangumi. Periksa koneksi Anda lalu coba lagi.
           </p>
           <button
             id="retryButton"
@@ -123,11 +123,11 @@ const COLLECTION_TYPES = {
                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
               ></path>
             </svg>
-            重新加载
+            Muat Ulang
           </button>
         </div>
 
-        <!-- 空状态 -->
+        <!-- Status kosong -->
         <div id="emptyState" class="hidden text-center py-16">
           <div
             class="inline-flex items-center justify-center w-16 h-16 bg-[var(--btn-regular-bg)] rounded-full mb-6 border border-[var(--line-divider)]"
@@ -149,17 +149,17 @@ const COLLECTION_TYPES = {
           <h3
             class="text-xl font-semibold text-black/80 dark:text-white/80 mb-3"
           >
-            暂无数据
+            Belum Ada Data
           </h3>
           <p class="text-black/60 dark:text-white/60">
-            该分类下暂时没有找到相关的动漫作品
+            Belum ada anime yang ditemukan untuk kategori ini.
           </p>
           <p class="text-sm text-black/50 dark:text-white/50 mt-2">
-            试试切换到其他分类查看
+            Coba ganti ke kategori lain.
           </p>
         </div>
 
-        <!-- 未配置状态 -->
+        <!-- Status belum dikonfigurasi -->
         {
           BANGUMI_USER_ID === "your-user-id" ? (
             <div id="unconfiguredState" class="text-center py-12">
@@ -168,22 +168,22 @@ const COLLECTION_TYPES = {
                 {i18n(I18nKey.animeEmpty)}
               </h3>
               <p class="text-black/60 dark:text-white/60">
-                请在 src/config/siteConfig.ts 文件中设置你的 Bangumi 用户ID
+                Atur Bangumi user ID Anda di `src/config/siteConfig.ts`.
               </p>
             </div>
           ) : null
         }
 
-        <!-- 动漫列表容器 -->
+        <!-- Container daftar anime -->
         <div
           id="animeGrid"
           class="hidden grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6"
         >
-          <!-- 动漫卡片将由 JavaScript 生成 -->
+          <!-- Kartu anime dirender oleh JavaScript -->
         </div>
       </div>
 
-      <!-- 分页控件 -->
+      <!-- Kontrol pagination -->
       <div id="paginationContainer" class="hidden">
         <div
           class="bg-gradient-to-r from-[var(--card-bg)] to-[var(--card-bg)] border border-[var(--line-divider)] rounded-[var(--radius-large)] p-4 md:p-6 mb-6 shadow-sm"
@@ -193,16 +193,16 @@ const COLLECTION_TYPES = {
               id="pagination"
               class="flex justify-center items-center gap-1 md:gap-2 flex-wrap"
             >
-              <!-- 分页按钮将由 JavaScript 生成 -->
+              <!-- Tombol pagination dirender oleh JavaScript -->
             </div>
 
-            <!-- 页面信息 -->
+            <!-- Informasi halaman -->
             <div
               id="pageInfo"
               class="flex items-center gap-2 text-xs md:text-sm text-[var(--btn-content)] bg-[var(--btn-regular-bg)] px-3 md:px-4 py-1.5 md:py-2 rounded-full border border-[var(--line-divider)]"
             >
               <span class="text-sm md:text-lg">📄</span>
-              <!-- 页面信息文本将由 JavaScript 生成 -->
+              <!-- Teks informasi halaman dirender oleh JavaScript -->
             </div>
           </div>
         </div>
@@ -225,13 +225,13 @@ const COLLECTION_TYPES = {
     PAGINATION_RECORDS: i18n(I18nKey.paginationRecords),
   }}
 >
-  // 传递服务器端配置到客户端
+  // Kirim konfigurasi ke sisi klien.
   window.animePageConfig = {
     userId: BANGUMI_USER_ID,
     apiBase: "https://api.bgm.tv",
     collectionTypes: COLLECTION_TYPES,
     pageSize: 20,
-    // 分页文本国际化
+    // Teks pagination.
     pagination: {
       first: PAGINATION_FIRST,
       prev: PAGINATION_PREV,
@@ -260,19 +260,19 @@ const COLLECTION_TYPES = {
     }
 
     init() {
-      // 检查是否配置了用户ID
+      // Pastikan user ID Bangumi sudah diisi.
       if (this.config.userId === "your-user-id") {
         this.showUnconfiguredState();
         return;
       }
 
-      // 从URL参数获取初始状态
+      // Ambil status awal dari URL.
       this.parseUrlParams();
 
-      // 初始化UI
+      // Inisialisasi UI.
       this.initializeUI();
 
-      // 加载数据
+      // Muat data.
       this.loadData();
     }
 
@@ -288,22 +288,22 @@ const COLLECTION_TYPES = {
     }
 
     renderFilterButtons() {
-      // 静态HTML已处理筛选按钮，无需动态生成
+      // Filter sudah dirender statis di HTML.
     }
 
     bindEvents() {
-      // 筛选按钮事件
+      // Event filter.
       document.addEventListener("click", (e) => {
         const filterTag = e.target.closest(".filter-tag");
         if (filterTag) {
           e.preventDefault();
 
-          // 移除其他按钮的active类
+          // Hapus status aktif dari tombol lain.
           document.querySelectorAll(".filter-tag").forEach((btn) => {
             btn.classList.remove("active");
           });
 
-          // 添加active类到当前按钮
+          // Tandai tombol aktif saat ini.
           filterTag.classList.add("active");
 
           const status = filterTag.dataset.status;
@@ -311,14 +311,14 @@ const COLLECTION_TYPES = {
         }
       });
 
-      // 重试按钮事件
+      // Event tombol muat ulang.
       document.getElementById("retryButton")?.addEventListener("click", () => {
         this.loadData();
       });
 
-      // 分页事件委托
+      // Event delegation untuk pagination.
       document.addEventListener("click", (e) => {
-        // 查找最近的 page-btn 或 page-btn-mobile 元素
+        // Cari tombol pagination terdekat.
         const pageBtn = e.target.closest(".page-btn, .page-btn-mobile");
         if (pageBtn) {
           e.preventDefault();
@@ -329,7 +329,7 @@ const COLLECTION_TYPES = {
         }
       });
 
-      // 窗口大小变化时重新渲染分页
+      // Render ulang pagination saat ukuran layar berubah.
       let resizeTimeout;
       window.addEventListener("resize", () => {
         clearTimeout(resizeTimeout);
@@ -345,7 +345,7 @@ const COLLECTION_TYPES = {
       try {
         this.showLoading();
 
-        // 获取当前页数据
+        // Ambil data berdasarkan halaman aktif.
         const filterType =
           this.statusFilter === "all"
             ? undefined
@@ -368,7 +368,7 @@ const COLLECTION_TYPES = {
           this.renderPagination();
           this.showDataState();
         } else {
-          // 没有数据时显示空状态
+          // Tampilkan status kosong bila data tidak ada.
           this.animeData = [];
           this.totalCount = 0;
           this.totalPages = 0;
@@ -376,13 +376,13 @@ const COLLECTION_TYPES = {
         }
       } catch (error) {
         console.error("Failed to load anime data:", error);
-        this.showError("加载失败");
+        this.showError("Gagal memuat data");
       }
     }
 
     async fetchBangumiCollections(options) {
       const params = new URLSearchParams({
-        subject_type: "2", // 动画类型
+        subject_type: "2", // Tipe anime
         limit: options.limit.toString(),
         offset: options.offset.toString(),
       });
@@ -405,7 +405,7 @@ const COLLECTION_TYPES = {
     async processCollectionData(collections) {
       const processedData = await Promise.all(
         collections.map(async (item) => {
-          // 获取详细信息
+          // Ambil detail anime tambahan.
           const details = await this.fetchSubjectDetails(item.subject_id);
 
           const subject = item.subject || details;
@@ -424,7 +424,7 @@ const COLLECTION_TYPES = {
             score: subject?.rating?.score || 0,
             rank: subject?.rating?.rank || 0,
             status: collectionType?.key || "unknown",
-            statusText: collectionType?.name || "未知",
+            statusText: collectionType?.name || "Unknown",
             statusIcon: collectionType?.icon || "?",
             statusColor: collectionType?.color || "gray",
             progress: item.ep_status || 0,
@@ -547,14 +547,14 @@ const COLLECTION_TYPES = {
             
             <div class="space-y-1 text-xs">
               <div class="flex justify-between">
-                <span class="text-black/50 dark:text-white/50">年份</span>
-                <span class="text-black/70 dark:text-white/70">${anime.year || "未知"}</span>
+                <span class="text-black/50 dark:text-white/50">Year</span>
+                <span class="text-black/70 dark:text-white/70">${anime.year || "Unknown"}</span>
               </div>
               ${
                 anime.totalEpisodes > 0
                   ? `
                 <div class="flex justify-between">
-                  <span class="text-black/50 dark:text-white/50">集数</span>
+                  <span class="text-black/50 dark:text-white/50">Episodes</span>
                   <span class="text-black/70 dark:text-white/70">${anime.totalEpisodes}</span>
                 </div>
               `
@@ -564,7 +564,7 @@ const COLLECTION_TYPES = {
                 anime.rank > 0
                   ? `
                 <div class="flex justify-between">
-                  <span class="text-black/50 dark:text-white/50">排名</span>
+                  <span class="text-black/50 dark:text-white/50">Rank</span>
                   <span class="text-black/70 dark:text-white/70">#${anime.rank}</span>
                 </div>
               `
@@ -614,11 +614,11 @@ const COLLECTION_TYPES = {
       const hasPrevPage = this.currentPage > 1;
       const hasNextPage = this.currentPage < this.totalPages;
 
-      // 检测是否为移动端
+      // Deteksi tampilan mobile.
       const isMobile = window.innerWidth < 768;
 
       if (isMobile) {
-        // 移动端简化版本：只显示上一页、当前页、下一页
+        // Mobile: tampilkan kontrol yang lebih ringkas.
         if (hasPrevPage) {
           html += `
           <button class="page-btn-mobile btn-regular inline-flex items-center justify-center w-10 h-10 rounded-xl text-sm font-medium transition-all duration-150" data-page="${this.currentPage - 1}">
@@ -627,7 +627,7 @@ const COLLECTION_TYPES = {
         `;
         }
 
-        // 当前页信息
+        // Informasi halaman aktif.
         html += `
         <div class="flex items-center justify-center px-3 py-2 text-sm font-medium text-[var(--btn-content)] bg-[var(--btn-regular-bg)] rounded-xl border border-[var(--line-divider)]">
           <span>${this.currentPage}</span>
@@ -644,8 +644,8 @@ const COLLECTION_TYPES = {
         `;
         }
       } else {
-        // 桌面端完整版本
-        // 上一页按钮
+        // Desktop: tampilkan pagination lengkap.
+        // Tombol halaman sebelumnya.
         if (hasPrevPage) {
           html += `
           <button class="page-btn btn-regular inline-flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150" data-page="1">
@@ -657,7 +657,7 @@ const COLLECTION_TYPES = {
         `;
         }
 
-        // 页码按钮
+        // Tombol nomor halaman.
         const startPage = Math.max(1, this.currentPage - 2);
         const endPage = Math.min(this.totalPages, startPage + 4);
 
@@ -674,7 +674,7 @@ const COLLECTION_TYPES = {
         `;
         }
 
-        // 下一页按钮
+        // Tombol halaman berikutnya.
         if (hasNextPage) {
           html += `
           <button class="page-btn btn-regular inline-flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150" data-page="${this.currentPage + 1}">
@@ -689,16 +689,16 @@ const COLLECTION_TYPES = {
 
       container.innerHTML = html;
 
-      // 页面信息
+      // Informasi halaman.
       const pageInfoEl = document.getElementById("pageInfo");
       if (pageInfoEl) {
         if (isMobile) {
-          // 移动端简化页面信息
+          // Ringkasan mobile.
           pageInfoEl.innerHTML = `
-          <span class="text-[var(--btn-content)]">共 ${this.totalCount} 条</span>
+          <span class="text-[var(--btn-content)]">Total ${this.totalCount} item</span>
         `;
         } else {
-          // 桌面端完整页面信息
+          // Ringkasan desktop.
           pageInfoEl.innerHTML = `
           <span class="text-[var(--btn-content)]">${this.config.pagination.page} ${this.currentPage} ${this.config.pagination.of} ${this.totalPages} ${this.config.pagination.total} ${this.totalCount} ${this.config.pagination.records}</span>
         `;
@@ -777,7 +777,7 @@ const COLLECTION_TYPES = {
     }
   }
 
-  // 直接初始化
+  // Inisialisasi langsung.
   new AnimePageManager();
 </script>
 
@@ -855,7 +855,7 @@ const COLLECTION_TYPES = {
     overflow: hidden;
   }
 
-  /* 分页按钮主题样式优化 */
+  /* Penyempurnaan gaya tombol pagination */
   .page-btn,
   .page-btn-mobile {
     @apply transform-gpu;
@@ -870,7 +870,7 @@ const COLLECTION_TYPES = {
     @apply scale-95;
   }
 
-  /* 移动端分页容器优化 */
+  /* Penyempurnaan container pagination mobile */
   @media (max-width: 767px) {
     #pagination {
       @apply gap-2;
@@ -881,13 +881,13 @@ const COLLECTION_TYPES = {
     }
   }
 
-  /* 重试按钮样式 */
+  /* Gaya tombol muat ulang */
   #retryButton {
     @apply transform-gpu transition-all duration-200;
     @apply hover:scale-105;
   }
 
-  /* 加载状态动画 */
+  /* Animasi loading */
   @keyframes pulse-soft {
     0%,
     100% {
@@ -923,7 +923,7 @@ const COLLECTION_TYPES = {
     border-top-color: transparent;
   }
 
-  /* 选择框美化 */
+  /* Penyempurnaan gaya select box */
   #sortSelect:focus {
     @apply ring-2 ring-blue-500/20 border-blue-500;
   }

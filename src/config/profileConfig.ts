@@ -1,19 +1,9 @@
 import type { ProfileConfig } from "../types/config";
+import profileData from "../data/profile.json";
 
 export const profileConfig: ProfileConfig = {
-  avatar: "/assets/images/avatar.webp",
-  name: "NgetehNology",
-  bio: "Panduan Keamanan Siber untuk Pemula",
-  links: [
-    {
-      name: "GitHub",
-      icon: "fa6-brands:github",
-      url: "https://github.com/mfpm15",
-    },
-    {
-      name: "LinkedIn",
-      icon: "fa6-brands:linkedin",
-      url: "https://www.linkedin.com/in/faizpratama15/",
-    },
-  ],
+  avatar: profileData.avatar,
+  name: profileData.name,
+  bio: profileData.bio,
+  links: profileData.links as ProfileConfig["links"],
 };

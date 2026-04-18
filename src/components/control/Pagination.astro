@@ -52,18 +52,18 @@ const getPageUrl = (p: number) => {
 ---
 
 <div class:list={[className, "flex flex-col gap-4 items-center"]} style={style}>
-  <!-- 分页信息 - 已禁用 -->
+  <!-- Informasi pagination - saat ini dinonaktifkan -->
   <!--
   {
     page.lastPage > 1 && (
       <div class="text-sm text-[var(--text-secondary)] text-center">
-        第 {page.currentPage} 页，共 {page.lastPage} 页
+        Halaman {page.currentPage} dari {page.lastPage}
       </div>
     )
   }
   -->
 
-  <!-- 分页控件 -->
+  <!-- Kontrol pagination -->
   <div class="flex flex-row gap-3 justify-center">
     <a
       href={page.url.prev || ""}

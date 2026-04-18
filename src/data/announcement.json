@@ -1,0 +1,11 @@
+{
+  "title": "Pengumuman",
+  "content": "Selamat datang di NgetehNology. Blog ini dibangun di atas Firefly dan sedang dirapikan agar alur menulis konten, konfigurasi, dan pengalaman membaca lebih stabil.",
+  "closable": true,
+  "link": {
+    "enable": true,
+    "text": "Lihat Tentang Situs",
+    "url": "/about/",
+    "external": false
+  }
+}

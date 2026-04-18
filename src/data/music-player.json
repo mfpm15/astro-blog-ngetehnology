@@ -1,0 +1,76 @@
+{
+  "enable": false,
+  "mode": "local",
+  "meting": {
+    "api": "https://www.bilibili.uno/api?server=:server&type=:type&id=:id&auth=:auth&r=:r",
+    "playlist": {
+      "id": "8814137515",
+      "server": "netease",
+      "type": "playlist"
+    },
+    "fallbackApis": [
+      "https://api.injahow.cn/bete/?server=:server&type=:type&id=:id",
+      "https://api.uomg.com/api/other/163music?format=json&id=:id"
+    ]
+  },
+  "local": {
+    "playlist": [
+      {
+        "id": 1,
+        "title": "Contoh Lagu",
+        "artist": "Artis Tidak Dikenal",
+        "cover": "/assets/music/cover/109951169585655912.jpg",
+        "url": "/assets/music/使一颗心免于哀伤-哼唱.wav",
+        "duration": 240
+      }
+    ]
+  },
+  "behavior": {
+    "autoplay": false,
+    "defaultVolume": 0.7,
+    "defaultShuffle": false,
+    "defaultRepeat": 2,
+    "position": {
+      "bottom": 16,
+      "right": 16,
+      "left": "auto"
+    }
+  },
+  "ui": {
+    "animation": {
+      "coverRotation": {
+        "enable": true,
+        "speed": 3,
+        "pauseOnHover": true
+      }
+    },
+    "display": {
+      "showPlaylistButton": true,
+      "showVolumeControl": true,
+      "showShuffleButton": true,
+      "showRepeatButton": true,
+      "showSkipButtons": true
+    },
+    "playlist": {
+      "maxHeight": 384,
+      "width": 320,
+      "showTrackNumbers": true,
+      "showDuration": true
+    }
+  },
+  "responsive": {
+    "mobile": {
+      "position": {
+        "bottom": 8,
+        "right": 8,
+        "left": 8
+      }
+    },
+    "smallScreen": {}
+  },
+  "errorHandling": {
+    "showErrorMessages": true,
+    "errorDisplayDuration": 3000,
+    "autoSkipOnError": true
+  }
+}
