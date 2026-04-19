@@ -1,5 +1,5 @@
 [build]
-  command = "pnpm install --frozen-lockfile && pnpm run build"
+  command = "pnpm install --frozen-lockfile --prod=false && pnpm run build"
   publish = "dist"
 
 [build.environment]
@@ -11,10 +11,6 @@
   from = "/*"
   to = "/404.html"
   status = 404
-
-# Enable Identity and Git Gateway
-[context.production]
-  environment = { NODE_ENV = "production" }
 
 # Headers for proper CORS and security
 [[headers]]
