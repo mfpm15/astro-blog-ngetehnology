@@ -47,7 +47,11 @@ let links: NavBarLink[] = navBarConfig.links.map(
               src={siteConfig.logoIcon.value}
               alt={siteConfig.logoIcon.alt || siteConfig.title}
               class="mr-3 h-9 w-9 rounded-full object-cover ring-1 ring-black/10 dark:ring-white/10"
-              loading="lazy"
+              width="36"
+              height="36"
+              loading="eager"
+              decoding="async"
+              fetchpriority="high"
             />
           ) : (
             <Icon name="material-symbols:home-pin-outline" class="mb-1 mr-2 text-[1.75rem]" />

@@ -9,6 +9,7 @@ interface Props {
 }
 
 const { title, description } = Astro.props;
+const isReadOnlyStudio = !import.meta.env.DEV;
 
 const navItems = [
   { href: "/studio/", label: "Overview", icon: "material-symbols:dashboard-outline" },
@@ -63,12 +64,54 @@ const breadcrumbItems =
       </nav>
     </aside>
 
-    <section class="min-w-0 space-y-6">
+    <section class="min-w-0 space-y-6" data-studio-content>
       <div class="mb-2">
         <h2 class="text-2xl font-bold">{title}</h2>
         {description && <p class="text-50 mt-1">{description}</p>}
       </div>
+
+      {
+        isReadOnlyStudio && (
+          <div class="card-base border border-amber-400/30 bg-amber-50/80 p-4 text-sm text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+            Studio pada deploy publik bersifat read-only. Penyimpanan file hanya aktif saat development lokal
+            menggunakan <code>pnpm dev</code>.
+          </div>
+        )
+      }
+
       <slot />
     </section>
   </div>
 </MainGridLayout>
+
+{
+  isReadOnlyStudio && (
+    <script is:inline>
+      const disableStudioEditing = () => {
+        const root = document.querySelector("[data-studio-content]");
+        if (!root) return;
+
+        root
+          .querySelectorAll(
+            "form button, form input, form textarea, form select, button[id$='-add-btn'], button[id$='-delete-btn'], button[id$='-reset-btn'], button[id$='-save-all-btn'], button[id='post-new-btn'], button[id='taxonomy-save-btn']",
+          )
+          .forEach((element) => {
+            if (!(element instanceof HTMLButtonElement || element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement || element instanceof HTMLSelectElement)) {
+              return;
+            }
+            if (element instanceof HTMLInputElement && element.type === "hidden") {
+              return;
+            }
+            element.disabled = true;
+            element.setAttribute("aria-disabled", "true");
+          });
+      };
+
+      disableStudioEditing();
+
+      if (window?.swup?.hooks) {
+        window.swup.hooks.on("page:view", disableStudioEditing);
+      }
+    </script>
+  )
+}

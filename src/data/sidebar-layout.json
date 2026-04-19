@@ -1,6 +1,6 @@
 {
   "enable": true,
-  "position": "left",
+  "position": "right",
   "components": [
     {
       "type": "profile",
@@ -19,12 +19,28 @@
       "animationDelay": 50
     },
     {
-      "type": "categories",
+      "type": "site-stats",
       "enable": true,
       "order": 3,
       "position": "sticky",
       "class": "onload-animation",
-      "animationDelay": 150,
+      "animationDelay": 150
+    },
+    {
+      "type": "calendar",
+      "enable": true,
+      "order": 4,
+      "position": "sticky",
+      "class": "onload-animation",
+      "animationDelay": 200
+    },
+    {
+      "type": "categories",
+      "enable": true,
+      "order": 5,
+      "position": "sticky",
+      "class": "onload-animation",
+      "animationDelay": 250,
       "responsive": {
         "collapseThreshold": 5
       }
@@ -32,22 +48,13 @@
     {
       "type": "tags",
       "enable": true,
-      "order": 5,
-      "position": "sticky",
-      "class": "onload-animation",
-      "animationDelay": 250,
-      "responsive": {
-        "collapseThreshold": 20
-      }
-    },
-    {
-      "type": "advertisement",
-      "enable": false,
       "order": 6,
       "position": "sticky",
       "class": "onload-animation",
       "animationDelay": 300,
-      "configId": "ad1"
+      "responsive": {
+        "collapseThreshold": 20
+      }
     },
     {
       "type": "advertisement",
@@ -56,23 +63,16 @@
       "position": "sticky",
       "class": "onload-animation",
       "animationDelay": 350,
-      "configId": "ad2"
+      "configId": "ad1"
     },
     {
-      "type": "calendar",
+      "type": "advertisement",
       "enable": false,
       "order": 8,
       "position": "sticky",
       "class": "onload-animation",
-      "animationDelay": 400
-    },
-    {
-      "type": "site-stats",
-      "enable": false,
-      "order": 9,
-      "position": "sticky",
-      "class": "onload-animation",
-      "animationDelay": 450
+      "animationDelay": 400,
+      "configId": "ad2"
     }
   ],
   "defaultAnimation": {
@@ -87,7 +87,7 @@
       "desktop": 1280
     },
     "layout": {
-      "mobile": "sidebar",
+      "mobile": "hidden",
       "tablet": "sidebar",
       "desktop": "sidebar"
     }

@@ -24,7 +24,12 @@ import ImageWrapper from "../misc/ImageWrapper.astro";
     <ImageWrapper
       src={profileConfig.avatar || ""}
       alt="Profile Image of the Author"
-      class="mx-auto lg:w-full h-full lg:mt-0"
+      class="mx-auto aspect-square lg:w-full h-full lg:mt-0"
+      width={320}
+      height={320}
+      loading="lazy"
+      decoding="async"
+      sizes="(max-width: 1024px) 12rem, 17.5rem"
     />
   </a>
   <div class="px-2">

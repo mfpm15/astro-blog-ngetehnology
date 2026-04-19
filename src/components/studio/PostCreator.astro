@@ -625,12 +625,18 @@ Tulis artikel Anda di sini.
           : undefined;
       const response = await fetch("/api/studio/health/", { signal });
       const result = await response.json();
-      if (!response.ok || !result.ok) {
+      if (result?.readOnly) {
+        sidecarStatus.className =
+          "mb-4 rounded-xl px-4 py-3 text-sm bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300";
+        sidecarStatus.textContent =
+          result.message || "Studio deployment publik bersifat read-only. Jalankan pnpm dev untuk menyimpan.";
+      } else if (!response.ok || !result.ok) {
         throw new Error(result.error || "Server tidak merespons dengan benar.");
+      } else {
+        sidecarStatus.className =
+          "mb-4 rounded-xl px-4 py-3 text-sm bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
+        sidecarStatus.textContent = "Studio server aktif dan siap.";
       }
-      sidecarStatus.className =
-        "mb-4 rounded-xl px-4 py-3 text-sm bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
-      sidecarStatus.textContent = "Studio server aktif dan siap.";
     } catch (error) {
       sidecarStatus.className =
         "mb-4 rounded-xl px-4 py-3 text-sm bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";

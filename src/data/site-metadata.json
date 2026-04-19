@@ -11,11 +11,11 @@
     "Blog"
   ],
   "logo": {
-    "src": "/assets/images/logo.png",
+    "src": "/assets/images/logo-320.webp",
     "alt": "Logo NgetehNology"
   },
   "favicon": {
-    "src": "/assets/images/logo.png",
+    "src": "/assets/images/favicon.ico",
     "sizes": "32x32"
   }
 }

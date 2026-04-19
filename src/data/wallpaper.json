@@ -2,8 +2,8 @@
   "enable": true,
   "mode": "banner",
   "src": {
-    "desktop": "/assets/images/d1.webp",
-    "mobile": "/assets/images/m1.webp"
+    "desktop": "/assets/images/d1-hero.webp",
+    "mobile": "/assets/images/m1-hero.webp"
   },
   "position": "0% 20%",
   "banner": {
