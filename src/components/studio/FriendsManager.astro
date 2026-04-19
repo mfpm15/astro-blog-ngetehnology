@@ -1,0 +1,278 @@
+---
+import type { FriendLink } from "../../types/config";
+
+interface Props {
+  friends: FriendLink[];
+}
+
+const { friends } = Astro.props;
+---
+
+<section class="card-base p-6">
+  <div class="flex items-start justify-between gap-4">
+    <div>
+      <h2 class="text-xl font-bold">Friends Links</h2>
+      <p class="text-50 mt-2">Kelola daftar teman, avatar, tag, status aktif, dan urutan editing.</p>
+    </div>
+    <button class="btn-regular rounded-xl px-4 py-2 text-sm font-semibold" id="friend-add-btn" type="button">
+      Tambah Link
+    </button>
+  </div>
+
+  <div id="friend-list" class="mt-5 flex flex-col gap-3"></div>
+
+  <form id="friend-form" class="mt-5 grid gap-4 md:grid-cols-2">
+    <input type="hidden" name="index" value="" />
+
+    <label class="flex flex-col gap-2">
+      <span class="font-medium">Nama</span>
+      <input class="studio-input" type="text" name="title" required />
+    </label>
+
+    <label class="flex flex-col gap-2">
+      <span class="font-medium">URL Situs</span>
+      <input class="studio-input" type="text" name="siteurl" required />
+    </label>
+
+    <label class="flex flex-col gap-2">
+      <span class="font-medium">Avatar URL</span>
+      <input class="studio-input" type="text" name="imgurl" />
+    </label>
+
+    <label class="flex flex-col gap-2">
+      <span class="font-medium">Weight</span>
+      <input class="studio-input" type="number" step="1" name="weight" value="10" />
+    </label>
+
+    <label class="flex flex-col gap-2 md:col-span-2">
+      <span class="font-medium">Deskripsi</span>
+      <textarea class="studio-input min-h-24" name="desc"></textarea>
+    </label>
+
+    <label class="flex flex-col gap-2 md:col-span-2">
+      <span class="font-medium">Tags</span>
+      <input
+        class="studio-input"
+        type="text"
+        name="tags"
+        placeholder="Blog, Teknologi"
+      />
+    </label>
+
+    <label class="flex items-center gap-3 md:col-span-2">
+      <input type="checkbox" name="enabled" value="true" checked />
+      <span>Link aktif</span>
+    </label>
+
+    <div class="flex flex-wrap gap-3 md:col-span-2">
+      <button class="btn-regular rounded-xl px-5 py-3 font-semibold" type="submit">Simpan Link</button>
+      <button class="btn-plain rounded-xl px-5 py-3 font-semibold" id="friend-delete-btn" type="button" hidden>
+        Hapus
+      </button>
+      <button class="btn-plain rounded-xl px-5 py-3 font-semibold" id="friend-reset-btn" type="button">
+        Reset
+      </button>
+      <p id="friend-status" class="text-sm text-50"></p>
+    </div>
+  </form>
+</section>
+
+<script is:inline define:vars={{ initialFriends: friends }}>
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#39;");
+  }
+
+  function splitCommaList(value) {
+    return String(value || "")
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  async function saveFriends() {
+    friendStatus.textContent = "Menyimpan...";
+    try {
+      const response = await fetch("/api/studio/config/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          section: "friends",
+          value: friendItems,
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "Gagal menyimpan friends.");
+      }
+      friendStatus.textContent = "friends tersimpan.";
+      return true;
+    } catch (error) {
+      friendStatus.textContent = error.message;
+      return false;
+    }
+  }
+
+  const friendList = document.getElementById("friend-list");
+  const friendForm = document.getElementById("friend-form");
+  const friendDeleteButton = document.getElementById("friend-delete-btn");
+  const friendStatus = document.getElementById("friend-status");
+
+  let friendItems = JSON.parse(JSON.stringify(initialFriends || []));
+
+  function resetForm() {
+    friendForm.reset();
+    friendForm.elements.index.value = "";
+    friendForm.elements.weight.value = "10";
+    friendForm.elements.enabled.checked = true;
+    friendDeleteButton.hidden = true;
+  }
+
+  function fillForm(index) {
+    const item = friendItems[index];
+    if (!item) return;
+    friendForm.elements.index.value = String(index);
+    friendForm.elements.title.value = item.title || "";
+    friendForm.elements.siteurl.value = item.siteurl || "";
+    friendForm.elements.imgurl.value = item.imgurl || "";
+    friendForm.elements.weight.value = String(item.weight ?? 10);
+    friendForm.elements.desc.value = item.desc || "";
+    friendForm.elements.tags.value = (item.tags || []).join(", ");
+    friendForm.elements.enabled.checked = Boolean(item.enabled);
+    friendDeleteButton.hidden = false;
+  }
+
+  function renderList() {
+    friendList.innerHTML = friendItems.length
+      ? friendItems
+          .map(
+            (item, index) => `
+              <div class="rounded-2xl border border-[var(--line-color)] p-4">
+                <div class="flex items-start justify-between gap-4">
+                  <div class="flex min-w-0 items-start gap-4">
+                    ${
+                      item.imgurl
+                        ? `<img class="h-14 w-14 rounded-2xl object-cover" src="${escapeHtml(item.imgurl)}" alt="${escapeHtml(item.title || "Friend Avatar")}" />`
+                        : `<div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--btn-plain-bg)] text-xs text-50">No Img</div>`
+                    }
+                    <div class="min-w-0">
+                      <div class="font-semibold">${escapeHtml(item.title || "Tanpa Nama")}</div>
+                      <div class="mt-1 break-all text-sm text-50">${escapeHtml(item.siteurl || "")}</div>
+                      <div class="mt-2 flex flex-wrap gap-2">
+                        ${(item.tags || [])
+                          .map(
+                            (tag) =>
+                              `<span class="rounded-full bg-[var(--btn-plain-bg)] px-2 py-1 text-xs text-50">${escapeHtml(tag)}</span>`,
+                          )
+                          .join("")}
+                        <span class="rounded-full bg-[var(--btn-plain-bg)] px-2 py-1 text-xs text-50">weight ${escapeHtml(item.weight ?? 10)}</span>
+                        <span class="rounded-full bg-[var(--btn-plain-bg)] px-2 py-1 text-xs text-50">${item.enabled ? "aktif" : "tersembunyi"}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex flex-wrap gap-2">
+                    <button class="btn-plain rounded-lg px-3 py-2 text-sm" type="button" data-friend-edit="${index}">Edit</button>
+                    <button class="btn-plain rounded-lg px-3 py-2 text-sm" type="button" data-friend-up="${index}" ${index === 0 ? "disabled" : ""}>Naik</button>
+                    <button class="btn-plain rounded-lg px-3 py-2 text-sm" type="button" data-friend-down="${index}" ${index === friendItems.length - 1 ? "disabled" : ""}>Turun</button>
+                  </div>
+                </div>
+              </div>
+            `,
+          )
+          .join("")
+      : `
+          <div class="rounded-2xl border border-dashed border-[var(--line-color)] p-5 text-sm text-50">
+            Belum ada friend link.
+          </div>
+        `;
+  }
+
+  document.getElementById("friend-add-btn")?.addEventListener("click", resetForm);
+  document.getElementById("friend-reset-btn")?.addEventListener("click", resetForm);
+
+  friendDeleteButton.addEventListener("click", async () => {
+    const index = friendForm.elements.index.value;
+    if (index === "") return;
+    friendItems.splice(Number(index), 1);
+    renderList();
+    resetForm();
+    await saveFriends();
+  });
+
+  friendList.addEventListener("click", async (event) => {
+    const editButton = event.target.closest("[data-friend-edit]");
+    if (editButton) {
+      fillForm(Number(editButton.dataset.friendEdit));
+      return;
+    }
+
+    const upButton = event.target.closest("[data-friend-up]");
+    if (upButton) {
+      const index = Number(upButton.dataset.friendUp);
+      const target = index - 1;
+      if (target < 0) return;
+      [friendItems[index], friendItems[target]] = [friendItems[target], friendItems[index]];
+      renderList();
+      await saveFriends();
+      return;
+    }
+
+    const downButton = event.target.closest("[data-friend-down]");
+    if (downButton) {
+      const index = Number(downButton.dataset.friendDown);
+      const target = index + 1;
+      if (target >= friendItems.length) return;
+      [friendItems[index], friendItems[target]] = [friendItems[target], friendItems[index]];
+      renderList();
+      await saveFriends();
+    }
+  });
+
+  friendForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const payload = {
+      title: friendForm.elements.title.value.trim(),
+      imgurl: friendForm.elements.imgurl.value.trim(),
+      desc: friendForm.elements.desc.value.trim(),
+      siteurl: friendForm.elements.siteurl.value.trim(),
+      tags: splitCommaList(friendForm.elements.tags.value),
+      weight: Number(friendForm.elements.weight.value || 10),
+      enabled: friendForm.elements.enabled.checked,
+    };
+
+    const index = friendForm.elements.index.value;
+    if (index === "") {
+      friendItems.push(payload);
+    } else {
+      friendItems.splice(Number(index), 1, payload);
+    }
+
+    renderList();
+    resetForm();
+    await saveFriends();
+  });
+
+  renderList();
+  resetForm();
+</script>
+
+<style>
+  .studio-input {
+    border: 1px solid color-mix(in oklab, var(--primary) 16%, transparent);
+    border-radius: 1rem;
+    background: var(--card-bg);
+    padding: 0.875rem 1rem;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+  }
+
+  .studio-input:focus {
+    outline: none;
+    border-color: color-mix(in oklab, var(--primary) 50%, transparent);
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--primary) 14%, transparent);
+  }
+</style>

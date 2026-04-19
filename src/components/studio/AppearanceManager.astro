@@ -1,0 +1,656 @@
+---
+import type {
+  BackgroundWallpaperConfig,
+  ExpressiveCodeConfig,
+  FontConfig,
+  SakuraConfig,
+} from "../../types/config";
+
+interface Props {
+  wallpaper: BackgroundWallpaperConfig;
+  fontConfig: FontConfig;
+  expressiveCode: ExpressiveCodeConfig;
+  sakura: SakuraConfig;
+}
+
+const { wallpaper, fontConfig, expressiveCode, sakura } = Astro.props;
+
+const fontEntries = Object.entries(fontConfig.fonts || {});
+const codeThemes = [
+  "github-dark",
+  "github-light",
+  "github-dark-dimmed",
+  "dracula",
+  "nord",
+  "solarized-dark",
+  "solarized-light",
+  "min-dark",
+  "min-light",
+  "one-dark-pro",
+  "monokai",
+];
+---
+
+<section class="grid gap-6 xl:grid-cols-2">
+  <section class="card-base p-6 xl:col-span-2">
+    <h2 class="text-xl font-bold">Wallpaper</h2>
+    <p class="text-50 mt-2">Atur wallpaper banner, overlay, teks home, navbar transparan, dan gelombang.</p>
+
+    <form id="wallpaper-form" class="mt-5 grid gap-4 md:grid-cols-2">
+      <label class="flex items-center gap-3">
+        <input type="checkbox" name="enable" value="true" />
+        <span>Aktifkan wallpaper</span>
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Mode</span>
+        <select class="studio-input" name="mode">
+          <option value="banner">banner</option>
+          <option value="static">static</option>
+          <option value="none">none</option>
+        </select>
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Gambar desktop</span>
+        <input class="studio-input" type="text" name="srcDesktop" />
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Gambar mobile</span>
+        <input class="studio-input" type="text" name="srcMobile" />
+      </label>
+
+      <label class="flex flex-col gap-2 md:col-span-2">
+        <span class="font-medium">Position</span>
+        <input class="studio-input" type="text" name="position" placeholder="0% 20%" />
+      </label>
+
+      <fieldset class="rounded-2xl border border-[var(--line-color)] p-4 md:col-span-2">
+        <legend class="px-2 font-semibold">Overlay</legend>
+        <div class="mt-2 grid gap-4 md:grid-cols-3">
+          <label class="flex flex-col gap-2">
+            <span class="font-medium">Overlay blur</span>
+            <input class="studio-input" type="number" min="0" step="0.1" name="overlayBlur" />
+          </label>
+          <label class="flex flex-col gap-2">
+            <span class="font-medium">Overlay opacity</span>
+            <input class="studio-input" type="number" min="0" max="1" step="0.05" name="overlayOpacity" />
+          </label>
+          <label class="flex flex-col gap-2">
+            <span class="font-medium">Overlay z-index</span>
+            <input class="studio-input" type="number" step="1" name="overlayZIndex" />
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset class="rounded-2xl border border-[var(--line-color)] p-4 md:col-span-2">
+        <legend class="px-2 font-semibold">Banner Home Text</legend>
+        <div class="mt-2 grid gap-4 md:grid-cols-2">
+          <label class="flex items-center gap-3">
+            <input type="checkbox" name="homeTextEnable" value="true" />
+            <span>Tampilkan teks home</span>
+          </label>
+          <label class="flex items-center gap-3">
+            <input type="checkbox" name="typewriterEnable" value="true" />
+            <span>Aktifkan typewriter</span>
+          </label>
+          <label class="flex flex-col gap-2">
+            <span class="font-medium">Judul</span>
+            <input class="studio-input" type="text" name="homeTextTitle" />
+          </label>
+          <label class="flex flex-col gap-2">
+            <span class="font-medium">Subtitle</span>
+            <input
+              class="studio-input"
+              type="text"
+              name="homeTextSubtitle"
+              placeholder="Pisahkan dengan |"
+            />
+          </label>
+          <label class="flex flex-col gap-2">
+            <span class="font-medium">Typewriter speed</span>
+            <input class="studio-input" type="number" min="0" step="1" name="typewriterSpeed" />
+          </label>
+          <label class="flex flex-col gap-2">
+            <span class="font-medium">Delete speed</span>
+            <input class="studio-input" type="number" min="0" step="1" name="typewriterDeleteSpeed" />
+          </label>
+          <label class="flex flex-col gap-2 md:col-span-2">
+            <span class="font-medium">Pause time</span>
+            <input class="studio-input" type="number" min="0" step="1" name="typewriterPauseTime" />
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset class="rounded-2xl border border-[var(--line-color)] p-4 md:col-span-2">
+        <legend class="px-2 font-semibold">Banner Navbar & Waves</legend>
+        <div class="mt-2 grid gap-4 md:grid-cols-3">
+          <label class="flex flex-col gap-2 md:col-span-3">
+            <span class="font-medium">Navbar transparan</span>
+            <select class="studio-input" name="navbarTransparent">
+              <option value="semifull">semifull</option>
+              <option value="always">always</option>
+              <option value="none">none</option>
+            </select>
+          </label>
+          <label class="flex items-center gap-3">
+            <input type="checkbox" name="wavesDesktop" value="true" />
+            <span>Waves desktop</span>
+          </label>
+          <label class="flex items-center gap-3">
+            <input type="checkbox" name="wavesMobile" value="true" />
+            <span>Waves mobile</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <div class="flex items-center gap-3 md:col-span-2">
+        <button class="btn-regular rounded-xl px-5 py-3 font-semibold" type="submit">Simpan Wallpaper</button>
+        <p id="wallpaper-status" class="text-sm text-50"></p>
+      </div>
+    </form>
+  </section>
+
+  <section class="card-base p-6">
+    <h2 class="text-xl font-bold">Font Config</h2>
+    <p class="text-50 mt-2">Pilih font aktif, fallback, dan pertahankan registry font dalam JSON.</p>
+
+    <form id="font-config-form" class="mt-5 grid gap-4">
+      <label class="flex items-center gap-3">
+        <input type="checkbox" name="enable" value="true" />
+        <span>Aktifkan custom font</span>
+      </label>
+
+      <label class="flex items-center gap-3">
+        <input type="checkbox" name="preload" value="true" />
+        <span>Preload font</span>
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Selected</span>
+        <select class="studio-input" name="selected">
+          {
+            fontEntries.map(([fontId, fontItem]) => (
+              <option value={fontId}>{fontItem.name || fontId}</option>
+            ))
+          }
+        </select>
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Fallback</span>
+        <input
+          class="studio-input"
+          type="text"
+          name="fallback"
+          placeholder="system-ui, -apple-system, Segoe UI"
+        />
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Fonts Registry JSON</span>
+        <textarea class="studio-input min-h-48 font-mono text-sm" name="fontsJson"></textarea>
+      </label>
+
+      <div class="flex items-center gap-3">
+        <button class="btn-regular rounded-xl px-5 py-3 font-semibold" type="submit">Simpan Font</button>
+        <p id="font-config-status" class="text-sm text-50"></p>
+      </div>
+    </form>
+  </section>
+
+  <section class="card-base p-6">
+    <h2 class="text-xl font-bold">Expressive Code</h2>
+    <p class="text-50 mt-2">Theme bawaan untuk blok kode dan komponen Expressive Code.</p>
+
+    <form id="expressive-code-form" class="mt-5 grid gap-4">
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Theme</span>
+        <select class="studio-input" name="theme">
+          {
+            codeThemes.map((themeName) => (
+              <option value={themeName}>{themeName}</option>
+            ))
+          }
+        </select>
+      </label>
+
+      <div class="flex items-center gap-3">
+        <button class="btn-regular rounded-xl px-5 py-3 font-semibold" type="submit">Simpan Theme</button>
+        <p id="expressive-code-status" class="text-sm text-50"></p>
+      </div>
+    </form>
+  </section>
+
+  <section class="card-base p-6 xl:col-span-2">
+    <h2 class="text-xl font-bold">Sakura</h2>
+    <p class="text-50 mt-2">Kelola efek bunga sakura, ukuran, opacity, kecepatan, dan layer.</p>
+
+    <form id="sakura-form" class="mt-5 grid gap-4 md:grid-cols-3">
+      <label class="flex items-center gap-3 md:col-span-3">
+        <input type="checkbox" name="enable" value="true" />
+        <span>Aktifkan efek sakura</span>
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Jumlah kelopak</span>
+        <input class="studio-input" type="number" min="0" step="1" name="sakuraNum" />
+      </label>
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Limit times</span>
+        <input class="studio-input" type="number" step="1" name="limitTimes" />
+      </label>
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Z-index</span>
+        <input class="studio-input" type="number" step="1" name="zIndex" />
+      </label>
+
+      <fieldset class="rounded-2xl border border-[var(--line-color)] p-4">
+        <legend class="px-2 font-semibold">Ukuran</legend>
+        <div class="mt-2 grid gap-4">
+          <label class="flex flex-col gap-2">
+            <span class="font-medium">Size min</span>
+            <input class="studio-input" type="number" step="0.1" name="sizeMin" />
+          </label>
+          <label class="flex flex-col gap-2">
+            <span class="font-medium">Size max</span>
+            <input class="studio-input" type="number" step="0.1" name="sizeMax" />
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset class="rounded-2xl border border-[var(--line-color)] p-4">
+        <legend class="px-2 font-semibold">Opacity</legend>
+        <div class="mt-2 grid gap-4">
+          <label class="flex flex-col gap-2">
+            <span class="font-medium">Opacity min</span>
+            <input class="studio-input" type="number" min="0" max="1" step="0.05" name="opacityMin" />
+          </label>
+          <label class="flex flex-col gap-2">
+            <span class="font-medium">Opacity max</span>
+            <input class="studio-input" type="number" min="0" max="1" step="0.05" name="opacityMax" />
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset class="rounded-2xl border border-[var(--line-color)] p-4">
+        <legend class="px-2 font-semibold">Kecepatan Horizontal</legend>
+        <div class="mt-2 grid gap-4">
+          <label class="flex flex-col gap-2">
+            <span class="font-medium">Min</span>
+            <input class="studio-input" type="number" step="0.1" name="speedHorizontalMin" />
+          </label>
+          <label class="flex flex-col gap-2">
+            <span class="font-medium">Max</span>
+            <input class="studio-input" type="number" step="0.1" name="speedHorizontalMax" />
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset class="rounded-2xl border border-[var(--line-color)] p-4">
+        <legend class="px-2 font-semibold">Kecepatan Vertikal</legend>
+        <div class="mt-2 grid gap-4">
+          <label class="flex flex-col gap-2">
+            <span class="font-medium">Min</span>
+            <input class="studio-input" type="number" step="0.1" name="speedVerticalMin" />
+          </label>
+          <label class="flex flex-col gap-2">
+            <span class="font-medium">Max</span>
+            <input class="studio-input" type="number" step="0.1" name="speedVerticalMax" />
+          </label>
+        </div>
+      </fieldset>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Rotation</span>
+        <input class="studio-input" type="number" step="0.001" name="rotation" />
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Fade speed</span>
+        <input class="studio-input" type="number" step="0.001" name="fadeSpeed" />
+      </label>
+
+      <div class="flex items-center gap-3 md:col-span-3">
+        <button class="btn-regular rounded-xl px-5 py-3 font-semibold" type="submit">Simpan Sakura</button>
+        <p id="sakura-status" class="text-sm text-50"></p>
+      </div>
+    </form>
+  </section>
+</section>
+
+<script
+  is:inline
+  define:vars={{
+    initialWallpaper: wallpaper,
+    initialFontConfig: fontConfig,
+    initialExpressiveCode: expressiveCode,
+    initialSakura: sakura,
+  }}
+>
+  function splitCommaList(value) {
+    return String(value || "")
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  function splitPipeList(value) {
+    return String(value || "")
+      .split("|")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  function pickSourceValue(source, device) {
+    if (typeof source === "string") {
+      return source;
+    }
+    if (Array.isArray(source)) {
+      return source[0] || "";
+    }
+    const value = source?.[device];
+    if (Array.isArray(value)) {
+      return value[0] || "";
+    }
+    return value || "";
+  }
+
+  function pickResponsiveBoolean(value, device, fallback) {
+    if (typeof value === "boolean") {
+      return value;
+    }
+    if (value && typeof value === "object") {
+      return Boolean(value[device]);
+    }
+    return fallback;
+  }
+
+  function getWallpaperModeValue(config) {
+    if (config?.mode === "overlay") {
+      return "static";
+    }
+    if (config?.mode === "none") {
+      return "none";
+    }
+    return config?.mode || "banner";
+  }
+
+  function toWallpaperModeValue(value, fallbackMode) {
+    if (value === "static") {
+      return "overlay";
+    }
+    if (value === "none") {
+      return fallbackMode || "banner";
+    }
+    return value || "banner";
+  }
+
+  function getNavbarTransparencyValue(value) {
+    if (value === "full") {
+      return "always";
+    }
+    if (value === "semifull") {
+      return "semifull";
+    }
+    return "none";
+  }
+
+  function toNavbarTransparencyValue(value) {
+    if (value === "always") {
+      return "full";
+    }
+    if (value === "semifull") {
+      return "semifull";
+    }
+    return "semi";
+  }
+
+  async function saveSection(section, value, statusElement) {
+    statusElement.textContent = "Menyimpan...";
+    try {
+      const response = await fetch("/api/studio/config/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ section, value }),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || `Gagal menyimpan ${section}.`);
+      }
+      statusElement.textContent = `${section} tersimpan.`;
+      return true;
+    } catch (error) {
+      statusElement.textContent = error.message;
+      return false;
+    }
+  }
+
+  const wallpaperForm = document.getElementById("wallpaper-form");
+  const wallpaperStatus = document.getElementById("wallpaper-status");
+  const fontConfigForm = document.getElementById("font-config-form");
+  const fontConfigStatus = document.getElementById("font-config-status");
+  const expressiveCodeForm = document.getElementById("expressive-code-form");
+  const expressiveCodeStatus = document.getElementById("expressive-code-status");
+  const sakuraForm = document.getElementById("sakura-form");
+  const sakuraStatus = document.getElementById("sakura-status");
+
+  let lastWallpaperRuntimeMode = initialWallpaper?.mode === "overlay" ? "overlay" : "banner";
+
+  wallpaperForm.elements.enable.checked = Boolean(initialWallpaper?.enable);
+  wallpaperForm.elements.mode.value = getWallpaperModeValue(initialWallpaper);
+  wallpaperForm.elements.srcDesktop.value = pickSourceValue(initialWallpaper?.src, "desktop");
+  wallpaperForm.elements.srcMobile.value = pickSourceValue(initialWallpaper?.src, "mobile");
+  wallpaperForm.elements.position.value = initialWallpaper?.position || "";
+  wallpaperForm.elements.overlayBlur.value = String(initialWallpaper?.overlay?.blur ?? 0);
+  wallpaperForm.elements.overlayOpacity.value = String(initialWallpaper?.overlay?.opacity ?? 1);
+  wallpaperForm.elements.overlayZIndex.value = String(initialWallpaper?.overlay?.zIndex ?? 0);
+  wallpaperForm.elements.homeTextEnable.checked = Boolean(initialWallpaper?.banner?.homeText?.enable);
+  wallpaperForm.elements.homeTextTitle.value = initialWallpaper?.banner?.homeText?.title || "";
+  wallpaperForm.elements.homeTextSubtitle.value = Array.isArray(initialWallpaper?.banner?.homeText?.subtitle)
+    ? initialWallpaper.banner.homeText.subtitle.join(" | ")
+    : initialWallpaper?.banner?.homeText?.subtitle || "";
+  wallpaperForm.elements.typewriterEnable.checked = Boolean(initialWallpaper?.banner?.homeText?.typewriter?.enable);
+  wallpaperForm.elements.typewriterSpeed.value = String(initialWallpaper?.banner?.homeText?.typewriter?.speed ?? 100);
+  wallpaperForm.elements.typewriterDeleteSpeed.value = String(
+    initialWallpaper?.banner?.homeText?.typewriter?.deleteSpeed ?? 50,
+  );
+  wallpaperForm.elements.typewriterPauseTime.value = String(
+    initialWallpaper?.banner?.homeText?.typewriter?.pauseTime ?? 2000,
+  );
+  wallpaperForm.elements.navbarTransparent.value = getNavbarTransparencyValue(
+    initialWallpaper?.banner?.navbar?.transparentMode,
+  );
+  wallpaperForm.elements.wavesDesktop.checked = pickResponsiveBoolean(
+    initialWallpaper?.banner?.waves?.enable,
+    "desktop",
+    true,
+  );
+  wallpaperForm.elements.wavesMobile.checked = pickResponsiveBoolean(
+    initialWallpaper?.banner?.waves?.enable,
+    "mobile",
+    true,
+  );
+
+  fontConfigForm.elements.enable.checked = Boolean(initialFontConfig?.enable);
+  fontConfigForm.elements.preload.checked = Boolean(initialFontConfig?.preload);
+  fontConfigForm.elements.selected.value = Array.isArray(initialFontConfig?.selected)
+    ? initialFontConfig.selected[0] || Object.keys(initialFontConfig?.fonts || {})[0] || ""
+    : initialFontConfig?.selected || Object.keys(initialFontConfig?.fonts || {})[0] || "";
+  fontConfigForm.elements.fallback.value = (initialFontConfig?.fallback || []).join(", ");
+  fontConfigForm.elements.fontsJson.value = JSON.stringify(initialFontConfig?.fonts || {}, null, 2);
+
+  expressiveCodeForm.elements.theme.value = initialExpressiveCode?.theme || "github-dark";
+
+  sakuraForm.elements.enable.checked = Boolean(initialSakura?.enable);
+  sakuraForm.elements.sakuraNum.value = String(initialSakura?.sakuraNum ?? 21);
+  sakuraForm.elements.limitTimes.value = String(initialSakura?.limitTimes ?? -1);
+  sakuraForm.elements.zIndex.value = String(initialSakura?.zIndex ?? 100);
+  sakuraForm.elements.sizeMin.value = String(initialSakura?.size?.min ?? 0.5);
+  sakuraForm.elements.sizeMax.value = String(initialSakura?.size?.max ?? 1.1);
+  sakuraForm.elements.opacityMin.value = String(initialSakura?.opacity?.min ?? 0.3);
+  sakuraForm.elements.opacityMax.value = String(initialSakura?.opacity?.max ?? 0.9);
+  sakuraForm.elements.speedHorizontalMin.value = String(initialSakura?.speed?.horizontal?.min ?? -1.7);
+  sakuraForm.elements.speedHorizontalMax.value = String(initialSakura?.speed?.horizontal?.max ?? -1.2);
+  sakuraForm.elements.speedVerticalMin.value = String(initialSakura?.speed?.vertical?.min ?? 1.5);
+  sakuraForm.elements.speedVerticalMax.value = String(initialSakura?.speed?.vertical?.max ?? 2.2);
+  sakuraForm.elements.rotation.value = String(initialSakura?.speed?.rotation ?? 0.03);
+  sakuraForm.elements.fadeSpeed.value = String(initialSakura?.speed?.fadeSpeed ?? 0.03);
+
+  wallpaperForm.elements.mode.addEventListener("change", () => {
+    const selectedMode = wallpaperForm.elements.mode.value;
+    if (selectedMode !== "none") {
+      lastWallpaperRuntimeMode = toWallpaperModeValue(selectedMode, lastWallpaperRuntimeMode);
+    }
+  });
+
+  wallpaperForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const selectedMode = wallpaperForm.elements.mode.value;
+    const runtimeMode = toWallpaperModeValue(selectedMode, lastWallpaperRuntimeMode);
+    const subtitles = splitPipeList(wallpaperForm.elements.homeTextSubtitle.value);
+    lastWallpaperRuntimeMode = runtimeMode;
+
+    await saveSection(
+      "wallpaper",
+      {
+        ...initialWallpaper,
+        enable: selectedMode === "none" ? false : wallpaperForm.elements.enable.checked,
+        mode: runtimeMode,
+        src: {
+          desktop: wallpaperForm.elements.srcDesktop.value.trim(),
+          mobile: wallpaperForm.elements.srcMobile.value.trim(),
+        },
+        position: wallpaperForm.elements.position.value.trim(),
+        overlay: {
+          ...(initialWallpaper?.overlay || {}),
+          blur: Number(wallpaperForm.elements.overlayBlur.value || 0),
+          opacity: Number(wallpaperForm.elements.overlayOpacity.value || 1),
+          zIndex: Number(wallpaperForm.elements.overlayZIndex.value || 0),
+        },
+        banner: {
+          ...(initialWallpaper?.banner || {}),
+          homeText: {
+            ...(initialWallpaper?.banner?.homeText || {}),
+            enable: wallpaperForm.elements.homeTextEnable.checked,
+            title: wallpaperForm.elements.homeTextTitle.value.trim(),
+            subtitle: subtitles.length <= 1 ? subtitles[0] || "" : subtitles,
+            typewriter: {
+              ...(initialWallpaper?.banner?.homeText?.typewriter || {}),
+              enable: wallpaperForm.elements.typewriterEnable.checked,
+              speed: Number(wallpaperForm.elements.typewriterSpeed.value || 100),
+              deleteSpeed: Number(wallpaperForm.elements.typewriterDeleteSpeed.value || 50),
+              pauseTime: Number(wallpaperForm.elements.typewriterPauseTime.value || 2000),
+            },
+          },
+          credit: initialWallpaper?.banner?.credit,
+          navbar: {
+            ...(initialWallpaper?.banner?.navbar || {}),
+            transparentMode: toNavbarTransparencyValue(wallpaperForm.elements.navbarTransparent.value),
+          },
+          waves: {
+            ...(initialWallpaper?.banner?.waves || {}),
+            enable: {
+              desktop: wallpaperForm.elements.wavesDesktop.checked,
+              mobile: wallpaperForm.elements.wavesMobile.checked,
+            },
+          },
+        },
+      },
+      wallpaperStatus,
+    );
+  });
+
+  fontConfigForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    let parsedFonts = {};
+    try {
+      parsedFonts = JSON.parse(fontConfigForm.elements.fontsJson.value || "{}");
+      if (!parsedFonts || typeof parsedFonts !== "object" || Array.isArray(parsedFonts)) {
+        throw new Error("Registry font harus berupa object JSON.");
+      }
+    } catch (error) {
+      fontConfigStatus.textContent = error instanceof Error ? error.message : "Registry font tidak valid.";
+      return;
+    }
+
+    await saveSection(
+      "fontConfig",
+      {
+        enable: fontConfigForm.elements.enable.checked,
+        preload: fontConfigForm.elements.preload.checked,
+        selected: [fontConfigForm.elements.selected.value],
+        fallback: splitCommaList(fontConfigForm.elements.fallback.value),
+        fonts: parsedFonts,
+      },
+      fontConfigStatus,
+    );
+  });
+
+  expressiveCodeForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    await saveSection(
+      "expressiveCode",
+      {
+        theme: expressiveCodeForm.elements.theme.value,
+      },
+      expressiveCodeStatus,
+    );
+  });
+
+  sakuraForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    await saveSection(
+      "sakura",
+      {
+        ...initialSakura,
+        enable: sakuraForm.elements.enable.checked,
+        sakuraNum: Number(sakuraForm.elements.sakuraNum.value || 0),
+        limitTimes: Number(sakuraForm.elements.limitTimes.value || -1),
+        size: {
+          min: Number(sakuraForm.elements.sizeMin.value || 0),
+          max: Number(sakuraForm.elements.sizeMax.value || 0),
+        },
+        opacity: {
+          min: Number(sakuraForm.elements.opacityMin.value || 0),
+          max: Number(sakuraForm.elements.opacityMax.value || 0),
+        },
+        speed: {
+          horizontal: {
+            min: Number(sakuraForm.elements.speedHorizontalMin.value || 0),
+            max: Number(sakuraForm.elements.speedHorizontalMax.value || 0),
+          },
+          vertical: {
+            min: Number(sakuraForm.elements.speedVerticalMin.value || 0),
+            max: Number(sakuraForm.elements.speedVerticalMax.value || 0),
+          },
+          rotation: Number(sakuraForm.elements.rotation.value || 0),
+          fadeSpeed: Number(sakuraForm.elements.fadeSpeed.value || 0),
+        },
+        zIndex: Number(sakuraForm.elements.zIndex.value || 0),
+      },
+      sakuraStatus,
+    );
+  });
+</script>
+
+<style>
+  .studio-input {
+    border: 1px solid color-mix(in oklab, var(--primary) 16%, transparent);
+    border-radius: 1rem;
+    background: var(--card-bg);
+    padding: 0.875rem 1rem;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+  }
+
+  .studio-input:focus {
+    outline: none;
+    border-color: color-mix(in oklab, var(--primary) 50%, transparent);
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--primary) 14%, transparent);
+  }
+</style>

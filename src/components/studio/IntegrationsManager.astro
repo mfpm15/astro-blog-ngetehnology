@@ -1,0 +1,549 @@
+---
+import type {
+  CommentConfig,
+  FooterConfig,
+  LicenseConfig,
+  MusicPlayerConfig,
+} from "../../types/config";
+
+interface Props {
+  comment: CommentConfig;
+  musicPlayer: MusicPlayerConfig;
+  license: LicenseConfig;
+  footer: FooterConfig;
+}
+
+const { comment, musicPlayer, license, footer } = Astro.props;
+---
+
+<section class="grid gap-6 xl:grid-cols-2">
+  <section class="card-base p-6">
+    <h2 class="text-xl font-bold">Comment / Twikoo</h2>
+    <p class="text-50 mt-2">Aktifkan komentar, visitor count, dan endpoint Twikoo.</p>
+
+    <form id="comment-form" class="mt-5 grid gap-4">
+      <label class="flex items-center gap-3">
+        <input type="checkbox" name="enable" value="true" />
+        <span>Aktifkan komentar</span>
+      </label>
+
+      <label class="flex items-center gap-3">
+        <input type="checkbox" name="enableVisitorCount" value="true" />
+        <span>Aktifkan visitor count</span>
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Twikoo env URL</span>
+        <input class="studio-input" type="text" name="envId" />
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Bahasa</span>
+        <select class="studio-input" name="lang">
+          <option value="id">id</option>
+          <option value="en">en</option>
+          <option value="zh-CN">zh-CN</option>
+        </select>
+      </label>
+
+      <div class="flex items-center gap-3">
+        <button class="btn-regular rounded-xl px-5 py-3 font-semibold" type="submit">Simpan Comment</button>
+        <p id="comment-status" class="text-sm text-50"></p>
+      </div>
+    </form>
+  </section>
+
+  <section class="card-base p-6">
+    <h2 class="text-xl font-bold">Lisensi Artikel</h2>
+    <p class="text-50 mt-2">Konfigurasikan lisensi default yang tampil pada artikel.</p>
+
+    <form id="license-form" class="mt-5 grid gap-4">
+      <label class="flex items-center gap-3">
+        <input type="checkbox" name="enable" value="true" />
+        <span>Aktifkan lisensi</span>
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Nama lisensi</span>
+        <input class="studio-input" type="text" name="name" />
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">URL lisensi</span>
+        <input class="studio-input" type="text" name="url" />
+      </label>
+
+      <div class="flex items-center gap-3">
+        <button class="btn-regular rounded-xl px-5 py-3 font-semibold" type="submit">Simpan Lisensi</button>
+        <p id="license-status" class="text-sm text-50"></p>
+      </div>
+    </form>
+  </section>
+
+  <section class="card-base p-6 xl:col-span-2">
+    <h2 class="text-xl font-bold">Footer Kustom</h2>
+    <p class="text-50 mt-2">Inject HTML tambahan pada footer situs.</p>
+
+    <form id="footer-form" class="mt-5 grid gap-4">
+      <label class="flex items-center gap-3">
+        <input type="checkbox" name="enable" value="true" />
+        <span>Aktifkan footer kustom</span>
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Custom HTML</span>
+        <textarea class="studio-input min-h-40 font-mono text-sm" name="customHtml"></textarea>
+      </label>
+
+      <div class="flex items-center gap-3">
+        <button class="btn-regular rounded-xl px-5 py-3 font-semibold" type="submit">Simpan Footer</button>
+        <p id="footer-status" class="text-sm text-50"></p>
+      </div>
+    </form>
+  </section>
+
+  <section class="card-base p-6 xl:col-span-2">
+    <div class="flex items-start justify-between gap-4">
+      <div>
+        <h2 class="text-xl font-bold">Music Player</h2>
+        <p class="text-50 mt-2">Atur mode player, perilaku playback, koneksi Meting, dan playlist lokal.</p>
+      </div>
+    </div>
+
+    <form id="music-settings-form" class="mt-5 grid gap-4 md:grid-cols-2">
+      <label class="flex items-center gap-3">
+        <input type="checkbox" name="enable" value="true" />
+        <span>Aktifkan music player</span>
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium">Mode</span>
+        <select class="studio-input" id="music-mode-select" name="mode">
+          <option value="local">local</option>
+          <option value="meting">meting</option>
+        </select>
+      </label>
+
+      <fieldset class="rounded-2xl border border-[var(--line-color)] p-4 md:col-span-2">
+        <legend class="px-2 font-semibold">Perilaku</legend>
+        <div class="mt-2 grid gap-4 md:grid-cols-4">
+          <label class="flex items-center gap-3">
+            <input type="checkbox" name="autoplay" value="true" />
+            <span>Autoplay</span>
+          </label>
+          <label class="flex items-center gap-3">
+            <input type="checkbox" name="shuffle" value="true" />
+            <span>Shuffle</span>
+          </label>
+          <label class="flex flex-col gap-2">
+            <span class="font-medium">Volume</span>
+            <input class="studio-input" type="number" min="0" max="1" step="0.05" name="volume" />
+          </label>
+          <label class="flex flex-col gap-2">
+            <span class="font-medium">Repeat</span>
+            <input class="studio-input" type="number" min="0" max="2" step="1" name="repeat" />
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset id="meting-config" class="rounded-2xl border border-[var(--line-color)] p-4 md:col-span-2">
+        <legend class="px-2 font-semibold">Meting</legend>
+        <div class="mt-2 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <label class="flex flex-col gap-2 xl:col-span-4">
+            <span class="font-medium">Meting API</span>
+            <input class="studio-input" type="text" name="metingApi" />
+          </label>
+          <label class="flex flex-col gap-2">
+            <span class="font-medium">Playlist ID</span>
+            <input class="studio-input" type="text" name="metingId" />
+          </label>
+          <label class="flex flex-col gap-2">
+            <span class="font-medium">Server</span>
+            <select class="studio-input" name="metingServer">
+              <option value="netease">netease</option>
+              <option value="tencent">tencent</option>
+              <option value="kugou">kugou</option>
+              <option value="xiami">xiami</option>
+              <option value="baidu">baidu</option>
+            </select>
+          </label>
+          <label class="flex flex-col gap-2">
+            <span class="font-medium">Type</span>
+            <select class="studio-input" name="metingType">
+              <option value="playlist">playlist</option>
+              <option value="album">album</option>
+              <option value="song">song</option>
+            </select>
+          </label>
+        </div>
+      </fieldset>
+
+      <div class="flex items-center gap-3 md:col-span-2">
+        <button class="btn-regular rounded-xl px-5 py-3 font-semibold" type="submit">Simpan Settings</button>
+      </div>
+    </form>
+
+    <section id="music-playlist-section" class="mt-6 space-y-5">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <h3 class="text-lg font-semibold">Playlist Lokal</h3>
+          <p class="text-50 mt-1 text-sm">Tambah, edit, atau hapus track yang diputar dari file lokal.</p>
+        </div>
+        <button class="btn-regular rounded-xl px-4 py-2 text-sm font-semibold" id="music-add-btn" type="button">
+          Tambah Lagu
+        </button>
+      </div>
+
+      <div id="music-list" class="flex flex-col gap-3"></div>
+
+      <form id="music-track-form" class="grid gap-4 md:grid-cols-2">
+        <input type="hidden" name="index" value="" />
+
+        <label class="flex flex-col gap-2">
+          <span class="font-medium">Judul</span>
+          <input class="studio-input" type="text" name="title" required />
+        </label>
+
+        <label class="flex flex-col gap-2">
+          <span class="font-medium">Artis</span>
+          <input class="studio-input" type="text" name="artist" />
+        </label>
+
+        <label class="flex flex-col gap-2">
+          <span class="font-medium">Cover</span>
+          <input class="studio-input" type="text" name="cover" />
+        </label>
+
+        <label class="flex flex-col gap-2">
+          <span class="font-medium">URL Audio</span>
+          <input class="studio-input" type="text" name="url" required />
+        </label>
+
+        <label class="flex flex-col gap-2">
+          <span class="font-medium">Durasi (detik)</span>
+          <input class="studio-input" type="number" min="0" step="1" name="duration" />
+        </label>
+
+        <div class="flex flex-wrap gap-3 md:col-span-2">
+          <button class="btn-regular rounded-xl px-5 py-3 font-semibold" type="submit">Simpan Lagu</button>
+          <button class="btn-plain rounded-xl px-5 py-3 font-semibold" id="music-delete-btn" type="button" hidden>
+            Hapus
+          </button>
+          <button class="btn-plain rounded-xl px-5 py-3 font-semibold" id="music-reset-btn" type="button">
+            Reset
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <p id="music-status" class="mt-4 text-sm text-50"></p>
+  </section>
+</section>
+
+<script
+  is:inline
+  define:vars={{
+    initialComment: comment,
+    initialMusicPlayer: musicPlayer,
+    initialLicense: license,
+    initialFooter: footer,
+  }}
+>
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#39;");
+  }
+
+  function formatDuration(value) {
+    const total = Number(value || 0);
+    const minutes = Math.floor(total / 60);
+    const seconds = total % 60;
+    return `${minutes}:${String(seconds).padStart(2, "0")}`;
+  }
+
+  async function saveSection(section, value, statusElement) {
+    statusElement.textContent = "Menyimpan...";
+    try {
+      const response = await fetch("/api/studio/config/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ section, value }),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || `Gagal menyimpan ${section}.`);
+      }
+      statusElement.textContent = `${section} tersimpan.`;
+      return true;
+    } catch (error) {
+      statusElement.textContent = error.message;
+      return false;
+    }
+  }
+
+  const commentForm = document.getElementById("comment-form");
+  const commentStatus = document.getElementById("comment-status");
+  const licenseForm = document.getElementById("license-form");
+  const licenseStatus = document.getElementById("license-status");
+  const footerForm = document.getElementById("footer-form");
+  const footerStatus = document.getElementById("footer-status");
+  const musicSettingsForm = document.getElementById("music-settings-form");
+  const musicTrackForm = document.getElementById("music-track-form");
+  const musicDeleteButton = document.getElementById("music-delete-btn");
+  const musicStatus = document.getElementById("music-status");
+  const musicList = document.getElementById("music-list");
+  const musicModeSelect = document.getElementById("music-mode-select");
+  const metingConfig = document.getElementById("meting-config");
+  const musicPlaylistSection = document.getElementById("music-playlist-section");
+
+  let musicState = JSON.parse(JSON.stringify(initialMusicPlayer || {}));
+
+  function ensureMusicState() {
+    musicState = musicState || {};
+    musicState.meting = musicState.meting || {};
+    musicState.meting.playlist = musicState.meting.playlist || {};
+    musicState.local = musicState.local || {};
+    musicState.local.playlist = Array.isArray(musicState.local.playlist) ? musicState.local.playlist : [];
+    musicState.behavior = musicState.behavior || {};
+  }
+
+  function toggleModeUI(mode) {
+    const isMetingMode = mode === "meting";
+    metingConfig.hidden = !isMetingMode;
+    musicPlaylistSection.hidden = isMetingMode;
+  }
+
+  function nextTrackId() {
+    const ids = (musicState.local?.playlist || [])
+      .map((track) => Number(track.id || 0))
+      .filter((value) => Number.isFinite(value));
+    return (ids.length ? Math.max(...ids) : 0) + 1;
+  }
+
+  function resetTrackForm() {
+    musicTrackForm.reset();
+    musicTrackForm.elements.index.value = "";
+    musicTrackForm.elements.duration.value = "0";
+    musicDeleteButton.hidden = true;
+  }
+
+  function loadTrackIntoForm(index) {
+    const track = musicState.local?.playlist?.[index];
+    if (!track) return;
+    musicTrackForm.elements.index.value = String(index);
+    musicTrackForm.elements.title.value = track.title || "";
+    musicTrackForm.elements.artist.value = track.artist || "";
+    musicTrackForm.elements.cover.value = track.cover || "";
+    musicTrackForm.elements.url.value = track.url || "";
+    musicTrackForm.elements.duration.value = String(track.duration ?? 0);
+    musicDeleteButton.hidden = false;
+  }
+
+  function renderMusicList() {
+    const playlist = musicState.local?.playlist || [];
+    musicList.innerHTML = playlist.length
+      ? playlist
+          .map(
+            (track, index) => `
+              <div class="rounded-2xl border border-[var(--line-color)] p-4">
+                <div class="flex items-start justify-between gap-3">
+                  <div>
+                    <div class="font-semibold">${escapeHtml(track.title || "Tanpa Judul")}</div>
+                    <div class="mt-1 text-sm text-50">${escapeHtml(track.artist || "Artis tidak diketahui")}</div>
+                    <div class="mt-1 text-xs text-50">${formatDuration(track.duration)} | ${escapeHtml(track.url || "")}</div>
+                  </div>
+                  <button class="btn-plain rounded-lg px-3 py-2 text-sm" type="button" data-track-edit="${index}">
+                    Edit
+                  </button>
+                </div>
+              </div>
+            `,
+          )
+          .join("")
+      : `
+          <div class="rounded-2xl border border-dashed border-[var(--line-color)] p-5 text-sm text-50">
+            Playlist lokal masih kosong.
+          </div>
+        `;
+  }
+
+  async function saveMusicPlayer(statusElement) {
+    ensureMusicState();
+    return saveSection("musicPlayer", musicState, statusElement);
+  }
+
+  commentForm.elements.enable.checked = Boolean(initialComment?.enable);
+  commentForm.elements.enableVisitorCount.checked = Boolean(initialComment?.enableVisitorCount);
+  commentForm.elements.envId.value = initialComment?.twikoo?.envId || "";
+  commentForm.elements.lang.value = initialComment?.twikoo?.lang || "id";
+
+  licenseForm.elements.enable.checked = Boolean(initialLicense?.enable);
+  licenseForm.elements.name.value = initialLicense?.name || "";
+  licenseForm.elements.url.value = initialLicense?.url || "";
+
+  footerForm.elements.enable.checked = Boolean(initialFooter?.enable);
+  footerForm.elements.customHtml.value = initialFooter?.customHtml || "";
+
+  ensureMusicState();
+  musicSettingsForm.elements.enable.checked = Boolean(musicState.enable);
+  musicSettingsForm.elements.mode.value = musicState.mode || "local";
+  musicSettingsForm.elements.autoplay.checked = Boolean(musicState.behavior?.autoplay);
+  musicSettingsForm.elements.shuffle.checked = Boolean(musicState.behavior?.defaultShuffle);
+  musicSettingsForm.elements.volume.value = String(musicState.behavior?.defaultVolume ?? 0.7);
+  musicSettingsForm.elements.repeat.value = String(musicState.behavior?.defaultRepeat ?? 2);
+  musicSettingsForm.elements.metingApi.value = musicState.meting?.api || "";
+  musicSettingsForm.elements.metingId.value = musicState.meting?.playlist?.id || "";
+  musicSettingsForm.elements.metingServer.value = musicState.meting?.playlist?.server || "netease";
+  musicSettingsForm.elements.metingType.value = musicState.meting?.playlist?.type || "playlist";
+
+  toggleModeUI(musicSettingsForm.elements.mode.value);
+  renderMusicList();
+  resetTrackForm();
+
+  musicModeSelect.addEventListener("change", () => {
+    toggleModeUI(musicSettingsForm.elements.mode.value);
+  });
+
+  document.getElementById("music-add-btn")?.addEventListener("click", resetTrackForm);
+  document.getElementById("music-reset-btn")?.addEventListener("click", resetTrackForm);
+
+  musicList.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-track-edit]");
+    if (!button) return;
+    loadTrackIntoForm(Number(button.dataset.trackEdit));
+  });
+
+  musicDeleteButton.addEventListener("click", async () => {
+    const index = musicTrackForm.elements.index.value;
+    if (index === "") return;
+    ensureMusicState();
+    musicState.local.playlist.splice(Number(index), 1);
+    renderMusicList();
+    resetTrackForm();
+    await saveMusicPlayer(musicStatus);
+  });
+
+  commentForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    await saveSection(
+      "comment",
+      {
+        ...initialComment,
+        enable: commentForm.elements.enable.checked,
+        enableVisitorCount: commentForm.elements.enableVisitorCount.checked,
+        twikoo: {
+          ...(initialComment?.twikoo || {}),
+          envId: commentForm.elements.envId.value.trim(),
+          lang: commentForm.elements.lang.value,
+        },
+      },
+      commentStatus,
+    );
+  });
+
+  licenseForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    await saveSection(
+      "license",
+      {
+        ...initialLicense,
+        enable: licenseForm.elements.enable.checked,
+        name: licenseForm.elements.name.value.trim(),
+        url: licenseForm.elements.url.value.trim(),
+      },
+      licenseStatus,
+    );
+  });
+
+  footerForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    await saveSection(
+      "footer",
+      {
+        ...initialFooter,
+        enable: footerForm.elements.enable.checked,
+        customHtml: footerForm.elements.customHtml.value,
+      },
+      footerStatus,
+    );
+  });
+
+  musicSettingsForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    ensureMusicState();
+
+    musicState.enable = musicSettingsForm.elements.enable.checked;
+    musicState.mode = musicSettingsForm.elements.mode.value;
+    musicState.behavior = {
+      ...(musicState.behavior || {}),
+      autoplay: musicSettingsForm.elements.autoplay.checked,
+      defaultShuffle: musicSettingsForm.elements.shuffle.checked,
+      defaultVolume: Number(musicSettingsForm.elements.volume.value || 0.7),
+      defaultRepeat: Number(musicSettingsForm.elements.repeat.value || 0),
+    };
+    musicState.meting = {
+      ...(musicState.meting || {}),
+      api: musicSettingsForm.elements.metingApi.value.trim(),
+      playlist: {
+        ...(musicState.meting?.playlist || {}),
+        id: musicSettingsForm.elements.metingId.value.trim(),
+        server: musicSettingsForm.elements.metingServer.value,
+        type: musicSettingsForm.elements.metingType.value,
+      },
+    };
+    musicState.local = {
+      ...(musicState.local || {}),
+      playlist: Array.isArray(musicState.local?.playlist) ? musicState.local.playlist : [],
+    };
+
+    toggleModeUI(musicState.mode);
+    await saveMusicPlayer(musicStatus);
+  });
+
+  musicTrackForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    ensureMusicState();
+
+    const indexValue = musicTrackForm.elements.index.value;
+    const existingTrack =
+      indexValue === "" ? null : musicState.local.playlist[Number(indexValue)];
+    const payload = {
+      id: existingTrack?.id ?? nextTrackId(),
+      title: musicTrackForm.elements.title.value.trim(),
+      artist: musicTrackForm.elements.artist.value.trim(),
+      cover: musicTrackForm.elements.cover.value.trim(),
+      url: musicTrackForm.elements.url.value.trim(),
+      duration: Number(musicTrackForm.elements.duration.value || 0),
+    };
+
+    if (indexValue === "") {
+      musicState.local.playlist.push(payload);
+    } else {
+      musicState.local.playlist.splice(Number(indexValue), 1, payload);
+    }
+
+    renderMusicList();
+    resetTrackForm();
+    await saveMusicPlayer(musicStatus);
+  });
+</script>
+
+<style>
+  .studio-input {
+    border: 1px solid color-mix(in oklab, var(--primary) 16%, transparent);
+    border-radius: 1rem;
+    background: var(--card-bg);
+    padding: 0.875rem 1rem;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+  }
+
+  .studio-input:focus {
+    outline: none;
+    border-color: color-mix(in oklab, var(--primary) 50%, transparent);
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--primary) 14%, transparent);
+  }
+</style>

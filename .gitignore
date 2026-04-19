@@ -37,3 +37,10 @@ cache/
 fuwari/
 # Local Netlify folder
 .netlify
+
+# corepack
+.corepack/
+
+# dev server logs
+*.out.log
+*.err.log
