@@ -15,7 +15,7 @@ interface Props {
 
 const { wallpaper, fontConfig, expressiveCode, sakura } = Astro.props;
 
-const fontEntries = Object.entries(fontConfig.fonts || {});
+const fontKeys = Object.keys(fontConfig.fonts || {});
 const codeThemes = [
   "github-dark",
   "github-light",
@@ -31,10 +31,14 @@ const codeThemes = [
 ];
 ---
 
-<section class="grid gap-6 xl:grid-cols-2">
-  <section class="card-base p-6 xl:col-span-2">
-    <h2 class="text-xl font-bold">Wallpaper</h2>
-    <p class="text-50 mt-2">Atur wallpaper banner, overlay, teks home, navbar transparan, dan gelombang.</p>
+<section class="grid gap-6">
+  <section class="card-base p-6">
+    <div class="max-w-3xl">
+      <h2 class="text-xl font-bold">Wallpaper</h2>
+      <p class="text-50 mt-2">
+        Atur hero situs, source gambar, credit, home text, navbar, dan gelombang.
+      </p>
+    </div>
 
     <form id="wallpaper-form" class="mt-5 grid gap-4 md:grid-cols-2">
       <label class="flex items-center gap-3">
@@ -53,12 +57,12 @@ const codeThemes = [
 
       <label class="flex flex-col gap-2">
         <span class="font-medium">Gambar desktop</span>
-        <input class="studio-input" type="text" name="srcDesktop" />
+        <input class="studio-input" type="text" name="srcDesktop" placeholder="https://..." />
       </label>
 
       <label class="flex flex-col gap-2">
         <span class="font-medium">Gambar mobile</span>
-        <input class="studio-input" type="text" name="srcMobile" />
+        <input class="studio-input" type="text" name="srcMobile" placeholder="https://..." />
       </label>
 
       <label class="flex flex-col gap-2 md:col-span-2">
@@ -70,15 +74,15 @@ const codeThemes = [
         <legend class="px-2 font-semibold">Overlay</legend>
         <div class="mt-2 grid gap-4 md:grid-cols-3">
           <label class="flex flex-col gap-2">
-            <span class="font-medium">Overlay blur</span>
+            <span class="font-medium">Blur</span>
             <input class="studio-input" type="number" min="0" step="0.1" name="overlayBlur" />
           </label>
           <label class="flex flex-col gap-2">
-            <span class="font-medium">Overlay opacity</span>
+            <span class="font-medium">Opacity</span>
             <input class="studio-input" type="number" min="0" max="1" step="0.05" name="overlayOpacity" />
           </label>
           <label class="flex flex-col gap-2">
-            <span class="font-medium">Overlay z-index</span>
+            <span class="font-medium">Z-index</span>
             <input class="studio-input" type="number" step="1" name="overlayZIndex" />
           </label>
         </div>
@@ -101,12 +105,7 @@ const codeThemes = [
           </label>
           <label class="flex flex-col gap-2">
             <span class="font-medium">Subtitle</span>
-            <input
-              class="studio-input"
-              type="text"
-              name="homeTextSubtitle"
-              placeholder="Pisahkan dengan |"
-            />
+            <input class="studio-input" type="text" name="homeTextSubtitle" placeholder="Pisahkan dengan |" />
           </label>
           <label class="flex flex-col gap-2">
             <span class="font-medium">Typewriter speed</span>
@@ -124,10 +123,40 @@ const codeThemes = [
       </fieldset>
 
       <fieldset class="rounded-2xl border border-[var(--line-color)] p-4 md:col-span-2">
+        <legend class="px-2 font-semibold">Banner Credit / Source</legend>
+        <div class="mt-2 grid gap-4 md:grid-cols-2">
+          <label class="flex items-center gap-3">
+            <input type="checkbox" name="creditDesktopEnable" value="true" />
+            <span>Tampilkan credit desktop</span>
+          </label>
+          <label class="flex items-center gap-3">
+            <input type="checkbox" name="creditMobileEnable" value="true" />
+            <span>Tampilkan credit mobile</span>
+          </label>
+          <label class="flex flex-col gap-2">
+            <span class="font-medium">Text desktop</span>
+            <input class="studio-input" type="text" name="creditDesktopText" />
+          </label>
+          <label class="flex flex-col gap-2">
+            <span class="font-medium">Text mobile</span>
+            <input class="studio-input" type="text" name="creditMobileText" />
+          </label>
+          <label class="flex flex-col gap-2">
+            <span class="font-medium">URL desktop</span>
+            <input class="studio-input" type="text" name="creditDesktopUrl" placeholder="https://..." />
+          </label>
+          <label class="flex flex-col gap-2">
+            <span class="font-medium">URL mobile</span>
+            <input class="studio-input" type="text" name="creditMobileUrl" placeholder="https://..." />
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset class="rounded-2xl border border-[var(--line-color)] p-4 md:col-span-2">
         <legend class="px-2 font-semibold">Banner Navbar & Waves</legend>
-        <div class="mt-2 grid gap-4 md:grid-cols-3">
-          <label class="flex flex-col gap-2 md:col-span-3">
-            <span class="font-medium">Navbar transparan</span>
+        <div class="mt-2 grid gap-4 md:grid-cols-2">
+          <label class="flex flex-col gap-2 md:col-span-2">
+            <span class="font-medium">Navbar mode</span>
             <select class="studio-input" name="navbarTransparent">
               <option value="semifull">semifull</option>
               <option value="always">always</option>
@@ -145,92 +174,91 @@ const codeThemes = [
         </div>
       </fieldset>
 
-      <div class="flex items-center gap-3 md:col-span-2">
+      <div class="flex flex-wrap items-center gap-3 md:col-span-2">
         <button class="btn-regular rounded-xl px-5 py-3 font-semibold" type="submit">Simpan Wallpaper</button>
         <p id="wallpaper-status" class="text-sm text-50"></p>
       </div>
     </form>
   </section>
 
-  <section class="card-base p-6">
-    <h2 class="text-xl font-bold">Font Config</h2>
-    <p class="text-50 mt-2">Pilih font aktif, fallback, dan pertahankan registry font dalam JSON.</p>
+  <section class="grid gap-6 xl:grid-cols-2">
+    <section class="card-base p-6">
+      <h2 class="text-xl font-bold">Font Config</h2>
+      <p class="text-50 mt-2">
+        Pilih font aktif, fallback, dan edit registry font bila memang dibutuhkan.
+      </p>
 
-    <form id="font-config-form" class="mt-5 grid gap-4">
-      <label class="flex items-center gap-3">
-        <input type="checkbox" name="enable" value="true" />
-        <span>Aktifkan custom font</span>
-      </label>
+      <form id="font-form" class="mt-5 grid gap-4">
+        <label class="flex items-center gap-3">
+          <input type="checkbox" name="enable" value="true" />
+          <span>Aktifkan custom font</span>
+        </label>
 
-      <label class="flex items-center gap-3">
-        <input type="checkbox" name="preload" value="true" />
-        <span>Preload font</span>
-      </label>
+        <label class="flex items-center gap-3">
+          <input type="checkbox" name="preload" value="true" />
+          <span>Preload font</span>
+        </label>
 
-      <label class="flex flex-col gap-2">
-        <span class="font-medium">Selected</span>
-        <select class="studio-input" name="selected">
-          {
-            fontEntries.map(([fontId, fontItem]) => (
-              <option value={fontId}>{fontItem.name || fontId}</option>
-            ))
-          }
-        </select>
-      </label>
+        <label class="flex flex-col gap-2">
+          <span class="font-medium">Selected</span>
+          <select class="studio-input" name="selected">
+            {
+              fontKeys.map((fontId) => (
+                <option value={fontId}>{fontConfig.fonts[fontId]?.name || fontId}</option>
+              ))
+            }
+          </select>
+        </label>
 
-      <label class="flex flex-col gap-2">
-        <span class="font-medium">Fallback</span>
-        <input
-          class="studio-input"
-          type="text"
-          name="fallback"
-          placeholder="system-ui, -apple-system, Segoe UI"
-        />
-      </label>
+        <label class="flex flex-col gap-2">
+          <span class="font-medium">Fallback</span>
+          <input class="studio-input" type="text" name="fallback" placeholder="system-ui, Segoe UI, sans-serif" />
+        </label>
 
-      <label class="flex flex-col gap-2">
-        <span class="font-medium">Fonts Registry JSON</span>
-        <textarea class="studio-input min-h-48 font-mono text-sm" name="fontsJson"></textarea>
-      </label>
+        <label class="flex flex-col gap-2">
+          <span class="font-medium">Fonts Registry JSON</span>
+          <textarea class="studio-input min-h-48 font-mono text-sm" name="fontsJson"></textarea>
+        </label>
 
-      <div class="flex items-center gap-3">
-        <button class="btn-regular rounded-xl px-5 py-3 font-semibold" type="submit">Simpan Font</button>
-        <p id="font-config-status" class="text-sm text-50"></p>
-      </div>
-    </form>
+        <div class="flex flex-wrap items-center gap-3">
+          <button class="btn-regular rounded-xl px-5 py-3 font-semibold" type="submit">Simpan Font</button>
+          <p id="font-status" class="text-sm text-50"></p>
+        </div>
+      </form>
+    </section>
+
+    <section class="card-base p-6">
+      <h2 class="text-xl font-bold">Expressive Code</h2>
+      <p class="text-50 mt-2">Theme bawaan untuk blok kode dan komponen Expressive Code.</p>
+
+      <form id="expressive-code-form" class="mt-5 grid gap-4">
+        <label class="flex flex-col gap-2">
+          <span class="font-medium">Theme</span>
+          <select class="studio-input" name="theme">
+            {
+              codeThemes.map((themeName) => (
+                <option value={themeName}>{themeName}</option>
+              ))
+            }
+          </select>
+        </label>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <button class="btn-regular rounded-xl px-5 py-3 font-semibold" type="submit">Simpan Theme</button>
+          <p id="expressive-code-status" class="text-sm text-50"></p>
+        </div>
+      </form>
+    </section>
   </section>
 
   <section class="card-base p-6">
-    <h2 class="text-xl font-bold">Expressive Code</h2>
-    <p class="text-50 mt-2">Theme bawaan untuk blok kode dan komponen Expressive Code.</p>
-
-    <form id="expressive-code-form" class="mt-5 grid gap-4">
-      <label class="flex flex-col gap-2">
-        <span class="font-medium">Theme</span>
-        <select class="studio-input" name="theme">
-          {
-            codeThemes.map((themeName) => (
-              <option value={themeName}>{themeName}</option>
-            ))
-          }
-        </select>
-      </label>
-
-      <div class="flex items-center gap-3">
-        <button class="btn-regular rounded-xl px-5 py-3 font-semibold" type="submit">Simpan Theme</button>
-        <p id="expressive-code-status" class="text-sm text-50"></p>
-      </div>
-    </form>
-  </section>
-
-  <section class="card-base p-6 xl:col-span-2">
     <h2 class="text-xl font-bold">Sakura</h2>
-    <p class="text-50 mt-2">Kelola efek bunga sakura, ukuran, opacity, kecepatan, dan layer.</p>
+    <p class="text-50 mt-2">Kelola efek sakura, ukuran, opacity, kecepatan, dan layer kanvas.</p>
 
     <form id="sakura-form" class="mt-5 grid gap-4 md:grid-cols-3">
       <label class="flex items-center gap-3 md:col-span-3">
         <input type="checkbox" name="enable" value="true" />
-        <span>Aktifkan efek sakura</span>
+        <span>Aktifkan sakura</span>
       </label>
 
       <label class="flex flex-col gap-2">
@@ -250,11 +278,11 @@ const codeThemes = [
         <legend class="px-2 font-semibold">Ukuran</legend>
         <div class="mt-2 grid gap-4">
           <label class="flex flex-col gap-2">
-            <span class="font-medium">Size min</span>
+            <span class="font-medium">Min</span>
             <input class="studio-input" type="number" step="0.1" name="sizeMin" />
           </label>
           <label class="flex flex-col gap-2">
-            <span class="font-medium">Size max</span>
+            <span class="font-medium">Max</span>
             <input class="studio-input" type="number" step="0.1" name="sizeMax" />
           </label>
         </div>
@@ -264,18 +292,18 @@ const codeThemes = [
         <legend class="px-2 font-semibold">Opacity</legend>
         <div class="mt-2 grid gap-4">
           <label class="flex flex-col gap-2">
-            <span class="font-medium">Opacity min</span>
+            <span class="font-medium">Min</span>
             <input class="studio-input" type="number" min="0" max="1" step="0.05" name="opacityMin" />
           </label>
           <label class="flex flex-col gap-2">
-            <span class="font-medium">Opacity max</span>
+            <span class="font-medium">Max</span>
             <input class="studio-input" type="number" min="0" max="1" step="0.05" name="opacityMax" />
           </label>
         </div>
       </fieldset>
 
       <fieldset class="rounded-2xl border border-[var(--line-color)] p-4">
-        <legend class="px-2 font-semibold">Kecepatan Horizontal</legend>
+        <legend class="px-2 font-semibold">Kec. Horizontal</legend>
         <div class="mt-2 grid gap-4">
           <label class="flex flex-col gap-2">
             <span class="font-medium">Min</span>
@@ -289,7 +317,7 @@ const codeThemes = [
       </fieldset>
 
       <fieldset class="rounded-2xl border border-[var(--line-color)] p-4">
-        <legend class="px-2 font-semibold">Kecepatan Vertikal</legend>
+        <legend class="px-2 font-semibold">Kec. Vertikal</legend>
         <div class="mt-2 grid gap-4">
           <label class="flex flex-col gap-2">
             <span class="font-medium">Min</span>
@@ -312,7 +340,7 @@ const codeThemes = [
         <input class="studio-input" type="number" step="0.001" name="fadeSpeed" />
       </label>
 
-      <div class="flex items-center gap-3 md:col-span-3">
+      <div class="flex flex-wrap items-center gap-3 md:col-span-3">
         <button class="btn-regular rounded-xl px-5 py-3 font-semibold" type="submit">Simpan Sakura</button>
         <p id="sakura-status" class="text-sm text-50"></p>
       </div>
@@ -343,21 +371,17 @@ const codeThemes = [
       .filter(Boolean);
   }
 
-  function pickSourceValue(source, device) {
-    if (typeof source === "string") {
-      return source;
+  function pickResponsiveString(value, device, fallback = "") {
+    if (typeof value === "string") {
+      return value;
     }
-    if (Array.isArray(source)) {
-      return source[0] || "";
+    if (value && typeof value === "object") {
+      return value[device] || fallback;
     }
-    const value = source?.[device];
-    if (Array.isArray(value)) {
-      return value[0] || "";
-    }
-    return value || "";
+    return fallback;
   }
 
-  function pickResponsiveBoolean(value, device, fallback) {
+  function pickResponsiveBoolean(value, device, fallback = false) {
     if (typeof value === "boolean") {
       return value;
     }
@@ -367,14 +391,31 @@ const codeThemes = [
     return fallback;
   }
 
-  function getWallpaperModeValue(config) {
-    if (config?.mode === "overlay") {
-      return "static";
+  function pickSourceValue(source, device) {
+    if (typeof source === "string") {
+      return source;
     }
-    if (config?.mode === "none") {
+    if (Array.isArray(source)) {
+      return source[0] || "";
+    }
+    if (source && typeof source === "object") {
+      const value = source[device];
+      if (Array.isArray(value)) {
+        return value[0] || "";
+      }
+      return value || "";
+    }
+    return "";
+  }
+
+  function getWallpaperModeValue(config) {
+    if (!config?.enable) {
       return "none";
     }
-    return config?.mode || "banner";
+    if (config.mode === "overlay") {
+      return "static";
+    }
+    return "banner";
   }
 
   function toWallpaperModeValue(value, fallbackMode) {
@@ -384,10 +425,10 @@ const codeThemes = [
     if (value === "none") {
       return fallbackMode || "banner";
     }
-    return value || "banner";
+    return "banner";
   }
 
-  function getNavbarTransparencyValue(value) {
+  function getNavbarModeValue(value) {
     if (value === "full") {
       return "always";
     }
@@ -397,7 +438,7 @@ const codeThemes = [
     return "none";
   }
 
-  function toNavbarTransparencyValue(value) {
+  function toNavbarModeValue(value) {
     if (value === "always") {
       return "full";
     }
@@ -422,30 +463,30 @@ const codeThemes = [
       statusElement.textContent = `${section} tersimpan.`;
       return true;
     } catch (error) {
-      statusElement.textContent = error.message;
+      statusElement.textContent = error instanceof Error ? error.message : `Gagal menyimpan ${section}.`;
       return false;
     }
   }
 
   const wallpaperForm = document.getElementById("wallpaper-form");
   const wallpaperStatus = document.getElementById("wallpaper-status");
-  const fontConfigForm = document.getElementById("font-config-form");
-  const fontConfigStatus = document.getElementById("font-config-status");
+  const fontForm = document.getElementById("font-form");
+  const fontStatus = document.getElementById("font-status");
   const expressiveCodeForm = document.getElementById("expressive-code-form");
   const expressiveCodeStatus = document.getElementById("expressive-code-status");
   const sakuraForm = document.getElementById("sakura-form");
   const sakuraStatus = document.getElementById("sakura-status");
 
-  let lastWallpaperRuntimeMode = initialWallpaper?.mode === "overlay" ? "overlay" : "banner";
+  let lastWallpaperRuntimeMode = initialWallpaper?.mode || "banner";
 
   wallpaperForm.elements.enable.checked = Boolean(initialWallpaper?.enable);
   wallpaperForm.elements.mode.value = getWallpaperModeValue(initialWallpaper);
   wallpaperForm.elements.srcDesktop.value = pickSourceValue(initialWallpaper?.src, "desktop");
   wallpaperForm.elements.srcMobile.value = pickSourceValue(initialWallpaper?.src, "mobile");
   wallpaperForm.elements.position.value = initialWallpaper?.position || "";
-  wallpaperForm.elements.overlayBlur.value = String(initialWallpaper?.overlay?.blur ?? 0);
-  wallpaperForm.elements.overlayOpacity.value = String(initialWallpaper?.overlay?.opacity ?? 1);
-  wallpaperForm.elements.overlayZIndex.value = String(initialWallpaper?.overlay?.zIndex ?? 0);
+  wallpaperForm.elements.overlayBlur.value = String(initialWallpaper?.overlay?.blur ?? 1);
+  wallpaperForm.elements.overlayOpacity.value = String(initialWallpaper?.overlay?.opacity ?? 0.8);
+  wallpaperForm.elements.overlayZIndex.value = String(initialWallpaper?.overlay?.zIndex ?? -1);
   wallpaperForm.elements.homeTextEnable.checked = Boolean(initialWallpaper?.banner?.homeText?.enable);
   wallpaperForm.elements.homeTextTitle.value = initialWallpaper?.banner?.homeText?.title || "";
   wallpaperForm.elements.homeTextSubtitle.value = Array.isArray(initialWallpaper?.banner?.homeText?.subtitle)
@@ -459,7 +500,37 @@ const codeThemes = [
   wallpaperForm.elements.typewriterPauseTime.value = String(
     initialWallpaper?.banner?.homeText?.typewriter?.pauseTime ?? 2000,
   );
-  wallpaperForm.elements.navbarTransparent.value = getNavbarTransparencyValue(
+  wallpaperForm.elements.creditDesktopEnable.checked = pickResponsiveBoolean(
+    initialWallpaper?.banner?.credit?.enable,
+    "desktop",
+    true,
+  );
+  wallpaperForm.elements.creditMobileEnable.checked = pickResponsiveBoolean(
+    initialWallpaper?.banner?.credit?.enable,
+    "mobile",
+    false,
+  );
+  wallpaperForm.elements.creditDesktopText.value = pickResponsiveString(
+    initialWallpaper?.banner?.credit?.text,
+    "desktop",
+    "Source",
+  );
+  wallpaperForm.elements.creditMobileText.value = pickResponsiveString(
+    initialWallpaper?.banner?.credit?.text,
+    "mobile",
+    "",
+  );
+  wallpaperForm.elements.creditDesktopUrl.value = pickResponsiveString(
+    initialWallpaper?.banner?.credit?.url,
+    "desktop",
+    "",
+  );
+  wallpaperForm.elements.creditMobileUrl.value = pickResponsiveString(
+    initialWallpaper?.banner?.credit?.url,
+    "mobile",
+    "",
+  );
+  wallpaperForm.elements.navbarTransparent.value = getNavbarModeValue(
     initialWallpaper?.banner?.navbar?.transparentMode,
   );
   wallpaperForm.elements.wavesDesktop.checked = pickResponsiveBoolean(
@@ -473,13 +544,14 @@ const codeThemes = [
     true,
   );
 
-  fontConfigForm.elements.enable.checked = Boolean(initialFontConfig?.enable);
-  fontConfigForm.elements.preload.checked = Boolean(initialFontConfig?.preload);
-  fontConfigForm.elements.selected.value = Array.isArray(initialFontConfig?.selected)
-    ? initialFontConfig.selected[0] || Object.keys(initialFontConfig?.fonts || {})[0] || ""
-    : initialFontConfig?.selected || Object.keys(initialFontConfig?.fonts || {})[0] || "";
-  fontConfigForm.elements.fallback.value = (initialFontConfig?.fallback || []).join(", ");
-  fontConfigForm.elements.fontsJson.value = JSON.stringify(initialFontConfig?.fonts || {}, null, 2);
+  const initialSelectedFont = Array.isArray(initialFontConfig?.selected)
+    ? initialFontConfig.selected[0] || fontKeys[0] || ""
+    : initialFontConfig?.selected || fontKeys[0] || "";
+  fontForm.elements.enable.checked = Boolean(initialFontConfig?.enable);
+  fontForm.elements.preload.checked = Boolean(initialFontConfig?.preload);
+  fontForm.elements.selected.value = initialSelectedFont;
+  fontForm.elements.fallback.value = (initialFontConfig?.fallback || []).join(", ");
+  fontForm.elements.fontsJson.value = JSON.stringify(initialFontConfig?.fonts || {}, null, 2);
 
   expressiveCodeForm.elements.theme.value = initialExpressiveCode?.theme || "github-dark";
 
@@ -545,10 +617,24 @@ const codeThemes = [
               pauseTime: Number(wallpaperForm.elements.typewriterPauseTime.value || 2000),
             },
           },
-          credit: initialWallpaper?.banner?.credit,
+          credit: {
+            ...(initialWallpaper?.banner?.credit || {}),
+            enable: {
+              desktop: wallpaperForm.elements.creditDesktopEnable.checked,
+              mobile: wallpaperForm.elements.creditMobileEnable.checked,
+            },
+            text: {
+              desktop: wallpaperForm.elements.creditDesktopText.value.trim(),
+              mobile: wallpaperForm.elements.creditMobileText.value.trim(),
+            },
+            url: {
+              desktop: wallpaperForm.elements.creditDesktopUrl.value.trim(),
+              mobile: wallpaperForm.elements.creditMobileUrl.value.trim(),
+            },
+          },
           navbar: {
             ...(initialWallpaper?.banner?.navbar || {}),
-            transparentMode: toNavbarTransparencyValue(wallpaperForm.elements.navbarTransparent.value),
+            transparentMode: toNavbarModeValue(wallpaperForm.elements.navbarTransparent.value),
           },
           waves: {
             ...(initialWallpaper?.banner?.waves || {}),
@@ -563,36 +649,35 @@ const codeThemes = [
     );
   });
 
-  fontConfigForm.addEventListener("submit", async (event) => {
+  fontForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     let parsedFonts = {};
     try {
-      parsedFonts = JSON.parse(fontConfigForm.elements.fontsJson.value || "{}");
+      parsedFonts = JSON.parse(fontForm.elements.fontsJson.value || "{}");
       if (!parsedFonts || typeof parsedFonts !== "object" || Array.isArray(parsedFonts)) {
         throw new Error("Registry font harus berupa object JSON.");
       }
     } catch (error) {
-      fontConfigStatus.textContent = error instanceof Error ? error.message : "Registry font tidak valid.";
+      fontStatus.textContent = error instanceof Error ? error.message : "Registry font tidak valid.";
       return;
     }
 
     await saveSection(
       "fontConfig",
       {
-        enable: fontConfigForm.elements.enable.checked,
-        preload: fontConfigForm.elements.preload.checked,
-        selected: [fontConfigForm.elements.selected.value],
-        fallback: splitCommaList(fontConfigForm.elements.fallback.value),
+        enable: fontForm.elements.enable.checked,
+        preload: fontForm.elements.preload.checked,
+        selected: [fontForm.elements.selected.value],
+        fallback: splitCommaList(fontForm.elements.fallback.value),
         fonts: parsedFonts,
       },
-      fontConfigStatus,
+      fontStatus,
     );
   });
 
   expressiveCodeForm.addEventListener("submit", async (event) => {
     event.preventDefault();
-
     await saveSection(
       "expressiveCode",
       {
@@ -604,7 +689,6 @@ const codeThemes = [
 
   sakuraForm.addEventListener("submit", async (event) => {
     event.preventDefault();
-
     await saveSection(
       "sakura",
       {

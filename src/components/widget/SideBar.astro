@@ -7,7 +7,9 @@ import Profile from "./Profile.astro";
 import Tags from "./Tags.astro";
 import TOC from "./TOC.astro";
 import Advertisement from "./Advertisement.astro";
+import Calendar from "./Calendar.astro";
 import MusicPlayer from "./MusicPlayer.svelte";
+import SiteStats from "./SiteStats.astro";
 
 interface Props {
   class?: string;
@@ -39,6 +41,8 @@ const componentMap = {
   tags: Tags,
   toc: TOC,
   advertisement: Advertisement,
+  calendar: Calendar,
+  "site-stats": SiteStats,
   "music-player": MusicPlayer,
 };
 

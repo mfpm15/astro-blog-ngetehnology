@@ -1,0 +1,42 @@
+---
+import { getCollection } from "astro:content";
+
+const posts = await getCollection("posts", ({ data }) => !data.draft);
+const categories = new Set(posts.map((post) => post.data.category).filter(Boolean));
+const tags = new Set(posts.flatMap((post) => post.data.tags ?? []));
+const latest = [...posts].sort(
+  (left, right) => right.data.published.getTime() - left.data.published.getTime(),
+)[0];
+
+const stats = [
+  { label: "Artikel", value: posts.length },
+  { label: "Kategori", value: categories.size },
+  { label: "Tag", value: tags.size },
+];
+---
+
+<div class="card-base p-4">
+  <h3 class="mb-3 text-sm font-semibold">Statistik Situs</h3>
+
+  <div class="mb-3 grid grid-cols-3 gap-2">
+    {
+      stats.map((stat) => (
+        <div class="rounded-xl bg-[var(--btn-plain-bg)] p-2 text-center">
+          <div class="text-xl font-bold text-[var(--primary)]">{stat.value}</div>
+          <div class="mt-0.5 text-xs text-50">{stat.label}</div>
+        </div>
+      ))
+    }
+  </div>
+
+  {
+    latest && (
+      <div class="mt-1 border-t border-[var(--line-color)] pt-2 text-xs text-50">
+        Terbaru:{" "}
+        <a href={`/posts/${latest.slug}/`} class="text-[var(--primary)] hover:underline">
+          {latest.data.title}
+        </a>
+      </div>
+    )
+  }
+</div>

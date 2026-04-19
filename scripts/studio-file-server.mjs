@@ -7,6 +7,22 @@ const HOST = process.env.STUDIO_FILE_SERVER_HOST || "127.0.0.1";
 const POSTS_DIR = path.join(process.cwd(), "src", "content", "posts");
 const TAXONOMY_PATH = path.join(process.cwd(), "src", "data", "post-taxonomy.json");
 
+const reqId = () => Math.random().toString(36).slice(2, 8);
+
+function logAction({ id, route, slug, status, filePath, error }) {
+  const ts = new Date().toISOString().slice(11, 23);
+  const parts = [
+    `[studio ${ts}]`,
+    `[${id}]`,
+    route,
+    slug ? `slug=${slug}` : "",
+    status,
+    filePath ? `path=${filePath}` : "",
+    error ? `ERR: ${error}` : "",
+  ];
+  console.log(parts.filter(Boolean).join(" "));
+}
+
 function json(response, status, payload) {
   response.writeHead(status, {
     "Content-Type": "application/json; charset=utf-8",
@@ -407,126 +423,189 @@ function buildMarkdown(post) {
 }
 
 async function handleCreatePost(request, response) {
-  const { formData, data } = await parsePostPayload(request);
+  const id = reqId();
+  let slug = "";
+  try {
+    const { formData, data } = await parsePostPayload(request);
+    slug = data.slug;
 
-  if (!data.title) {
-    return json(response, 400, { error: "Judul wajib diisi." });
-  }
-  if (!data.content) {
-    return json(response, 400, { error: "Isi artikel wajib diisi." });
-  }
-  if (!data.published) {
-    return json(response, 400, { error: "Tanggal publish wajib diisi." });
-  }
-  if (!data.slug) {
-    return json(response, 400, {
-      error: "Slug tidak valid. Gunakan huruf, angka, dan tanda hubung.",
+    if (!data.title) {
+      logAction({ id, route: "POST /api/studio/post", slug, status: "validation_error", error: "Judul wajib diisi." });
+      return json(response, 400, { error: "Judul wajib diisi." });
+    }
+    if (!data.content) {
+      logAction({ id, route: "POST /api/studio/post", slug, status: "validation_error", error: "Isi artikel wajib diisi." });
+      return json(response, 400, { error: "Isi artikel wajib diisi." });
+    }
+    if (!data.published) {
+      logAction({ id, route: "POST /api/studio/post", slug, status: "validation_error", error: "Tanggal publish wajib diisi." });
+      return json(response, 400, { error: "Tanggal publish wajib diisi." });
+    }
+    if (!data.slug) {
+      logAction({
+        id,
+        route: "POST /api/studio/post",
+        slug,
+        status: "validation_error",
+        error: "Slug tidak valid. Gunakan huruf, angka, dan tanda hubung.",
+      });
+      return json(response, 400, {
+        error: "Slug tidak valid. Gunakan huruf, angka, dan tanda hubung.",
+      });
+    }
+
+    if (await findPostEntry(data.slug)) {
+      logAction({ id, route: "POST /api/studio/post", slug, status: "conflict", error: `Slug "${data.slug}" sudah dipakai.` });
+      return json(response, 409, { error: `Slug "${data.slug}" sudah dipakai.` });
+    }
+
+    const target = getTargetPaths(data.slug);
+    await fs.mkdir(target.directory, { recursive: true });
+
+    const uploadedImage = await maybeWriteCoverFile(formData, target.directory);
+    if (uploadedImage) {
+      data.image = uploadedImage;
+    }
+
+    await fs.writeFile(target.filePath, buildMarkdown(data), "utf8");
+    await syncTaxonomyFromPost(data);
+
+    const relativePath = path.relative(process.cwd(), target.filePath).replace(/\\/g, "/");
+    logAction({ id, route: "POST /api/studio/post", slug: data.slug, status: "ok", filePath: relativePath });
+    return json(response, 200, {
+      ok: true,
+      mode: "create",
+      slug: data.slug,
+      path: relativePath,
     });
+  } catch (error) {
+    logAction({
+      id,
+      route: "POST /api/studio/post",
+      slug,
+      status: "error",
+      error: error instanceof Error ? error.message : "Studio server error.",
+    });
+    throw error;
   }
-
-  if (await findPostEntry(data.slug)) {
-    return json(response, 409, { error: `Slug "${data.slug}" sudah dipakai.` });
-  }
-
-  const target = getTargetPaths(data.slug);
-  await fs.mkdir(target.directory, { recursive: true });
-
-  const uploadedImage = await maybeWriteCoverFile(formData, target.directory);
-  if (uploadedImage) {
-    data.image = uploadedImage;
-  }
-
-  await fs.writeFile(target.filePath, buildMarkdown(data), "utf8");
-  await syncTaxonomyFromPost(data);
-
-  return json(response, 200, {
-    ok: true,
-    mode: "create",
-    slug: data.slug,
-    path: path.relative(process.cwd(), target.filePath).replace(/\\/g, "/"),
-  });
 }
 
 async function handleUpdatePost(request, response) {
-  const { formData, data } = await parsePostPayload(request);
-  const currentSlug = data.originalSlug || data.slug;
+  const id = reqId();
+  let slug = "";
+  try {
+    const { formData, data } = await parsePostPayload(request);
+    slug = data.slug;
+    const currentSlug = data.originalSlug || data.slug;
 
-  if (!currentSlug) {
-    return json(response, 400, { error: "Slug post lama tidak ditemukan." });
-  }
-
-  const existing = await findPostEntry(currentSlug);
-  if (!existing) {
-    return json(response, 404, { error: `Post "${currentSlug}" tidak ditemukan.` });
-  }
-
-  if (!data.title) {
-    return json(response, 400, { error: "Judul wajib diisi." });
-  }
-  if (!data.content) {
-    return json(response, 400, { error: "Isi artikel wajib diisi." });
-  }
-  if (!data.published) {
-    return json(response, 400, { error: "Tanggal publish wajib diisi." });
-  }
-  if (!data.slug) {
-    return json(response, 400, { error: "Slug baru tidak valid." });
-  }
-
-  if (data.slug !== currentSlug) {
-    const conflicting = await findPostEntry(data.slug);
-    if (conflicting) {
-      return json(response, 409, { error: `Slug "${data.slug}" sudah dipakai.` });
+    if (!currentSlug) {
+      logAction({ id, route: "POST /api/studio/post/update", slug, status: "validation_error", error: "Slug post lama tidak ditemukan." });
+      return json(response, 400, { error: "Slug post lama tidak ditemukan." });
     }
+
+    const existing = await findPostEntry(currentSlug);
+    if (!existing) {
+      logAction({ id, route: "POST /api/studio/post/update", slug: currentSlug, status: "not_found", error: `Post "${currentSlug}" tidak ditemukan.` });
+      return json(response, 404, { error: `Post "${currentSlug}" tidak ditemukan.` });
+    }
+
+    if (!data.title) {
+      logAction({ id, route: "POST /api/studio/post/update", slug: currentSlug, status: "validation_error", error: "Judul wajib diisi." });
+      return json(response, 400, { error: "Judul wajib diisi." });
+    }
+    if (!data.content) {
+      logAction({ id, route: "POST /api/studio/post/update", slug: currentSlug, status: "validation_error", error: "Isi artikel wajib diisi." });
+      return json(response, 400, { error: "Isi artikel wajib diisi." });
+    }
+    if (!data.published) {
+      logAction({ id, route: "POST /api/studio/post/update", slug: currentSlug, status: "validation_error", error: "Tanggal publish wajib diisi." });
+      return json(response, 400, { error: "Tanggal publish wajib diisi." });
+    }
+    if (!data.slug) {
+      logAction({ id, route: "POST /api/studio/post/update", slug: currentSlug, status: "validation_error", error: "Slug baru tidak valid." });
+      return json(response, 400, { error: "Slug baru tidak valid." });
+    }
+
+    if (data.slug !== currentSlug) {
+      const conflicting = await findPostEntry(data.slug);
+      if (conflicting) {
+        logAction({ id, route: "POST /api/studio/post/update", slug: data.slug, status: "conflict", error: `Slug "${data.slug}" sudah dipakai.` });
+        return json(response, 409, { error: `Slug "${data.slug}" sudah dipakai.` });
+      }
+    }
+
+    const nextTarget = getTargetPaths(data.slug);
+    await fs.mkdir(nextTarget.directory, { recursive: true });
+
+    const uploadedImage = await maybeWriteCoverFile(formData, nextTarget.directory);
+    if (uploadedImage) {
+      data.image = uploadedImage;
+    }
+
+    await fs.writeFile(nextTarget.filePath, buildMarkdown(data), "utf8");
+    await syncTaxonomyFromPost(data);
+
+    if (existing.path !== nextTarget.filePath) {
+      if (existing.storageType === "directory") {
+        await fs.rm(existing.directory, { recursive: true, force: true });
+      } else {
+        await fs.rm(existing.path, { force: true });
+      }
+    }
+
+    const relativePath = path.relative(process.cwd(), nextTarget.filePath).replace(/\\/g, "/");
+    logAction({ id, route: "POST /api/studio/post/update", slug: data.slug, status: "ok", filePath: relativePath });
+    return json(response, 200, {
+      ok: true,
+      mode: "update",
+      slug: data.slug,
+      path: relativePath,
+    });
+  } catch (error) {
+    logAction({
+      id,
+      route: "POST /api/studio/post/update",
+      slug,
+      status: "error",
+      error: error instanceof Error ? error.message : "Studio server error.",
+    });
+    throw error;
   }
+}
 
-  const nextTarget = getTargetPaths(data.slug);
-  await fs.mkdir(nextTarget.directory, { recursive: true });
+async function handleDeletePost(request, response, url) {
+  const id = reqId();
+  let slug = url.searchParams.get("slug") || "";
+  try {
+    if (!slug && request.headers["content-type"]?.includes("application/json")) {
+      const body = JSON.parse((await readBody(request)).toString("utf8"));
+      slug = String(body.slug || "");
+    }
 
-  const uploadedImage = await maybeWriteCoverFile(formData, nextTarget.directory);
-  if (uploadedImage) {
-    data.image = uploadedImage;
-  }
+    const existing = await findPostEntry(slug);
+    if (!existing) {
+      logAction({ id, route: "POST /api/studio/post/delete", slug, status: "not_found", error: `Post "${slug}" tidak ditemukan.` });
+      return json(response, 404, { error: `Post "${slug}" tidak ditemukan.` });
+    }
 
-  await fs.writeFile(nextTarget.filePath, buildMarkdown(data), "utf8");
-  await syncTaxonomyFromPost(data);
-
-  if (existing.path !== nextTarget.filePath) {
     if (existing.storageType === "directory") {
       await fs.rm(existing.directory, { recursive: true, force: true });
     } else {
       await fs.rm(existing.path, { force: true });
     }
+
+    logAction({ id, route: "POST /api/studio/post/delete", slug: existing.slug, status: "ok", filePath: existing.relativePath ?? existing.path });
+    return json(response, 200, { ok: true, slug: existing.slug });
+  } catch (error) {
+    logAction({
+      id,
+      route: "POST /api/studio/post/delete",
+      slug,
+      status: "error",
+      error: error instanceof Error ? error.message : "Studio server error.",
+    });
+    throw error;
   }
-
-  return json(response, 200, {
-    ok: true,
-    mode: "update",
-    slug: data.slug,
-    path: path.relative(process.cwd(), nextTarget.filePath).replace(/\\/g, "/"),
-  });
-}
-
-async function handleDeletePost(request, response, url) {
-  let slug = url.searchParams.get("slug") || "";
-
-  if (!slug && request.headers["content-type"]?.includes("application/json")) {
-    const body = JSON.parse((await readBody(request)).toString("utf8"));
-    slug = String(body.slug || "");
-  }
-
-  const existing = await findPostEntry(slug);
-  if (!existing) {
-    return json(response, 404, { error: `Post "${slug}" tidak ditemukan.` });
-  }
-
-  if (existing.storageType === "directory") {
-    await fs.rm(existing.directory, { recursive: true, force: true });
-  } else {
-    await fs.rm(existing.path, { force: true });
-  }
-
-  return json(response, 200, { ok: true, slug: existing.slug });
 }
 
 const sectionMap = {
@@ -581,25 +660,46 @@ function validateConfigPayload(section, value) {
 }
 
 async function handleSaveConfig(request, response) {
-  const bodyBuffer = await readBody(request);
-  const rawBody = bodyBuffer.toString("utf8");
-  const body = JSON.parse(rawBody);
-  const section = body.section;
-  const value = body.value;
+  const id = reqId();
+  let section = "";
+  try {
+    const bodyBuffer = await readBody(request);
+    const rawBody = bodyBuffer.toString("utf8");
+    const body = JSON.parse(rawBody);
+    section = body.section;
+    const value = body.value;
 
-  if (!(section in sectionMap)) {
-    return json(response, 400, { error: "Section tidak dikenal." });
+    if (!(section in sectionMap)) {
+      logAction({ id, route: "POST /api/studio/config", slug: section, status: "validation_error", error: "Section tidak dikenal." });
+      return json(response, 400, { error: "Section tidak dikenal." });
+    }
+
+    validateConfigPayload(section, value);
+
+    if (section === "aboutPage" || section === "friendsPage") {
+      await fs.writeFile(sectionMap[section], `${value.trim()}\n`, "utf8");
+    } else {
+      await fs.writeFile(sectionMap[section], `${JSON.stringify(value, null, 2)}\n`, "utf8");
+    }
+
+    logAction({
+      id,
+      route: "POST /api/studio/config",
+      slug: section,
+      status: "ok",
+      filePath: path.relative(process.cwd(), sectionMap[section]).replace(/\\/g, "/"),
+    });
+    return json(response, 200, { ok: true, section });
+  } catch (error) {
+    logAction({
+      id,
+      route: "POST /api/studio/config",
+      slug: section,
+      status: "error",
+      error: error instanceof Error ? error.message : "Studio server error.",
+    });
+    throw error;
   }
-
-  validateConfigPayload(section, value);
-
-  if (section === "aboutPage" || section === "friendsPage") {
-    await fs.writeFile(sectionMap[section], `${value.trim()}\n`, "utf8");
-  } else {
-    await fs.writeFile(sectionMap[section], `${JSON.stringify(value, null, 2)}\n`, "utf8");
-  }
-
-  return json(response, 200, { ok: true, section });
 }
 
 const server = createServer(async (request, response) => {

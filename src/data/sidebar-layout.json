@@ -57,6 +57,22 @@
       "class": "onload-animation",
       "animationDelay": 350,
       "configId": "ad2"
+    },
+    {
+      "type": "calendar",
+      "enable": false,
+      "order": 8,
+      "position": "sticky",
+      "class": "onload-animation",
+      "animationDelay": 400
+    },
+    {
+      "type": "site-stats",
+      "enable": false,
+      "order": 9,
+      "position": "sticky",
+      "class": "onload-animation",
+      "animationDelay": 450
     }
   ],
   "defaultAnimation": {

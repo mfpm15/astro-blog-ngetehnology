@@ -1,0 +1,50 @@
+---
+const now = new Date();
+const year = now.getFullYear();
+const month = now.getMonth();
+const today = now.getDate();
+const monthLabel = now.toLocaleString("id-ID", {
+  month: "long",
+  year: "numeric",
+});
+
+const firstDay = new Date(year, month, 1).getDay();
+const daysInMonth = new Date(year, month + 1, 0).getDate();
+const dayLabels = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
+---
+
+<div class="card-base p-4">
+  <div class="mb-3 flex items-center justify-between">
+    <h3 class="text-sm font-semibold">{monthLabel}</h3>
+  </div>
+
+  <div class="grid grid-cols-7 gap-1 text-xs">
+    {
+      dayLabels.map((label) => (
+        <div class="py-1 text-center font-medium text-50">{label}</div>
+      ))
+    }
+
+    {
+      Array.from({ length: firstDay }).map(() => <div aria-hidden="true"></div>)
+    }
+
+    {
+      Array.from({ length: daysInMonth }, (_, index) => {
+        const day = index + 1;
+        return (
+          <div
+            class:list={[
+              "rounded-lg py-1 text-center transition",
+              day === today
+                ? "bg-[var(--primary)] font-bold text-white"
+                : "hover:bg-[var(--btn-plain-bg-hover)]",
+            ]}
+          >
+            {day}
+          </div>
+        );
+      })
+    }
+  </div>
+</div>

@@ -1,4 +1,6 @@
 ---
+import { Icon } from "astro-icon/components";
+import Breadcrumb from "@components/misc/Breadcrumb.astro";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 
 interface Props {
@@ -9,26 +11,38 @@ interface Props {
 const { title, description } = Astro.props;
 
 const navItems = [
-  { href: "/studio/", label: "Overview" },
-  { href: "/studio/posts/", label: "Posts" },
-  { href: "/studio/site/", label: "Site" },
-  { href: "/studio/appearance/", label: "Appearance" },
-  { href: "/studio/navigation/", label: "Navigation" },
-  { href: "/studio/integrations/", label: "Integrations" },
-  { href: "/studio/pages/", label: "Pages" },
+  { href: "/studio/", label: "Overview", icon: "material-symbols:dashboard-outline" },
+  { href: "/studio/posts/", label: "Posts", icon: "material-symbols:article-outline" },
+  { href: "/studio/site/", label: "Site", icon: "material-symbols:settings-outline" },
+  { href: "/studio/appearance/", label: "Appearance", icon: "material-symbols:palette-outline" },
+  { href: "/studio/navigation/", label: "Navigation", icon: "material-symbols:menu" },
+  { href: "/studio/integrations/", label: "Integrations", icon: "material-symbols:extension-outline" },
+  { href: "/studio/pages/", label: "Pages", icon: "material-symbols:pages-outline" },
 ];
+
+const pageName = navItems.find((item) => Astro.url.pathname === item.href)?.label ?? title;
+const breadcrumbItems =
+  pageName === "Overview"
+    ? [{ label: "Studio" }]
+    : [{ label: "Studio", href: "/studio/" }, { label: pageName }];
 ---
 
 <MainGridLayout title={title} description={description ?? title}>
-  <div class="grid gap-6 lg:grid-cols-[16rem_1fr]">
-    <aside class="card-base h-fit p-4">
-      <div class="mb-4">
-        <h1 class="text-xl font-bold">Studio</h1>
-        <p class="text-50 mt-1 text-sm">
-          Pengelolaan lokal tanpa `/admin`.
-        </p>
+  <Breadcrumb items={breadcrumbItems} />
+
+  <div class="grid gap-6 lg:grid-cols-[16rem_minmax(0,1fr)]">
+    <aside class="card-base h-fit p-4 lg:sticky lg:top-24">
+      <div class="mb-5 px-1">
+        <div class="mb-1 flex items-center gap-2">
+          <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-[var(--btn-plain-bg)] text-[var(--primary)]">
+            <Icon name="material-symbols:edit-square-outline-rounded" class="text-lg" />
+          </span>
+          <h1 class="text-lg font-bold">Studio</h1>
+        </div>
+        <p class="text-50 text-xs">NgetehNology · Local development tools</p>
       </div>
-      <nav class="flex flex-col gap-2">
+
+      <nav class="flex flex-col gap-1">
         {
           navItems.map((item) => {
             const active = Astro.url.pathname === item.href;
@@ -36,13 +50,12 @@ const navItems = [
               <a
                 href={item.href}
                 class:list={[
-                  "rounded-xl px-4 py-3 text-sm font-medium transition",
-                  active
-                    ? "bg-[var(--primary)] text-white"
-                    : "btn-plain text-90",
+                  "flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition",
+                  active ? "bg-[var(--primary)] text-white shadow-sm" : "btn-plain text-75 hover:text-90",
                 ]}
               >
-                {item.label}
+                <Icon name={item.icon} class="text-base" />
+                <span>{item.label}</span>
               </a>
             );
           })
@@ -50,7 +63,11 @@ const navItems = [
       </nav>
     </aside>
 
-    <section class="space-y-6">
+    <section class="min-w-0 space-y-6">
+      <div class="mb-2">
+        <h2 class="text-2xl font-bold">{title}</h2>
+        {description && <p class="text-50 mt-1">{description}</p>}
+      </div>
       <slot />
     </section>
   </div>

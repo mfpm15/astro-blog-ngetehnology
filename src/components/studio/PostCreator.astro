@@ -98,6 +98,8 @@ const { taxonomy } = Astro.props;
       </span>
     </div>
 
+    <div id="sidecar-status" class="mb-4 hidden rounded-xl px-4 py-3 text-sm"></div>
+
     <form id="post-form" class="grid gap-4 lg:grid-cols-2">
       <input type="hidden" name="originalSlug" value="" />
       <input type="hidden" name="category" value="" />
@@ -213,6 +215,7 @@ Tulis artikel Anda di sini.
   const taxonomyCategoryList = document.getElementById("taxonomy-category-list");
   const taxonomyTagList = document.getElementById("taxonomy-tag-list");
   const taxonomyStatus = document.getElementById("taxonomy-status");
+  const sidecarStatus = document.getElementById("sidecar-status");
 
   const initialFormState = {
     title: "",
@@ -253,6 +256,13 @@ Tulis artikel Anda di sini.
           .filter(Boolean),
       ),
     ).sort((a, b) => a.localeCompare(b));
+  }
+
+  function splitCommaList(value) {
+    return String(value || "")
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
   }
 
   function escapeHtml(value) {
@@ -433,6 +443,16 @@ Tulis artikel Anda di sini.
     updateSlugPreview();
   }
 
+  function setSubmitState(isSaving, isUpdate) {
+    if (!submitButton) return;
+    submitButton.disabled = isSaving;
+    submitButton.textContent = isSaving
+      ? "Menyimpan..."
+      : isUpdate
+        ? "Simpan Perubahan"
+        : "Simpan Post";
+  }
+
   function setCreateMode() {
     activeSlug = "";
     applyFormState(initialFormState);
@@ -513,15 +533,11 @@ Tulis artikel Anda di sini.
         const slug = button.dataset.postSlug;
         postStatus.textContent = "Memuat detail post...";
         try {
-          const response = await fetch(`/api/studio/post/?slug=${encodeURIComponent(slug)}`);
-          const result = await response.json();
-          if (!response.ok) {
-            throw new Error(result.error || "Gagal memuat detail post.");
-          }
-          setEditMode(result.item);
-          postStatus.textContent = `Detail post "${result.item.slug}" dimuat.`;
+          const post = await fetchPostDetail(slug);
+          setEditMode(post);
+          postStatus.textContent = `Detail post "${post.slug}" dimuat.`;
         } catch (error) {
-          postStatus.textContent = error.message;
+          postStatus.textContent = error instanceof Error ? error.message : "Gagal memuat detail post.";
         }
       });
     });
@@ -532,18 +548,97 @@ Tulis artikel Anda di sini.
   async function refreshPostList() {
     if (!postListStatus) return;
     postListStatus.textContent = "Memuat daftar post...";
-    try {
-      const response = await fetch("/api/studio/posts/");
-      const result = await response.json();
-      if (!response.ok) {
-        throw new Error(result.error || "Gagal mengambil daftar post.");
-      }
-      studioPosts = result.items || [];
-      renderPostList();
-    } catch (error) {
-      postListStatus.textContent = error.message;
+    const response = await fetch("/api/studio/posts/");
+    const result = await response.json();
+    if (!response.ok) {
+      const message = result.error || "Gagal mengambil daftar post.";
+      postListStatus.textContent = message;
       if (postList) postList.innerHTML = "";
+      throw new Error(message);
     }
+    studioPosts = result.items || [];
+    renderPostList();
+    return studioPosts;
+  }
+
+  async function fetchPostDetail(slug) {
+    const response = await fetch(`/api/studio/post/?slug=${encodeURIComponent(slug)}`);
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.error || "Gagal memuat detail post.");
+    }
+    return result.item;
+  }
+
+  function buildOptimisticPostPayload(savedSlug) {
+    const chosenCategory = categoryCustomInput?.value.trim() || categorySelect?.value || "";
+    return {
+      slug: savedSlug,
+      originalSlug: savedSlug,
+      title: postForm?.elements.title.value.trim() || "",
+      published: postForm?.elements.published.value || "",
+      image: postForm?.elements.image.value.trim() || "",
+      category: chosenCategory,
+      tags: splitCommaList(postForm?.elements.tags.value || ""),
+      draft: Boolean(postForm?.elements.draft.checked),
+      pinned: Boolean(postForm?.elements.pinned.checked),
+      content: postForm?.elements.content.value || "",
+    };
+  }
+
+  async function refreshSavedPostState({ slug, path, title, optimisticPost }, attempt = 0) {
+    try {
+      await refreshPostList();
+    } catch (error) {
+      if (attempt < 2) {
+        window.setTimeout(() => {
+          refreshSavedPostState({ slug, path, title, optimisticPost }, attempt + 1);
+        }, 1500 * (attempt + 1));
+        return;
+      }
+      postStatus.textContent = `File berhasil ditulis (${path}) tapi Astro content reload tertunda. Refresh halaman jika diperlukan.`;
+      return;
+    }
+
+    try {
+      const detail = await fetchPostDetail(slug);
+      setEditMode(detail);
+      postStatus.textContent = `Post "${title}" disimpan. Slug: ${slug} | Path: ${path}`;
+    } catch (error) {
+      if (attempt < 2) {
+        window.setTimeout(() => {
+          refreshSavedPostState({ slug, path, title, optimisticPost }, attempt + 1);
+        }, 1500 * (attempt + 1));
+        return;
+      }
+      setEditMode(optimisticPost);
+      postStatus.textContent = `File berhasil ditulis (${path}) tapi detail post belum ikut ter-refresh. Refresh halaman jika diperlukan.`;
+    }
+  }
+
+  async function checkSidecarHealth() {
+    if (!sidecarStatus) return;
+    try {
+      const signal =
+        typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function"
+          ? AbortSignal.timeout(3000)
+          : undefined;
+      const response = await fetch("/api/studio/health/", { signal });
+      const result = await response.json();
+      if (!response.ok || !result.ok) {
+        throw new Error(result.error || "Server tidak merespons dengan benar.");
+      }
+      sidecarStatus.className =
+        "mb-4 rounded-xl px-4 py-3 text-sm bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
+      sidecarStatus.textContent = "Studio server aktif dan siap.";
+    } catch (error) {
+      sidecarStatus.className =
+        "mb-4 rounded-xl px-4 py-3 text-sm bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
+      sidecarStatus.textContent =
+        "Studio server tidak terjangkau. Pastikan pnpm dev berjalan. Error: " +
+        (error instanceof Error ? error.message : "Unknown error.");
+    }
+    sidecarStatus.classList.remove("hidden");
   }
 
   searchInput?.addEventListener("input", renderPostList);
@@ -556,15 +651,11 @@ Tulis artikel Anda di sini.
   resetButton?.addEventListener("click", async () => {
     if (activeSlug) {
       try {
-        const response = await fetch(`/api/studio/post/?slug=${encodeURIComponent(activeSlug)}`);
-        const result = await response.json();
-        if (!response.ok) {
-          throw new Error(result.error || "Gagal memuat ulang post.");
-        }
-        setEditMode(result.item);
+        const post = await fetchPostDetail(activeSlug);
+        setEditMode(post);
         postStatus.textContent = "Form dikembalikan ke data terakhir tersimpan.";
       } catch (error) {
-        postStatus.textContent = error.message;
+        postStatus.textContent = error instanceof Error ? error.message : "Gagal memuat ulang post.";
       }
       return;
     }
@@ -595,9 +686,13 @@ Tulis artikel Anda di sini.
       }
       setCreateMode();
       postStatus.textContent = `Post "${slug}" berhasil dihapus.`;
-      await refreshPostList();
+      try {
+        await refreshPostList();
+      } catch (error) {
+        postStatus.textContent = `Post "${slug}" berhasil dihapus, tapi daftar post belum ikut ter-refresh.`;
+      }
     } catch (error) {
-      postStatus.textContent = error.message;
+      postStatus.textContent = error instanceof Error ? error.message : "Gagal menghapus post.";
     }
   });
 
@@ -639,14 +734,17 @@ Tulis artikel Anda di sini.
       const formData = new FormData(postForm);
       const isUpdate = Boolean(formData.get("originalSlug"));
       const endpoint = isUpdate ? "/api/studio/post/update/" : "/api/studio/post/";
+      const title = String(formData.get("title") || "").trim();
 
-      postStatus.textContent = isUpdate ? "Menyimpan perubahan post..." : "Membuat post baru...";
+      postStatus.textContent = "Memvalidasi...";
+      setSubmitState(true, isUpdate);
 
       try {
         if (taxonomyState.categories.length || taxonomyState.tags.length) {
           await saveTaxonomy();
         }
 
+        postStatus.textContent = isUpdate ? "Memperbarui file..." : "Membuat file...";
         const response = await fetch(endpoint, {
           method: "POST",
           body: formData,
@@ -656,31 +754,30 @@ Tulis artikel Anda di sini.
           throw new Error(result.error || "Gagal menyimpan post.");
         }
 
-        postStatus.textContent = isUpdate
-          ? `Post diperbarui: ${result.path}`
-          : `Post dibuat: ${result.path}`;
+        const savedSlug = result.slug || slugify(title);
+        const savedPath = result.path || `src/content/posts/${savedSlug}/index.md`;
+        const optimisticPost = buildOptimisticPostPayload(savedSlug);
+        setEditMode(optimisticPost);
+        postStatus.textContent = "File tersimpan. Memuat ulang daftar...";
 
-        await refreshPostList();
-
-        if (result.slug) {
-          const detailResponse = await fetch(`/api/studio/post/?slug=${encodeURIComponent(result.slug)}`);
-          const detail = await detailResponse.json();
-          if (!detailResponse.ok) {
-            throw new Error(detail.error || "Gagal memuat hasil simpan.");
-          }
-          setEditMode(detail.item);
-        } else {
-          setCreateMode();
-        }
+        void refreshSavedPostState({
+          slug: savedSlug,
+          path: savedPath,
+          title: optimisticPost.title || savedSlug,
+          optimisticPost,
+        });
       } catch (error) {
-        postStatus.textContent = error.message;
+        postStatus.textContent = error instanceof Error ? error.message : "Gagal menyimpan post.";
+      } finally {
+        setSubmitState(false, isUpdate);
       }
     });
   }
 
+  checkSidecarHealth();
   setCreateMode();
   renderTaxonomyPanels();
-  refreshPostList();
+  refreshPostList().catch(() => {});
 </script>
 
 <style>

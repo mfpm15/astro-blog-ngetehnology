@@ -116,6 +116,33 @@ html {
     @apply bg-[var(--card-bg-transparent)] backdrop-blur-sm;
     border-radius: 0 0 var(--radius-large) var(--radius-large) !important;
 }
+
+    #navbar > div {
+        background: color-mix(in oklab, var(--card-bg) 92%, transparent);
+        border: 1px solid color-mix(in oklab, var(--line-color) 65%, transparent);
+        border-radius: 1rem;
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+        backdrop-filter: blur(10px);
+        transition:
+            background 300ms ease,
+            border-color 300ms ease,
+            box-shadow 300ms ease,
+            transform 300ms ease;
+    }
+
+    body.is-home #navbar:not(.scrolled) > div {
+        background: color-mix(in oklab, var(--card-bg) 88%, transparent);
+        border-color: color-mix(in oklab, white 26%, var(--line-color));
+        box-shadow: 0 22px 48px rgba(15, 23, 42, 0.12);
+    }
+
+    #navbar.scrolled > div,
+    body:not(.is-home) #navbar > div,
+    body.wallpaper-transparent #navbar > div {
+        background: var(--card-bg) !important;
+        border-color: color-mix(in oklab, var(--line-color) 90%, transparent) !important;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12) !important;
+    }
     
     .wallpaper-transparent .btn-card {
         @apply bg-[var(--card-bg-transparent)] backdrop-blur-sm;

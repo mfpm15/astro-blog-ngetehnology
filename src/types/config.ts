@@ -208,6 +208,9 @@ export type WidgetComponentType =
   | "tags"
   | "toc"
   | "advertisement"
+  | "calendar"
+  | "site-stats"
+  | "music-player"
   | "custom";
 
 export type WidgetComponentConfig = {

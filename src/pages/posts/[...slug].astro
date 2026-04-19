@@ -1,6 +1,7 @@
 ---
 import path from "node:path";
 import Comment from "@components/comment/index.astro";
+import Breadcrumb from "@components/misc/Breadcrumb.astro";
 import License from "@components/misc/License.astro";
 import Markdown from "@components/misc/Markdown.astro";
 import I18nKey from "@i18n/i18nKey";
@@ -73,6 +74,7 @@ const jsonLd = {
     type="application/ld+json"
     set:html={JSON.stringify(jsonLd)}
   />
+  <Breadcrumb items={[{ label: "Blog", href: "/archive/" }, { label: entry.data.title }]} />
   <div
     class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative mb-4"
   >

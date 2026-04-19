@@ -15,6 +15,8 @@ export const WIDGET_COMPONENT_MAP = {
   tags: "../components/widget/Tags.astro",
   toc: "../components/widget/TOC.astro",
   advertisement: "../components/widget/Advertisement.astro",
+  calendar: "../components/widget/Calendar.astro",
+  "site-stats": "../components/widget/SiteStats.astro",
   "music-player": "../components/widget/MusicPlayer.svelte",
   custom: null, // Komponen kustom perlu menentukan path dalam konfigurasi
 } as const;

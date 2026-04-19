@@ -1,0 +1,66 @@
+---
+// Lightweight SWUP progress indicator.
+---
+
+<div id="nav-progress" aria-hidden="true"></div>
+
+<script is:inline>
+  const bindProgressBar = () => {
+    const bar = document.getElementById("nav-progress");
+    if (!bar || bar.dataset.bound === "true" || !window?.swup?.hooks) return;
+    bar.dataset.bound = "true";
+
+    let hideTimer;
+
+    const start = () => {
+      clearTimeout(hideTimer);
+      bar.style.opacity = "1";
+      bar.style.width = "0";
+      requestAnimationFrame(() => {
+        bar.style.width = "70%";
+      });
+    };
+
+    const finish = () => {
+      clearTimeout(hideTimer);
+      bar.style.width = "100%";
+      hideTimer = window.setTimeout(() => {
+        bar.style.opacity = "0";
+        bar.style.width = "0";
+      }, 260);
+    };
+
+    const reset = () => {
+      clearTimeout(hideTimer);
+      bar.style.opacity = "0";
+      bar.style.width = "0";
+    };
+
+    window.swup.hooks.on("visit:start", start);
+    window.swup.hooks.on("page:view", finish);
+    window.swup.hooks.on("visit:end", finish);
+    window.swup.hooks.on("fetch:error", reset);
+  };
+
+  if (window?.swup?.hooks) {
+    bindProgressBar();
+  } else {
+    document.addEventListener("swup:enable", bindProgressBar);
+  }
+</script>
+
+<style>
+  #nav-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 220;
+    height: 2px;
+    width: 0;
+    opacity: 0;
+    background: var(--primary);
+    box-shadow: 0 0 18px color-mix(in oklab, var(--primary) 55%, transparent);
+    pointer-events: none;
+    transition: width 400ms ease, opacity 260ms ease;
+  }
+</style>
