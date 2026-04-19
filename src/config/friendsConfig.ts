@@ -4,7 +4,7 @@ import friendsData from "../data/friends.json";
 // Anda dapat menulis konten kustom di bawah halaman tautan teman di src/content/spec/friends.md
 
 // Konfigurasi Tautan Teman
-export const friendsConfig: FriendLink[] = friendsData as FriendLink[];
+export const friendsConfig: FriendLink[] = (friendsData.items ?? []) as FriendLink[];
 
 // Dapatkan tautan teman yang diaktifkan dan urutkan berdasarkan bobot
 export const getEnabledFriends = (): FriendLink[] => {

@@ -1,9 +1,8 @@
 ---
-import PostCreator from "@components/studio/PostCreator.astro";
-import StudioShell from "@components/studio/StudioShell.astro";
-import taxonomyData from "../../data/post-taxonomy.json";
+import CmsRedirectPage from "@components/admin/CmsRedirectPage.astro";
 ---
 
-<StudioShell title="Studio Posts" description="Pembuatan artikel baru secara lokal.">
-  <PostCreator taxonomy={taxonomyData} />
-</StudioShell>
+<CmsRedirectPage
+  title="Studio Posts Dipensiunkan"
+  description="Pembuatan dan pengelolaan artikel sekarang dilakukan dari /admin/."
+/>

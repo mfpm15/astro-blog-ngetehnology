@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "skills": {
+    "astro-firefly": {
+      "name": "astro-firefly",
+      "description": "Astro + Firefly patterns for the NgetehNology blog.",
+      "provider": "local"
+    },
+    "decap-cms": {
+      "name": "decap-cms",
+      "description": "Decap CMS configuration and content-model guardrails for `/admin/`.",
+      "provider": "local"
+    },
+    "netlify-deploy": {
+      "name": "netlify-deploy",
+      "description": "Netlify deployment and build guardrails for this Astro repo.",
+      "provider": "local"
+    },
+    "lighthouse-performance": {
+      "name": "lighthouse-performance",
+      "description": "Repo-specific performance and Lighthouse guidance.",
+      "provider": "local"
+    }
+  }
+}

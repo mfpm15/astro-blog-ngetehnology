@@ -1,6 +1,6 @@
 {
   "enable": true,
-  "position": "right",
+  "position": "left",
   "components": [
     {
       "type": "profile",
@@ -11,7 +11,7 @@
       "animationDelay": 0
     },
     {
-      "type": "announcement",
+      "type": "site-stats",
       "enable": true,
       "order": 2,
       "position": "top",
@@ -19,18 +19,18 @@
       "animationDelay": 50
     },
     {
-      "type": "site-stats",
+      "type": "calendar",
       "enable": true,
       "order": 3,
-      "position": "sticky",
+      "position": "top",
       "class": "onload-animation",
       "animationDelay": 150
     },
     {
-      "type": "calendar",
+      "type": "announcement",
       "enable": true,
       "order": 4,
-      "position": "sticky",
+      "position": "top",
       "class": "onload-animation",
       "animationDelay": 200
     },

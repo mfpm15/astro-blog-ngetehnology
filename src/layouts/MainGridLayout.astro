@@ -12,7 +12,7 @@ import IconifyLoader from "../components/misc/IconifyLoader.astro";
 import ImageWrapper from "../components/misc/ImageWrapper.astro";
 import TypewriterText from "../components/TypewriterText.astro";
 import FloatingTOC from "../components/widget/FloatingTOC.astro";
-import { siteConfig, sidebarLayoutConfig, live2dModelConfig } from "../config";
+import { siteConfig, sidebarLayoutConfig, live2dModelConfig, spineModelConfig } from "../config";
 import {
   BANNER_HEIGHT_EXTEND,
   HERO_HEIGHT_HOME_DESKTOP,
@@ -105,6 +105,8 @@ const creditUrlMobile = typeof creditUrlConfig === "object" ? creditUrlConfig?.m
 const homeText = siteConfig.backgroundWallpaper.banner?.homeText;
 const renderHomeText = Boolean(homeText);
 const showHomeText = heroMode === "home" && Boolean(homeText?.enable);
+const showInnerHeroText = heroMode === "inner" && Boolean(title || description);
+const hasHeadings = headings.length > 0;
 const shouldEnableTransparency = isOverlayMode && isBackgroundEnabled;
 const transparentClass = shouldEnableTransparency ? "wallpaper-transparent" : "";
 
@@ -182,6 +184,7 @@ const mainContentClass = `
       <section id="banner-wrapper" data-hero-mode={heroMode} class="absolute inset-x-0 z-10 overflow-hidden">
         <div class="relative h-full w-full">
           <ImageWrapper
+            id="banner-mobile"
             alt="Mobile background image of the blog"
             class="hero-image block h-full w-full object-cover lg:hidden"
             src={typeof heroImages.mobile === "string" ? heroImages.mobile : ""}
@@ -193,6 +196,7 @@ const mainContentClass = `
             decoding="async"
             fetchpriority={heroMode === "home" ? "high" : "auto"}
             sizes="100vw"
+            overlay={false}
           />
           <ImageWrapper
             id="banner"
@@ -207,6 +211,7 @@ const mainContentClass = `
             decoding="async"
             fetchpriority={heroMode === "home" ? "high" : "auto"}
             sizes="100vw"
+            overlay={false}
           />
           <div class="hero-overlay absolute inset-0"></div>
         </div>
@@ -242,6 +247,17 @@ const mainContentClass = `
                     </div>
                   )
                 }
+              </div>
+            </div>
+          )
+        }
+
+        {
+          showInnerHeroText && (
+            <div class="inner-hero-overlay absolute inset-x-0 bottom-0 z-20">
+              <div class="mx-auto flex w-full max-w-[var(--page-width)] flex-col gap-2 px-4 pb-8 pt-20 md:px-6 md:pb-10">
+                {title && <div class="inner-hero-title text-balance">{title}</div>}
+                {description && <p class="inner-hero-description max-w-3xl text-balance">{description}</p>}
               </div>
             </div>
           )
@@ -363,13 +379,12 @@ const mainContentClass = `
       </div>
 
       <BackToTop />
-      <SpineModel />
+      {spineModelConfig.enable && <SpineModel />}
       {live2dModelConfig.enable && <Live2DWidget config={live2dModelConfig} />}
     </div>
   </div>
 
-  {siteConfig.toc.enable && <FloatingTOC headings={headings} />}
-  {!siteConfig.toc.enable && <div id="toc"></div>}
+  {siteConfig.toc.enable && hasHeadings ? <FloatingTOC headings={headings} /> : <div id="toc"></div>}
 </Layout>
 
 <style
@@ -404,13 +419,13 @@ const mainContentClass = `
   }
 
   #banner-wrapper[data-hero-mode="home"] {
-    top: calc(-1 * var(--hero-extend));
+    top: calc(-0.55 * var(--hero-extend));
     height: calc(var(--hero-height-home) + var(--hero-extend));
   }
 
   #banner-wrapper[data-hero-mode="inner"] {
-    top: -1.5rem;
-    height: calc(var(--hero-height-inner) + 3.5rem);
+    top: 0;
+    height: calc(var(--hero-height-inner) + 1.25rem);
   }
 
   #content-shell[data-hero-mode="home"] {
@@ -419,8 +434,8 @@ const mainContentClass = `
   }
 
   #content-shell[data-hero-mode="inner"] {
-    top: calc(var(--hero-height-inner) - 1.5rem);
-    min-height: calc(100vh - (var(--hero-height-inner) - 1.5rem));
+    top: calc(var(--hero-height-inner) - 2.5rem);
+    min-height: calc(100vh - (var(--hero-height-inner) - 2.5rem));
   }
 
   #content-shell[data-hero-mode="none"] {
@@ -436,14 +451,14 @@ const mainContentClass = `
 
   .hero-overlay {
     background:
-      linear-gradient(to bottom, rgba(9, 14, 24, 0.2), rgba(9, 14, 24, 0.45) 65%, rgba(9, 14, 24, 0.72)),
-      radial-gradient(circle at top right, rgba(255, 255, 255, 0.14), transparent 36%);
+      linear-gradient(to bottom, rgba(9, 14, 24, 0.08), rgba(9, 14, 24, 0.22) 48%, rgba(9, 14, 24, 0.58)),
+      radial-gradient(circle at top right, rgba(255, 255, 255, 0.14), transparent 38%);
   }
 
   #banner-wrapper[data-hero-mode="inner"] .hero-overlay {
     background:
-      linear-gradient(to bottom, rgba(9, 14, 24, 0.18), rgba(9, 14, 24, 0.42) 52%, rgba(9, 14, 24, 0.68)),
-      linear-gradient(to right, rgba(9, 14, 24, 0.2), rgba(9, 14, 24, 0.06));
+      linear-gradient(to bottom, rgba(9, 14, 24, 0.12), rgba(9, 14, 24, 0.28) 52%, rgba(9, 14, 24, 0.62)),
+      linear-gradient(to right, rgba(9, 14, 24, 0.22), rgba(9, 14, 24, 0.05));
   }
 
   .banner-text-overlay {
@@ -456,6 +471,20 @@ const mainContentClass = `
   }
 
   .banner-subtitle {
+    text-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  .inner-hero-title {
+    font-size: clamp(1.85rem, 4.8vw, 3.75rem);
+    font-weight: 800;
+    line-height: 1.05;
+    color: white;
+    text-shadow: 0 14px 36px rgba(0, 0, 0, 0.35);
+  }
+
+  .inner-hero-description {
+    font-size: clamp(0.95rem, 1.8vw, 1.125rem);
+    color: rgba(255, 255, 255, 0.9);
     text-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   }
 

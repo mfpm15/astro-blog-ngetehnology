@@ -1,0 +1,63 @@
+# Minimal AgentSync setup for this repository.
+# We keep it manual and opt-in so it does not interfere with Netlify builds
+# or with user-managed local assistant folders such as `.claude/`.
+
+source_dir = "."
+
+[gitignore]
+enabled = true
+marker = "AI Agent Symlinks"
+
+[agents.codex]
+enabled = true
+description = "OpenAI Codex CLI"
+
+[agents.codex.targets.instructions]
+source = "AGENTS.md"
+destination = ".codex/instructions.md"
+type = "symlink"
+
+[agents.codex.targets.skills]
+source = "skills"
+destination = ".codex/skills"
+type = "symlink"
+pattern = "*"
+
+[agents.codex.targets.commands]
+source = "command"
+destination = ".codex/commands"
+type = "symlink"
+pattern = "*.md"
+
+[agents.copilot]
+enabled = true
+description = "GitHub Copilot"
+
+[agents.copilot.targets.instructions]
+source = "AGENTS.md"
+destination = ".github/copilot-instructions.md"
+type = "symlink"
+
+[agents.copilot.targets.commands]
+source = "command"
+destination = ".github/agents"
+type = "symlink"
+pattern = "*.md"
+
+[agents.gemini]
+enabled = true
+description = "Google Gemini"
+
+[agents.gemini.targets.instructions]
+source = "AGENTS.md"
+destination = "GEMINI.md"
+type = "symlink"
+
+[agents.root]
+enabled = true
+description = "Root AGENTS.md for tools that expect it in repository root"
+
+[agents.root.targets.instructions]
+source = "AGENTS.md"
+destination = "AGENTS.md"
+type = "symlink"

@@ -24,23 +24,8 @@ function normalizeLinks(links: NavBarLink[]): NavBarLink[] {
     }));
 }
 
-const studioLink: NavBarLink = {
-  name: "Studio",
-  url: "/studio/",
-  icon: "material-symbols:edit-square-outline",
-};
-
-const normalizedLinks = normalizeLinks(navbarLinksData as NavBarLink[]);
+const normalizedLinks = normalizeLinks((navbarLinksData.links ?? []) as NavBarLink[]);
 
 export const navBarConfig: NavBarConfig = {
-  links: normalizedLinks.map((link) => {
-    if (!import.meta.env.DEV || link.name !== "Tautan") {
-      return link;
-    }
-
-    return {
-      ...link,
-      children: [studioLink, ...(link.children ?? [])],
-    };
-  }),
+  links: normalizedLinks,
 };

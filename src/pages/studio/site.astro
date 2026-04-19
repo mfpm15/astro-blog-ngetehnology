@@ -1,17 +1,8 @@
 ---
-import SiteManager from "@components/studio/SiteManager.astro";
-import StudioShell from "@components/studio/StudioShell.astro";
-import announcementData from "../../data/announcement.json";
-import profileData from "../../data/profile.json";
-import siteMetadata from "../../data/site-metadata.json";
-import siteSettings from "../../data/site-settings.json";
+import CmsRedirectPage from "@components/admin/CmsRedirectPage.astro";
 ---
 
-<StudioShell title="Studio Site" description="Konfigurasi inti situs dan identitas.">
-  <SiteManager
-    siteMetadata={siteMetadata}
-    siteSettings={siteSettings}
-    profile={profileData}
-    announcement={announcementData}
-  />
-</StudioShell>
+<CmsRedirectPage
+  title="Studio Site Dipensiunkan"
+  description="Konfigurasi inti situs sekarang dikelola dari /admin/."
+/>

@@ -1,6 +1,6 @@
 # Panduan Menulis Postingan NgetehNology
 
-Dokumen ini menggantikan alur lama yang terlalu manual. Sekarang alur utama penulisan post menggunakan studio lokal di browser, tetap file-based, tanpa `/admin`, dan tetap mengikuti struktur konten Firefly di `src/content/posts/`.
+Dokumen ini menggantikan alur lama yang terlalu manual. Sekarang alur utama penulisan post menggunakan headless CMS di browser lewat `/admin/`, tetap file-based, dan tetap mengikuti struktur konten Firefly di `src/content/posts/`.
 
 ## Alur Kerja Yang Dipakai
 
@@ -8,12 +8,12 @@ Dokumen ini menggantikan alur lama yang terlalu manual. Sekarang alur utama penu
    ```bash
    pnpm dev
    ```
-2. Buka studio lokal:
+2. Buka CMS lokal:
    ```text
-   http://127.0.0.1:4321/studio/
+   http://127.0.0.1:4321/admin/
    ```
 3. Isi form post baru langsung di browser.
-4. Studio akan membuat folder post:
+4. CMS akan membuat folder post:
    ```text
    src/content/posts/<slug>/index.md
    ```
@@ -52,7 +52,7 @@ Field utama:
 - `licenseUrl`
 - `password`
 
-Contoh hasil studio:
+Contoh hasil CMS:
 
 ```md
 ---
@@ -76,7 +76,7 @@ Cara yang paling stabil:
 - pakai gambar lokal di folder post, misalnya `./cover.webp`
 - atau pakai URL publik bila memang tidak ingin menyimpan file di repo
 
-Kalau gambar lokal sudah ada di komputer, upload langsung dari form studio agar file disalin otomatis.
+Kalau gambar lokal sudah ada di komputer, upload langsung dari form CMS agar file disalin otomatis.
 
 ## Menjalankan Preview
 
@@ -94,9 +94,9 @@ pnpm build
 
 Kalau build lolos, post siap di-commit.
 
-## Pengelolaan Konten dan Settings Tanpa `/admin`
+## Pengelolaan Konten dan Settings Melalui `/admin`
 
-Studio lokal saat ini menangani:
+CMS saat ini menangani:
 
 - metadata situs
 - wallpaper
@@ -120,7 +120,7 @@ File yang dikelola:
 
 ## Catatan Penting
 
-- `/admin` tidak lagi menjadi alur kerja utama.
+- `/studio` sudah dipensiunkan dan dialihkan ke `/admin/`.
 - Konten tetap tersimpan sebagai file di repo agar mudah di-review, di-versioning, dan stabil saat build.
-- Endpoint tulis-file studio sengaja hanya aktif di mode development lokal.
+- Untuk deploy Netlify, aktifkan Netlify Identity + Git Gateway agar CMS bisa menulis ke GitHub.
 - Setelah mengubah settings atau membuat post baru, biasakan jalankan `pnpm build`.

@@ -44,3 +44,25 @@ fuwari/
 # dev server logs
 *.out.log
 *.err.log
+# START AI Agent Symlinks
+.agents/skills/*.bak
+.codex/commands
+.codex/commands.bak
+.codex/config.toml
+.codex/instructions.md
+.codex/instructions.md.bak
+.codex/skills
+.codex/skills.bak
+.gemini/commands/
+.gemini/settings.json
+.gemini/skills/
+.github/agents
+.github/agents.bak
+.github/copilot-instructions.md
+.github/copilot-instructions.md.bak
+.vscode/mcp.json
+/AGENTS.md
+/AGENTS.md.bak
+/GEMINI.md
+/GEMINI.md.bak
+# END AI Agent Symlinks

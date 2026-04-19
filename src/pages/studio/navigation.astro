@@ -1,10 +1,8 @@
 ---
-import NavigationManager from "@components/studio/NavigationManager.astro";
-import StudioShell from "@components/studio/StudioShell.astro";
-import navbarLinksData from "../../data/navbar-links.json";
-import sidebarLayoutData from "../../data/sidebar-layout.json";
+import CmsRedirectPage from "@components/admin/CmsRedirectPage.astro";
 ---
 
-<StudioShell title="Studio Navigation" description="Konfigurasi navbar dan sidebar.">
-  <NavigationManager navbarLinks={navbarLinksData} sidebarLayout={sidebarLayoutData} />
-</StudioShell>
+<CmsRedirectPage
+  title="Studio Navigation Dipensiunkan"
+  description="Navbar dan sidebar sekarang dikelola dari /admin/."
+/>

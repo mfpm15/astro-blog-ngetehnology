@@ -1,17 +1,8 @@
 ---
-import IntegrationsManager from "@components/studio/IntegrationsManager.astro";
-import StudioShell from "@components/studio/StudioShell.astro";
-import commentData from "../../data/comment.json";
-import footerData from "../../data/footer.json";
-import licenseData from "../../data/license.json";
-import musicPlayerData from "../../data/music-player.json";
+import CmsRedirectPage from "@components/admin/CmsRedirectPage.astro";
 ---
 
-<StudioShell title="Studio Integrations" description="Konfigurasi fitur integrasi dan widget tambahan.">
-  <IntegrationsManager
-    comment={commentData}
-    musicPlayer={musicPlayerData}
-    license={licenseData}
-    footer={footerData}
-  />
-</StudioShell>
+<CmsRedirectPage
+  title="Studio Integrations Dipensiunkan"
+  description="Integrations dan widget tambahan sekarang dikelola dari /admin/."
+/>

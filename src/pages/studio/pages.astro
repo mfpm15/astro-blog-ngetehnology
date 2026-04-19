@@ -1,17 +1,8 @@
 ---
-import FriendsManager from "@components/studio/FriendsManager.astro";
-import MarkdownEditor from "@components/studio/MarkdownEditor.astro";
-import StudioShell from "@components/studio/StudioShell.astro";
-import fs from "node:fs/promises";
-import path from "node:path";
-import friendsData from "../../data/friends.json";
-
-const aboutMarkdown = await fs.readFile(path.join(process.cwd(), "src", "content", "spec", "about.md"), "utf8");
-const friendsMarkdown = await fs.readFile(path.join(process.cwd(), "src", "content", "spec", "friends.md"), "utf8");
+import CmsRedirectPage from "@components/admin/CmsRedirectPage.astro";
 ---
 
-<StudioShell title="Studio Pages" description="Konten halaman statis dan friend links.">
-  <MarkdownEditor title="About Page" section="aboutPage" value={aboutMarkdown} />
-  <MarkdownEditor title="Friends Page" section="friendsPage" value={friendsMarkdown} />
-  <FriendsManager friends={friendsData} />
-</StudioShell>
+<CmsRedirectPage
+  title="Studio Pages Dipensiunkan"
+  description="Halaman statis dan friend links sekarang dikelola dari /admin/."
+/>

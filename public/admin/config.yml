@@ -1,23 +1,704 @@
 backend:
   name: git-gateway
-  repo: mfpm15/astro-blog-ngetehnology
   branch: master
 
-# The media_folder and public_folder settings are optional. If you don't specify them, all images will be saved in the same folder as the post.
-media_folder: "src/assets/images/posts" # Where media files will be stored
-public_folder: "/assets/images/posts" # The public-facing path to the media folder
+site_url: "https://blog-ngetehnology.netlify.app"
+display_url: "https://blog-ngetehnology.netlify.app"
+logo_url: "/assets/images/logo-320.webp"
+publish_mode: simple
+
+local_backend:
+  url: http://127.0.0.1:8081/api/v1
+  allowed_hosts: ["127.0.0.1", "localhost"]
+
+media_folder: "public/assets/images/uploads"
+public_folder: "/assets/images/uploads"
 
 collections:
-  - name: "blog" # Used in routes, e.g., /admin/collections/blog
-    label: "Blog" # Used in the UI
-    folder: "src/content/posts" # The path to the folder where the documents are stored
-    create: true # Allow users to create new documents in this collection
-    slug: "{{year}}-{{month}}-{{day}}-{{slug}}" # Filename template, e.g., YYYY-MM-DD-title.md
-    fields: # The fields for each document, usually in front matter
+  - name: "blog"
+    label: "Blog"
+    folder: "src/content/posts"
+    create: true
+    slug: "{{slug}}"
+    sortable_fields: ["published", "updated", "title"]
+    path: "{{slug}}/index"
+    extension: "md"
+    format: "frontmatter"
+    editor:
+      preview: false
+    fields:
       - { label: "Title", name: "title", widget: "string" }
-      - { label: "Publish Date", name: "published", widget: "datetime" }
-      - { label: "Description", name: "description", widget: "string" }
-      - { label: "Tags", name: "tags", widget: "list", required: false }
+      - { label: "Publish Date", name: "published", widget: "datetime", format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false }
+      - { label: "Updated Date", name: "updated", widget: "datetime", required: false, format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false }
+      - { label: "Description", name: "description", widget: "text", required: false }
+      - { label: "Cover Image", name: "image", widget: "image", required: false, allow_multiple: false }
       - { label: "Category", name: "category", widget: "string", required: false }
-      - { label: "Draft", name: "draft", widget: "boolean", default: true }
-      - { label: "Body", name: "body", widget: "markdown" }
+      - label: "Tags"
+        name: "tags"
+        widget: "list"
+        required: false
+        field: { label: "Tag", name: "tag", widget: "string" }
+      - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
+      - { label: "Pinned", name: "pinned", widget: "boolean", default: false, required: false }
+      - { label: "Language", name: "lang", widget: "select", default: "id", required: false, options: ["id", "en"] }
+      - { label: "Author", name: "author", widget: "string", required: false }
+      - { label: "Series", name: "series", widget: "string", required: false }
+      - { label: "Source Link", name: "sourceLink", widget: "string", required: false }
+      - { label: "License Name", name: "licenseName", widget: "string", required: false }
+      - { label: "License URL", name: "licenseUrl", widget: "string", required: false }
+      - label: "Body"
+        name: "body"
+        widget: "markdown"
+        modes: ["rich_text", "raw"]
+        buttons:
+          - bold
+          - italic
+          - strikethrough
+          - code
+          - link
+          - heading-two
+          - heading-three
+          - quote
+          - bulleted-list
+          - numbered-list
+        editor_components: ["image", "code-block"]
+        sanitize_preview: true
+
+  - name: "pages"
+    label: "Static Pages"
+    editor:
+      preview: false
+    files:
+      - label: "About Page"
+        name: "about_page"
+        file: "src/content/spec/about.md"
+        fields:
+          - label: "Body"
+            name: "body"
+            widget: "markdown"
+            modes: ["rich_text", "raw"]
+            buttons:
+              - bold
+              - italic
+              - strikethrough
+              - code
+              - link
+              - heading-two
+              - heading-three
+              - quote
+              - bulleted-list
+              - numbered-list
+            editor_components: ["image", "code-block"]
+            sanitize_preview: true
+      - label: "Friends Page"
+        name: "friends_page"
+        file: "src/content/spec/friends.md"
+        fields:
+          - label: "Body"
+            name: "body"
+            widget: "markdown"
+            modes: ["rich_text", "raw"]
+            buttons:
+              - bold
+              - italic
+              - strikethrough
+              - code
+              - link
+              - heading-two
+              - heading-three
+              - quote
+              - bulleted-list
+              - numbered-list
+            editor_components: ["image", "code-block"]
+            sanitize_preview: true
+
+  - name: "site"
+    label: "Site"
+    editor:
+      preview: false
+    files:
+      - label: "Site Metadata"
+        name: "site_metadata"
+        file: "src/data/site-metadata.json"
+        format: "json"
+        fields:
+          - { label: "Language", name: "lang", widget: "select", options: ["id", "en"] }
+          - { label: "Title", name: "title", widget: "string" }
+          - { label: "Subtitle", name: "subtitle", widget: "string", required: false }
+          - { label: "Description", name: "description", widget: "text", required: false }
+          - label: "Keywords"
+            name: "keywords"
+            widget: "list"
+            required: false
+            field: { label: "Keyword", name: "keyword", widget: "string" }
+          - label: "Logo"
+            name: "logo"
+            widget: "object"
+            fields:
+              - { label: "Logo Source", name: "src", widget: "image", allow_multiple: false }
+              - { label: "Logo Alt", name: "alt", widget: "string", required: false }
+          - label: "Favicon"
+            name: "favicon"
+            widget: "object"
+            fields:
+              - { label: "Favicon Source", name: "src", widget: "image", allow_multiple: false }
+              - { label: "Sizes", name: "sizes", widget: "string", required: false }
+
+      - label: "Site Settings"
+        name: "site_settings"
+        file: "src/data/site-settings.json"
+        format: "json"
+        fields:
+          - label: "Theme Color"
+            name: "themeColor"
+            widget: "object"
+            fields:
+              - { label: "Hue", name: "hue", widget: "number", value_type: "int", min: 0, max: 360 }
+              - { label: "Fixed", name: "fixed", widget: "boolean", required: false }
+              - { label: "Default Mode", name: "defaultMode", widget: "select", options: ["system", "light", "dark"] }
+          - label: "Bangumi"
+            name: "bangumi"
+            widget: "object"
+            required: false
+            fields:
+              - { label: "User ID", name: "userId", widget: "string", required: false }
+          - { label: "Show Last Modified", name: "showLastModified", widget: "boolean", required: false }
+          - { label: "Generate OG Images", name: "generateOgImages", widget: "boolean", required: false }
+          - label: "Pages"
+            name: "pages"
+            widget: "object"
+            fields:
+              - { label: "Anime", name: "anime", widget: "boolean", required: false }
+              - { label: "Projects", name: "projects", widget: "boolean", required: false }
+              - { label: "Timeline", name: "timeline", widget: "boolean", required: false }
+              - { label: "Skills", name: "skills", widget: "boolean", required: false }
+          - label: "Post List Layout"
+            name: "postListLayout"
+            widget: "object"
+            fields:
+              - { label: "Default Mode", name: "defaultMode", widget: "select", options: ["list", "grid"] }
+              - { label: "Allow Switch", name: "allowSwitch", widget: "boolean", required: false }
+          - label: "Pagination"
+            name: "pagination"
+            widget: "object"
+            fields:
+              - { label: "Posts Per Page", name: "postsPerPage", widget: "number", value_type: "int", min: 1 }
+          - label: "TOC"
+            name: "toc"
+            widget: "object"
+            fields:
+              - { label: "Enable TOC", name: "enable", widget: "boolean", required: false }
+              - { label: "Depth", name: "depth", widget: "select", options: [1, 2, 3] }
+
+      - label: "Profile"
+        name: "profile"
+        file: "src/data/profile.json"
+        format: "json"
+        fields:
+          - { label: "Avatar", name: "avatar", widget: "image", required: false, allow_multiple: false }
+          - { label: "Name", name: "name", widget: "string" }
+          - { label: "Bio", name: "bio", widget: "text", required: false }
+          - label: "Links"
+            name: "links"
+            widget: "list"
+            fields:
+              - { label: "Name", name: "name", widget: "string" }
+              - { label: "Icon", name: "icon", widget: "string" }
+              - { label: "URL", name: "url", widget: "string" }
+
+      - label: "Announcement"
+        name: "announcement"
+        file: "src/data/announcement.json"
+        format: "json"
+        fields:
+          - { label: "Title", name: "title", widget: "string", required: false }
+          - { label: "Content", name: "content", widget: "text" }
+          - { label: "Closable", name: "closable", widget: "boolean", required: false }
+          - label: "Link"
+            name: "link"
+            widget: "object"
+            required: false
+            fields:
+              - { label: "Enable", name: "enable", widget: "boolean", required: false }
+              - { label: "Text", name: "text", widget: "string", required: false }
+              - { label: "URL", name: "url", widget: "string", required: false }
+              - { label: "External", name: "external", widget: "boolean", required: false }
+
+      - label: "Post Taxonomy"
+        name: "post_taxonomy"
+        file: "src/data/post-taxonomy.json"
+        format: "json"
+        fields:
+          - label: "Categories"
+            name: "categories"
+            widget: "list"
+            field: { label: "Category", name: "category", widget: "string" }
+          - label: "Tags"
+            name: "tags"
+            widget: "list"
+            field: { label: "Tag", name: "tag", widget: "string" }
+
+  - name: "navigation"
+    label: "Navigation"
+    editor:
+      preview: false
+    files:
+      - label: "Navbar Links"
+        name: "navbar_links"
+        file: "src/data/navbar-links.json"
+        format: "json"
+        fields:
+          - label: "Links"
+            name: "links"
+            widget: "list"
+            summary: "{{fields.name}}"
+            fields:
+              - { label: "Name", name: "name", widget: "string" }
+              - { label: "URL", name: "url", widget: "string" }
+              - { label: "Icon", name: "icon", widget: "string", required: false }
+              - { label: "External", name: "external", widget: "boolean", required: false }
+              - label: "Children"
+                name: "children"
+                widget: "list"
+                required: false
+                summary: "{{fields.name}}"
+                fields:
+                  - { label: "Name", name: "name", widget: "string" }
+                  - { label: "URL", name: "url", widget: "string" }
+                  - { label: "Icon", name: "icon", widget: "string", required: false }
+                  - { label: "External", name: "external", widget: "boolean", required: false }
+
+      - label: "Sidebar Layout"
+        name: "sidebar_layout"
+        file: "src/data/sidebar-layout.json"
+        format: "json"
+        fields:
+          - { label: "Enable Sidebar", name: "enable", widget: "boolean", required: false }
+          - { label: "Position", name: "position", widget: "select", options: ["left", "right"] }
+          - label: "Components"
+            name: "components"
+            widget: "list"
+            summary: "{{fields.type}}"
+            fields:
+              - { label: "Type", name: "type", widget: "select", options: ["profile", "announcement", "categories", "tags", "toc", "advertisement", "calendar", "site-stats", "music-player", "custom"] }
+              - { label: "Enable", name: "enable", widget: "boolean", required: false }
+              - { label: "Order", name: "order", widget: "number", value_type: "int", min: 1 }
+              - { label: "Position", name: "position", widget: "select", options: ["top", "sticky"] }
+              - { label: "Class", name: "class", widget: "string", required: false }
+              - { label: "Style", name: "style", widget: "string", required: false }
+              - { label: "Animation Delay", name: "animationDelay", widget: "number", value_type: "int", required: false, min: 0 }
+              - { label: "Config ID", name: "configId", widget: "string", required: false }
+              - label: "Responsive"
+                name: "responsive"
+                widget: "object"
+                required: false
+                fields:
+                  - label: "Hidden"
+                    name: "hidden"
+                    widget: "list"
+                    required: false
+                    field: { label: "Device", name: "device", widget: "select", options: ["mobile", "tablet", "desktop"] }
+                  - { label: "Collapse Threshold", name: "collapseThreshold", widget: "number", value_type: "int", required: false, min: 1 }
+          - label: "Default Animation"
+            name: "defaultAnimation"
+            widget: "object"
+            fields:
+              - { label: "Enable", name: "enable", widget: "boolean", required: false }
+              - { label: "Base Delay", name: "baseDelay", widget: "number", value_type: "int", min: 0 }
+              - { label: "Increment", name: "increment", widget: "number", value_type: "int", min: 0 }
+          - label: "Responsive"
+            name: "responsive"
+            widget: "object"
+            fields:
+              - label: "Breakpoints"
+                name: "breakpoints"
+                widget: "object"
+                fields:
+                  - { label: "Mobile", name: "mobile", widget: "number", value_type: "int", min: 0 }
+                  - { label: "Tablet", name: "tablet", widget: "number", value_type: "int", min: 0 }
+                  - { label: "Desktop", name: "desktop", widget: "number", value_type: "int", min: 0 }
+              - label: "Layout"
+                name: "layout"
+                widget: "object"
+                fields:
+                  - { label: "Mobile", name: "mobile", widget: "select", options: ["hidden", "bottom", "drawer", "sidebar"] }
+                  - { label: "Tablet", name: "tablet", widget: "select", options: ["sidebar", "bottom", "drawer"] }
+                  - { label: "Desktop", name: "desktop", widget: "select", options: ["sidebar"] }
+
+  - name: "appearance"
+    label: "Appearance"
+    editor:
+      preview: false
+    files:
+      - label: "Wallpaper"
+        name: "wallpaper"
+        file: "src/data/wallpaper.json"
+        format: "json"
+        fields:
+          - { label: "Enable", name: "enable", widget: "boolean", required: false }
+          - { label: "Mode", name: "mode", widget: "select", options: ["banner", "overlay"] }
+          - label: "Image Sources"
+            name: "src"
+            widget: "object"
+            fields:
+              - { label: "Desktop", name: "desktop", widget: "image", allow_multiple: false }
+              - { label: "Mobile", name: "mobile", widget: "image", allow_multiple: false }
+          - { label: "Position", name: "position", widget: "string", required: false }
+          - label: "Banner"
+            name: "banner"
+            widget: "object"
+            fields:
+              - label: "Home Text"
+                name: "homeText"
+                widget: "object"
+                fields:
+                  - { label: "Enable", name: "enable", widget: "boolean", required: false }
+                  - { label: "Title", name: "title", widget: "string", required: false }
+                  - label: "Subtitles"
+                    name: "subtitle"
+                    widget: "list"
+                    required: false
+                    field: { label: "Subtitle", name: "subtitle", widget: "string" }
+                  - label: "Typewriter"
+                    name: "typewriter"
+                    widget: "object"
+                    fields:
+                      - { label: "Enable", name: "enable", widget: "boolean", required: false }
+                      - { label: "Speed", name: "speed", widget: "number", value_type: "int", min: 0 }
+                      - { label: "Delete Speed", name: "deleteSpeed", widget: "number", value_type: "int", min: 0 }
+                      - { label: "Pause Time", name: "pauseTime", widget: "number", value_type: "int", min: 0 }
+              - label: "Credit"
+                name: "credit"
+                widget: "object"
+                fields:
+                  - label: "Enable"
+                    name: "enable"
+                    widget: "object"
+                    fields:
+                      - { label: "Desktop", name: "desktop", widget: "boolean", required: false }
+                      - { label: "Mobile", name: "mobile", widget: "boolean", required: false }
+                  - label: "Text"
+                    name: "text"
+                    widget: "object"
+                    fields:
+                      - { label: "Desktop", name: "desktop", widget: "string", required: false }
+                      - { label: "Mobile", name: "mobile", widget: "string", required: false }
+                  - label: "URL"
+                    name: "url"
+                    widget: "object"
+                    fields:
+                      - { label: "Desktop", name: "desktop", widget: "string", required: false }
+                      - { label: "Mobile", name: "mobile", widget: "string", required: false }
+              - label: "Navbar"
+                name: "navbar"
+                widget: "object"
+                fields:
+                  - { label: "Transparent Mode", name: "transparentMode", widget: "select", options: ["semi", "full", "semifull"] }
+              - label: "Waves"
+                name: "waves"
+                widget: "object"
+                fields:
+                  - label: "Enable"
+                    name: "enable"
+                    widget: "object"
+                    fields:
+                      - { label: "Desktop", name: "desktop", widget: "boolean", required: false }
+                      - { label: "Mobile", name: "mobile", widget: "boolean", required: false }
+          - label: "Overlay"
+            name: "overlay"
+            widget: "object"
+            fields:
+              - { label: "Z Index", name: "zIndex", widget: "number", value_type: "int" }
+              - { label: "Opacity", name: "opacity", widget: "number", value_type: "float", min: 0, max: 1, step: 0.05 }
+              - { label: "Blur", name: "blur", widget: "number", value_type: "float", min: 0, step: 0.1 }
+
+      - label: "Font Config"
+        name: "font_config"
+        file: "src/data/font-config.json"
+        format: "json"
+        fields:
+          - { label: "Enable", name: "enable", widget: "boolean", required: false }
+          - { label: "Preload", name: "preload", widget: "boolean", required: false }
+          - label: "Selected"
+            name: "selected"
+            widget: "list"
+            field: { label: "Font ID", name: "fontId", widget: "string" }
+          - label: "Fallback"
+            name: "fallback"
+            widget: "list"
+            required: false
+            field: { label: "Fallback Font", name: "font", widget: "string" }
+          - label: "Fonts"
+            name: "fonts"
+            widget: "object"
+            fields:
+              - label: "System"
+                name: "system"
+                widget: "object"
+                fields:
+                  - { label: "ID", name: "id", widget: "string" }
+                  - { label: "Name", name: "name", widget: "string" }
+                  - { label: "Source", name: "src", widget: "string", required: false }
+                  - { label: "Family", name: "family", widget: "string" }
+              - label: "Zen Maru Gothic"
+                name: "zen-maru-gothic"
+                widget: "object"
+                fields:
+                  - { label: "ID", name: "id", widget: "string" }
+                  - { label: "Name", name: "name", widget: "string" }
+                  - { label: "Source", name: "src", widget: "string" }
+                  - { label: "Family", name: "family", widget: "string" }
+                  - { label: "Display", name: "display", widget: "string", required: false }
+              - label: "Inter"
+                name: "inter"
+                widget: "object"
+                fields:
+                  - { label: "ID", name: "id", widget: "string" }
+                  - { label: "Name", name: "name", widget: "string" }
+                  - { label: "Source", name: "src", widget: "string" }
+                  - { label: "Family", name: "family", widget: "string" }
+                  - { label: "Display", name: "display", widget: "string", required: false }
+              - label: "MiSans Normal"
+                name: "misans-normal"
+                widget: "object"
+                fields:
+                  - { label: "ID", name: "id", widget: "string" }
+                  - { label: "Name", name: "name", widget: "string" }
+                  - { label: "Source", name: "src", widget: "string" }
+                  - { label: "Family", name: "family", widget: "string" }
+                  - { label: "Weight", name: "weight", widget: "string", required: false }
+                  - { label: "Display", name: "display", widget: "string", required: false }
+              - label: "MiSans Semibold"
+                name: "misans-semibold"
+                widget: "object"
+                fields:
+                  - { label: "ID", name: "id", widget: "string" }
+                  - { label: "Name", name: "name", widget: "string" }
+                  - { label: "Source", name: "src", widget: "string" }
+                  - { label: "Family", name: "family", widget: "string" }
+                  - { label: "Weight", name: "weight", widget: "string", required: false }
+                  - { label: "Display", name: "display", widget: "string", required: false }
+
+      - label: "Expressive Code"
+        name: "expressive_code"
+        file: "src/data/expressive-code.json"
+        format: "json"
+        fields:
+          - { label: "Theme", name: "theme", widget: "select", options: ["github-dark", "github-light", "github-dark-dimmed", "dracula", "nord", "solarized-dark", "solarized-light", "min-dark", "min-light", "one-dark-pro", "monokai"] }
+
+      - label: "Sakura"
+        name: "sakura"
+        file: "src/data/sakura.json"
+        format: "json"
+        fields:
+          - { label: "Enable", name: "enable", widget: "boolean", required: false }
+          - { label: "Sakura Count", name: "sakuraNum", widget: "number", value_type: "int", min: 0 }
+          - { label: "Limit Times", name: "limitTimes", widget: "number", value_type: "int" }
+          - label: "Size"
+            name: "size"
+            widget: "object"
+            fields:
+              - { label: "Min", name: "min", widget: "number", value_type: "float", step: 0.1 }
+              - { label: "Max", name: "max", widget: "number", value_type: "float", step: 0.1 }
+          - label: "Opacity"
+            name: "opacity"
+            widget: "object"
+            fields:
+              - { label: "Min", name: "min", widget: "number", value_type: "float", min: 0, max: 1, step: 0.05 }
+              - { label: "Max", name: "max", widget: "number", value_type: "float", min: 0, max: 1, step: 0.05 }
+          - label: "Speed"
+            name: "speed"
+            widget: "object"
+            fields:
+              - label: "Horizontal"
+                name: "horizontal"
+                widget: "object"
+                fields:
+                  - { label: "Min", name: "min", widget: "number", value_type: "float", step: 0.1 }
+                  - { label: "Max", name: "max", widget: "number", value_type: "float", step: 0.1 }
+              - label: "Vertical"
+                name: "vertical"
+                widget: "object"
+                fields:
+                  - { label: "Min", name: "min", widget: "number", value_type: "float", step: 0.1 }
+                  - { label: "Max", name: "max", widget: "number", value_type: "float", step: 0.1 }
+              - { label: "Rotation", name: "rotation", widget: "number", value_type: "float", step: 0.001 }
+              - { label: "Fade Speed", name: "fadeSpeed", widget: "number", value_type: "float", step: 0.001 }
+          - { label: "Z Index", name: "zIndex", widget: "number", value_type: "int" }
+
+  - name: "integrations"
+    label: "Integrations"
+    editor:
+      preview: false
+    files:
+      - label: "Comment"
+        name: "comment"
+        file: "src/data/comment.json"
+        format: "json"
+        fields:
+          - { label: "Enable", name: "enable", widget: "boolean", required: false }
+          - { label: "Enable Visitor Count", name: "enableVisitorCount", widget: "boolean", required: false }
+          - label: "Twikoo"
+            name: "twikoo"
+            widget: "object"
+            required: false
+            fields:
+              - { label: "Env ID", name: "envId", widget: "string", required: false }
+              - { label: "Language", name: "lang", widget: "select", required: false, options: ["id", "en", "zh-CN"] }
+
+      - label: "Music Player"
+        name: "music_player"
+        file: "src/data/music-player.json"
+        format: "json"
+        fields:
+          - { label: "Enable", name: "enable", widget: "boolean", required: false }
+          - { label: "Mode", name: "mode", widget: "select", options: ["local", "meting"] }
+          - label: "Meting"
+            name: "meting"
+            widget: "object"
+            fields:
+              - { label: "API", name: "api", widget: "string", required: false }
+              - label: "Playlist"
+                name: "playlist"
+                widget: "object"
+                fields:
+                  - { label: "ID", name: "id", widget: "string", required: false }
+                  - { label: "Server", name: "server", widget: "select", options: ["netease", "tencent", "kugou", "xiami", "baidu"] }
+                  - { label: "Type", name: "type", widget: "select", options: ["playlist", "album", "song"] }
+              - label: "Fallback APIs"
+                name: "fallbackApis"
+                widget: "list"
+                required: false
+                field: { label: "API", name: "api", widget: "string" }
+          - label: "Local"
+            name: "local"
+            widget: "object"
+            fields:
+              - label: "Playlist"
+                name: "playlist"
+                widget: "list"
+                required: false
+                summary: "{{fields.title}}"
+                fields:
+                  - { label: "ID", name: "id", widget: "number", value_type: "int", min: 1 }
+                  - { label: "Title", name: "title", widget: "string" }
+                  - { label: "Artist", name: "artist", widget: "string" }
+                  - { label: "Cover", name: "cover", widget: "string", required: false }
+                  - { label: "URL", name: "url", widget: "string" }
+                  - { label: "Duration", name: "duration", widget: "number", value_type: "int", min: 0 }
+          - label: "Behavior"
+            name: "behavior"
+            widget: "object"
+            fields:
+              - { label: "Autoplay", name: "autoplay", widget: "boolean", required: false }
+              - { label: "Default Volume", name: "defaultVolume", widget: "number", value_type: "float", min: 0, max: 1, step: 0.1 }
+              - { label: "Default Shuffle", name: "defaultShuffle", widget: "boolean", required: false }
+              - { label: "Default Repeat", name: "defaultRepeat", widget: "select", options: [0, 1, 2] }
+              - label: "Position"
+                name: "position"
+                widget: "object"
+                fields:
+                  - { label: "Bottom", name: "bottom", widget: "number", value_type: "int", required: false }
+                  - { label: "Right", name: "right", widget: "number", value_type: "int", required: false }
+                  - { label: "Left", name: "left", widget: "string", required: false }
+          - label: "UI"
+            name: "ui"
+            widget: "object"
+            fields:
+              - label: "Animation"
+                name: "animation"
+                widget: "object"
+                fields:
+                  - label: "Cover Rotation"
+                    name: "coverRotation"
+                    widget: "object"
+                    fields:
+                      - { label: "Enable", name: "enable", widget: "boolean", required: false }
+                      - { label: "Speed", name: "speed", widget: "number", value_type: "float", step: 0.1 }
+                      - { label: "Pause On Hover", name: "pauseOnHover", widget: "boolean", required: false }
+              - label: "Display"
+                name: "display"
+                widget: "object"
+                fields:
+                  - { label: "Show Playlist Button", name: "showPlaylistButton", widget: "boolean", required: false }
+                  - { label: "Show Volume Control", name: "showVolumeControl", widget: "boolean", required: false }
+                  - { label: "Show Shuffle Button", name: "showShuffleButton", widget: "boolean", required: false }
+                  - { label: "Show Repeat Button", name: "showRepeatButton", widget: "boolean", required: false }
+                  - { label: "Show Skip Buttons", name: "showSkipButtons", widget: "boolean", required: false }
+              - label: "Playlist Panel"
+                name: "playlist"
+                widget: "object"
+                fields:
+                  - { label: "Max Height", name: "maxHeight", widget: "number", value_type: "int", min: 0 }
+                  - { label: "Width", name: "width", widget: "number", value_type: "int", min: 0 }
+                  - { label: "Show Track Numbers", name: "showTrackNumbers", widget: "boolean", required: false }
+                  - { label: "Show Duration", name: "showDuration", widget: "boolean", required: false }
+          - label: "Responsive"
+            name: "responsive"
+            widget: "object"
+            required: false
+            fields:
+              - label: "Mobile"
+                name: "mobile"
+                widget: "object"
+                required: false
+                fields:
+                  - label: "Position"
+                    name: "position"
+                    widget: "object"
+                    required: false
+                    fields:
+                      - { label: "Bottom", name: "bottom", widget: "number", value_type: "int", required: false }
+                      - { label: "Right", name: "right", widget: "number", value_type: "int", required: false }
+                      - { label: "Left", name: "left", widget: "number", value_type: "int", required: false }
+          - label: "Error Handling"
+            name: "errorHandling"
+            widget: "object"
+            fields:
+              - { label: "Show Error Messages", name: "showErrorMessages", widget: "boolean", required: false }
+              - { label: "Error Display Duration", name: "errorDisplayDuration", widget: "number", value_type: "int", min: 0 }
+              - { label: "Auto Skip On Error", name: "autoSkipOnError", widget: "boolean", required: false }
+
+      - label: "License"
+        name: "license"
+        file: "src/data/license.json"
+        format: "json"
+        fields:
+          - { label: "Enable", name: "enable", widget: "boolean", required: false }
+          - { label: "Name", name: "name", widget: "string", required: false }
+          - { label: "URL", name: "url", widget: "string", required: false }
+
+      - label: "Footer"
+        name: "footer"
+        file: "src/data/footer.json"
+        format: "json"
+        fields:
+          - { label: "Enable", name: "enable", widget: "boolean", required: false }
+          - { label: "Custom HTML", name: "customHtml", widget: "text", required: false }
+
+  - name: "friends"
+    label: "Friends"
+    editor:
+      preview: false
+    files:
+      - label: "Friend Links"
+        name: "friend_links"
+        file: "src/data/friends.json"
+        format: "json"
+        fields:
+          - label: "Items"
+            name: "items"
+            widget: "list"
+            summary: "{{fields.title}}"
+            fields:
+              - { label: "Title", name: "title", widget: "string" }
+              - { label: "Image URL", name: "imgurl", widget: "string", required: false }
+              - { label: "Description", name: "desc", widget: "text", required: false }
+              - { label: "Site URL", name: "siteurl", widget: "string" }
+              - label: "Tags"
+                name: "tags"
+                widget: "list"
+                required: false
+                field: { label: "Tag", name: "tag", widget: "string" }
+              - { label: "Weight", name: "weight", widget: "number", value_type: "int" }
+              - { label: "Enabled", name: "enabled", widget: "boolean", required: false }

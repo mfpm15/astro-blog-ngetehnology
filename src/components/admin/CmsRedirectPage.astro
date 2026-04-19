@@ -1,0 +1,29 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "Studio Dinonaktifkan",
+  description = "Authoring sekarang dipusatkan di /admin/.",
+} = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="refresh" content="0;url=/admin/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <link rel="canonical" href="/admin/" />
+  </head>
+  <body style="font-family: system-ui, sans-serif; padding: 2rem; line-height: 1.6;">
+    <h1 style="margin: 0 0 0.75rem;">{title}</h1>
+    <p style="margin: 0 0 1rem;">{description}</p>
+    <p style="margin: 0;">
+      Jika tidak dialihkan otomatis, buka <a href="/admin/">/admin/</a>.
+    </p>
+  </body>
+</html>

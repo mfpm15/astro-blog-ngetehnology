@@ -2,7 +2,7 @@ import type { SpineModelConfig, Live2DModelConfig } from "../types/config";
 
 // Konfigurasi Karakter Spine
 export const spineModelConfig: SpineModelConfig = {
-  enable: true, // Aktifkan Karakter Spine
+  enable: false, // Dinonaktifkan default demi performa; bisa diaktifkan lagi bila dibutuhkan
   model: {
     // Path file model Spine (.json)
     path: "/pio/models/spine/firefly/1310.json",

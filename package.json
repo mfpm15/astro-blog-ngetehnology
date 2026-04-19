@@ -6,10 +6,15 @@
     "node": ">=22.12.0"
   },
   "scripts": {
-    "dev": "node scripts/dev-with-studio.mjs",
-    "start": "node scripts/dev-with-studio.mjs",
+    "dev": "node scripts/dev-with-cms.mjs",
+    "start": "node scripts/dev-with-cms.mjs",
     "dev:astro": "astro dev",
-    "dev:studio-server": "node scripts/studio-file-server.mjs",
+    "dev:cms-proxy": "decap-server",
+    "agents:apply": "pnpm dlx @dallay/agentsync apply",
+    "agents:check": "node scripts/check-agent-instructions.mjs",
+    "agents:check:symlinks": "pnpm dlx @dallay/agentsync status",
+    "agents:clean": "pnpm dlx @dallay/agentsync clean",
+    "agents:export": "node scripts/export-agent-instructions.mjs",
     "check": "astro check",
     "build": "astro build && pagefind --site dist",
     "preview": "astro preview",
@@ -90,6 +95,7 @@
     "astro-font": "^1.1.0",
     "astro-robots-txt": "^1.0.0",
     "astro-seo": "^0.8.4",
+    "decap-server": "^3.7.0",
     "postcss-import": "^16.1.1",
     "postcss-nesting": "^13.0.2"
   },

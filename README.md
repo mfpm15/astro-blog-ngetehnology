@@ -1,6 +1,6 @@
 # NgetehNology Blog
 
-Repo ini adalah blog NgetehNology berbasis Firefly dan Astro. Fokus pengembangan saat ini adalah fondasi yang rapi: konfigurasi yang makin data-driven, pengalaman menulis yang tidak lagi bergantung pada `/admin`, dan build yang stabil di Astro 6.
+Repo ini adalah blog NgetehNology berbasis Firefly dan Astro. Fokus pengembangan saat ini adalah fondasi yang rapi: konfigurasi yang makin data-driven, authoring berbasis headless CMS di `/admin/`, dan build yang stabil di Astro 6.
 
 ## Stack
 
@@ -32,7 +32,7 @@ pnpm build
 
 ## Workflow Konten
 
-Pembuatan post tidak lagi diarahkan ke `/admin` dan tidak lagi mengandalkan alur manual lama.
+Pembuatan post dan pengelolaan konfigurasi sekarang dipusatkan di `/admin/`.
 
 Jalankan:
 
@@ -40,13 +40,13 @@ Jalankan:
 pnpm dev
 ```
 
-Lalu buka:
+Lalu buka CMS:
 
 ```text
-http://127.0.0.1:4321/studio/
+http://127.0.0.1:4321/admin/
 ```
 
-Studio lokal saat ini menangani:
+CMS saat ini menangani:
 
 - pembuatan post baru langsung ke `src/content/posts/<slug>/index.md`
 - metadata situs
@@ -57,6 +57,28 @@ Studio lokal saat ini menangani:
 - sidebar layout
 - halaman `about`
 - halaman `friends`
+
+## AI Agent Sync
+
+Repo ini sekarang punya source-of-truth AI instructions di `.agents/`.
+
+Workflow ini sengaja dibuat manual agar tidak mengganggu Netlify build atau setup lokal:
+
+```bash
+pnpm run agents:check
+pnpm run agents:check:symlinks
+pnpm run agents:apply
+pnpm run agents:export
+```
+
+Catatan:
+
+- setup ini sengaja tidak mengelola `.claude/` karena folder itu dianggap milik tooling lokal pengguna
+- target utama yang aman untuk disinkronkan adalah `AGENTS.md`, `.codex/`, `.github/copilot-instructions.md`, dan `GEMINI.md`
+- pada Windows, pembuatan symlink bisa membutuhkan Developer Mode atau shell dengan izin yang sesuai
+- jika symlink Windows tidak tersedia, gunakan `pnpm run agents:export` untuk menghasilkan file copy-based yang setara
+- `pnpm run agents:check` menerima dua mode: symlink AgentSync atau fallback copy export
+- `pnpm run agents:check:symlinks` khusus untuk mengecek status symlink AgentSync murni
 
 ## Lokasi Konten Penting
 
@@ -78,7 +100,7 @@ Studio lokal saat ini menangani:
 | `pnpm build` | Build produksi + index search |
 | `pnpm preview` | Menjalankan hasil build secara lokal |
 | `pnpm check` | Validasi Astro / TypeScript |
-| `pnpm run new-post` | Menampilkan pengarah ke `/studio/` |
+| `pnpm run new-post` | Menampilkan pengarah ke `/admin/` |
 
 ## Referensi
 

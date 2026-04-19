@@ -1,5 +1,6 @@
 ---
 import { getCollection } from "astro:content";
+import { getPostSlugFromId } from "../../utils/url-utils";
 
 const posts = await getCollection("posts", ({ data }) => !data.draft);
 const categories = new Set(posts.map((post) => post.data.category).filter(Boolean));
@@ -33,7 +34,7 @@ const stats = [
     latest && (
       <div class="mt-1 border-t border-[var(--line-color)] pt-2 text-xs text-50">
         Terbaru:{" "}
-        <a href={`/posts/${latest.slug}/`} class="text-[var(--primary)] hover:underline">
+        <a href={`/posts/${getPostSlugFromId(latest.id)}/`} class="text-[var(--primary)] hover:underline">
           {latest.data.title}
         </a>
       </div>

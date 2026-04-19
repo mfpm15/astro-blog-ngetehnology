@@ -1,17 +1,8 @@
 ---
-import AppearanceManager from "@components/studio/AppearanceManager.astro";
-import StudioShell from "@components/studio/StudioShell.astro";
-import expressiveCodeData from "../../data/expressive-code.json";
-import fontConfigData from "../../data/font-config.json";
-import sakuraData from "../../data/sakura.json";
-import wallpaperData from "../../data/wallpaper.json";
+import CmsRedirectPage from "@components/admin/CmsRedirectPage.astro";
 ---
 
-<StudioShell title="Studio Appearance" description="Konfigurasi tampilan situs.">
-  <AppearanceManager
-    wallpaper={wallpaperData}
-    fontConfig={fontConfigData}
-    expressiveCode={expressiveCodeData}
-    sakura={sakuraData}
-  />
-</StudioShell>
+<CmsRedirectPage
+  title="Studio Appearance Dipensiunkan"
+  description="Wallpaper, font, dan tema tampilan sekarang dikelola dari /admin/."
+/>

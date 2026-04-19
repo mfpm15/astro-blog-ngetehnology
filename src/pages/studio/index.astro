@@ -1,56 +1,8 @@
 ---
-import StudioShell from "@components/studio/StudioShell.astro";
-
-const sections = [
-  {
-    href: "/studio/posts/",
-    title: "Posts",
-    description: "Menulis artikel baru langsung dari localhost.",
-  },
-  {
-    href: "/studio/site/",
-    title: "Site",
-    description: "Metadata situs, pengaturan inti, profile, dan announcement.",
-  },
-  {
-    href: "/studio/appearance/",
-    title: "Appearance",
-    description: "Wallpaper, font, expressive code, dan sakura.",
-  },
-  {
-    href: "/studio/navigation/",
-    title: "Navigation",
-    description: "Navbar dan sidebar layout.",
-  },
-  {
-    href: "/studio/integrations/",
-    title: "Integrations",
-    description: "Comment, music, footer, dan license.",
-  },
-  {
-    href: "/studio/pages/",
-    title: "Pages",
-    description: "About, Friends, dan friend links.",
-  },
-];
+import CmsRedirectPage from "@components/admin/CmsRedirectPage.astro";
 ---
 
-<StudioShell title="Studio" description="Pusat pengelolaan lokal NgetehNology.">
-  <section class="card-base p-6">
-    <h2 class="text-2xl font-bold">Overview</h2>
-    <p class="text-50 mt-2">
-      Studio ini aktif untuk development lokal dan menulis langsung ke file repo.
-    </p>
-  </section>
-
-  <div class="grid gap-4 md:grid-cols-2">
-    {
-      sections.map((section) => (
-        <a href={section.href} class="card-base block rounded-2xl p-6 transition hover:-translate-y-1">
-          <h3 class="text-xl font-semibold">{section.title}</h3>
-          <p class="text-50 mt-2">{section.description}</p>
-        </a>
-      ))
-    }
-  </div>
-</StudioShell>
+<CmsRedirectPage
+  title="Studio Dipensiunkan"
+  description="CRUD situs sekarang dipusatkan di headless CMS pada /admin/."
+/>

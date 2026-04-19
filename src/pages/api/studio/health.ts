@@ -7,8 +7,10 @@ export const GET: APIRoute = async () => {
     JSON.stringify({
       ok: false,
       readOnly: true,
-      mode: "readonly",
-      message: "Studio deployment publik bersifat read-only. Jalankan pnpm dev untuk menyimpan perubahan.",
+      mode: "retired",
+      adminUrl: "/admin/",
+      message:
+        "Studio sudah dipensiunkan. Gunakan /admin/ untuk authoring, termasuk local CRUD lewat Decap local backend saat pnpm dev.",
     }),
     {
       status: 200,

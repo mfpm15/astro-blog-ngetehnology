@@ -29,6 +29,8 @@ import { remarkExcerpt } from "./src/plugins/remark-excerpt.js";
 import { remarkMermaid } from "./src/plugins/remark-mermaid.js";
 import { remarkReadingTime } from "./src/plugins/remark-reading-time.mjs";
 import netlify from "@astrojs/netlify";
+
+const enablePartytown = Boolean(process.env.PUBLIC_GTM_ID || process.env.PUBLIC_CLARITY_ID);
 // https://astro.build/config
 export default defineConfig({
   site: "https://astro-blog-ngetehnology.netlify.app/",
@@ -82,6 +84,7 @@ export default defineConfig({
               mdi: ["*"],
           },
       }),
+      enablePartytown &&
       partytown({
           config: {
               forward: ["clarity"],
@@ -168,7 +171,7 @@ export default defineConfig({
           JavaScript: true,
           SVG: true,
       }),
-	],
+	].filter(Boolean),
 
   markdown: {
       remarkPlugins: [
@@ -225,14 +228,6 @@ export default defineConfig({
 	},
 
   vite: {
-      server: {
-          proxy: {
-              "/api/studio": {
-                  target: "http://127.0.0.1:4323",
-                  changeOrigin: false,
-              },
-          },
-      },
       build: {
           rollupOptions: {
               onwarn(warning, warn) {

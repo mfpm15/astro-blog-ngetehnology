@@ -14,6 +14,7 @@ interface Props {
 	decoding?: "sync" | "async" | "auto";
 	fetchpriority?: "high" | "low" | "auto";
 	sizes?: string;
+	overlay?: boolean;
 }
 
 import { Image } from "astro:assets";
@@ -31,6 +32,7 @@ const {
 	decoding = "async",
 	fetchpriority = "auto",
 	sizes,
+	overlay = true,
 } = Astro.props;
 const className = Astro.props.class;
 
@@ -67,7 +69,7 @@ const imageClass = "w-full h-full object-cover";
 const imageStyle = `object-position: ${position || 'center'}`;
 ---
 <div id={id} class:list={[className, 'overflow-hidden relative']}>
-    <div class="transition absolute inset-0 dark:bg-black/10 bg-opacity-50 pointer-events-none"></div>
+    {overlay && <div class="transition absolute inset-0 dark:bg-black/10 bg-opacity-50 pointer-events-none"></div>}
     {isLocal && img && (
         <Image
             src={img}
