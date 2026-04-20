@@ -33,12 +33,7 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content, headings, remarkPluginFrontmatter } = await render(entry);
 
-// ...existing code...
-
 dayjs.extend(utc);
-const lastModified = dayjs(entry.data.updated || entry.data.published)
-  .utc()
-  .format("YYYY-MM-DDTHH:mm:ss");
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -139,7 +134,7 @@ const jsonLd = {
       <!-- metadata -->
       <div class="onload-animation">
         <PostMetadata
-          class="mb-5"
+          className="mb-5"
           published={entry.data.published}
           updated={entry.data.updated}
           tags={entry.data.tags}
@@ -169,6 +164,13 @@ const jsonLd = {
                   src={entry.data.image}
                   basePath={path.join("content", contentDir)}
                   class="mb-8 rounded-xl banner-container onload-animation"
+                  width={2000}
+                  sizes="(min-width: 1024px) 60rem, 100vw"
+                  quality={95}
+                  loading="lazy"
+                  decoding="async"
+                  fetchpriority="auto"
+                  overlay={false}
                 />
               );
             })()}
@@ -290,4 +292,5 @@ const jsonLd = {
       }
     </a>
   </div>
+
 </MainGridLayout>

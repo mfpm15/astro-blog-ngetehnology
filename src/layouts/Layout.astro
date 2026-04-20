@@ -662,6 +662,27 @@ const enableSakuraEffect = false;
 	/* Water waves animation */
 	.waves > .parallax use {
 		animation: wave 25s cubic-bezier(0.5, 0.5, 0.45, 0.5) infinite;
+		will-change: transform;
+	}
+
+	.waves > .parallax use:nth-child(1) {
+		animation-duration: 26s;
+		animation-delay: -2s;
+	}
+
+	.waves > .parallax use:nth-child(2) {
+		animation-duration: 18s;
+		animation-delay: -3s;
+	}
+
+	.waves > .parallax use:nth-child(3) {
+		animation-duration: 14s;
+		animation-delay: -4s;
+	}
+
+	.waves > .parallax use:nth-child(4) {
+		animation-duration: 11s;
+		animation-delay: -5s;
 	}
 
 	@keyframes wave {
@@ -730,8 +751,6 @@ function disableAnimation() {
 }
 */
 
-const bannerEnabled = !!document.getElementById('banner-wrapper')
-
 function setClickOutsideToClose(panel: string, ignores: string[]) {
 	document.addEventListener("click", event => {
 		let panelDom = document.getElementById(panel);
@@ -785,6 +804,7 @@ function initCustomScrollbar() {
 function showBanner() {
 	const isBannerMode = siteConfig.backgroundWallpaper.mode === "banner";
 	if (!siteConfig.backgroundWallpaper.enable || !isBannerMode) return;
+	const heroEngine = (window as any).__ngetehHeroEngine;
 
 	// 使用requestAnimationFrame优化DOM操作
 	requestAnimationFrame(() => {
@@ -802,7 +822,12 @@ function showBanner() {
 			mobileBanner.classList.add('opacity-100');
 		}
 
-		// 轮播功能已移除
+		heroEngine?.sync?.({
+			route: window.location.pathname,
+			phase: 'show-banner',
+			isHomeRoute: pathsEqual(window.location.pathname, url('/')),
+			forceRestart: true,
+		});
 	});
 }
 
@@ -812,25 +837,33 @@ function showBanner() {
 
 
 
-function syncShellRouteState(nextUrl: string) {
+function syncShellRouteState(nextUrl: string, phase: string = 'manual') {
 	const isHomeRoute = pathsEqual(nextUrl, url('/'));
 	const bodyElement = document.body;
 	const navbarElement = document.getElementById('navbar');
 	const bannerWrapper = document.getElementById('banner-wrapper');
 	const contentShell = document.getElementById('content-shell');
-	const bannerTextOverlay = document.querySelector('.banner-text-overlay');
+	const bannerTextOverlay = document.querySelector('.banner-home-text-overlay');
+	const nextHeroMode = bannerWrapper ? (isHomeRoute ? 'home' : 'inner') : 'none';
+	const heroEngine = (window as any).__ngetehHeroEngine;
 
 	bodyElement.classList.toggle('is-home', isHomeRoute);
 	navbarElement?.setAttribute('data-is-home', isHomeRoute.toString());
 	if (bannerWrapper) {
-		bannerWrapper.setAttribute('data-hero-mode', isHomeRoute ? 'home' : 'inner');
+		bannerWrapper.setAttribute('data-hero-mode', nextHeroMode);
 	}
 	if (contentShell) {
-		contentShell.setAttribute('data-hero-mode', bannerWrapper ? (isHomeRoute ? 'home' : 'inner') : 'none');
+		contentShell.setAttribute('data-hero-mode', nextHeroMode);
 	}
 	if (bannerTextOverlay) {
 		bannerTextOverlay.classList.toggle('hidden', !isHomeRoute);
 	}
+
+	heroEngine?.sync?.({
+		route: nextUrl,
+		phase,
+		isHomeRoute,
+	});
 }
 
 const setup = () => {
@@ -893,7 +926,7 @@ const setup = () => {
 		}
 	})
 	window.swup.hooks.on('visit:start', (visit: {to: {url: string}}) => {
-		syncShellRouteState(visit.to.url)
+		syncShellRouteState(visit.to.url, 'visit:start')
 		// change banner height immediately when a link is clicked
 		const bodyElement = document.querySelector('body')
 		const isHomePage = pathsEqual(visit.to.url, url('/'))
@@ -905,7 +938,7 @@ const setup = () => {
 		}
 
 		// Control banner text visibility based on page
-		const bannerTextOverlay = document.querySelector('.banner-text-overlay')
+		const bannerTextOverlay = document.querySelector('.banner-home-text-overlay')
 		if (bannerTextOverlay) {
 			if (isHomePage) {
 				bannerTextOverlay.classList.remove('hidden')
@@ -965,7 +998,7 @@ const setup = () => {
 		}
 	});
 	window.swup.hooks.on('page:view', () => {
-		syncShellRouteState(window.location.pathname)
+		syncShellRouteState(window.location.pathname, 'page:view')
 		// hide the temp high element when the transition is done
 		const heightExtend = document.getElementById('page-height-extend')
 		if (heightExtend) {
@@ -1053,6 +1086,7 @@ function throttle(func: Function, limit: number) {
 function scrollFunction() {
 	const scrollTop = document.documentElement.scrollTop;
 	const bannerWrapper = document.getElementById('banner-wrapper');
+	const hasBanner = !!bannerWrapper;
 	const bannerHeight = bannerWrapper?.offsetHeight || window.innerHeight * (BANNER_HEIGHT / 100);
 
 	// 批量处理DOM操作
@@ -1068,7 +1102,7 @@ function scrollFunction() {
 			}
 		}
 
-		if (bannerEnabled && toc) {
+		if (hasBanner && toc) {
 			if (scrollTop > bannerHeight) {
 				toc.classList.remove('toc-hide')
 			} else {
@@ -1093,12 +1127,12 @@ window.onresize = () => {
 // 页面加载完成后初始化banner和katex容器
 if (document.readyState === 'loading') {
 	document.addEventListener('DOMContentLoaded', () => {
-		syncShellRouteState(window.location.pathname);
+		syncShellRouteState(window.location.pathname, 'initial');
 		showBanner();
 		initCustomScrollbar();
 	});
 } else {
-	syncShellRouteState(window.location.pathname);
+	syncShellRouteState(window.location.pathname, 'initial');
 	showBanner();
 	initCustomScrollbar();
 }

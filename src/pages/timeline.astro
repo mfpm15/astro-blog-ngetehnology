@@ -54,7 +54,7 @@ const getTypeIcon = (type: string) => {
 // 格式化日期
 const formatDate = (dateString: string) => {
 	const date = new Date(dateString);
-	return date.toLocaleDateString("zh-CN", { year: "numeric", month: "long" });
+	return date.toLocaleDateString("en-US", { year: "numeric", month: "long" });
 };
 
 // 计算持续时间

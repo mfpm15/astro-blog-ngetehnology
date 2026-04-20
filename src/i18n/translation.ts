@@ -7,7 +7,7 @@ export type Translation = {
   [K in I18nKey]: string;
 };
 
-const defaultTranslation = id;
+const defaultTranslation = en;
 
 const map: { [key: string]: Translation } = {
   en: en,
@@ -22,6 +22,6 @@ export function getTranslation(lang: string): Translation {
 }
 
 export function i18n(key: I18nKey): string {
-  const lang = siteConfig.lang || "id";
+  const lang = siteConfig.lang || "en";
   return getTranslation(lang)[key];
 }

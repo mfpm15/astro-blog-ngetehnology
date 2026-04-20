@@ -10,6 +10,7 @@ interface Props {
 	basePath?: string;
 	width?: number;
 	height?: number;
+	quality?: number;
 	loading?: "eager" | "lazy";
 	decoding?: "sync" | "async" | "auto";
 	fetchpriority?: "high" | "low" | "auto";
@@ -28,6 +29,7 @@ const {
 	basePath = "/",
 	width,
 	height,
+	quality,
 	loading = "lazy",
 	decoding = "async",
 	fetchpriority = "auto",
@@ -78,6 +80,7 @@ const imageStyle = `object-position: ${position || 'center'}`;
             style={imageStyle}
             width={width}
             height={height}
+            quality={quality}
             loading={loading}
             decoding={decoding}
             fetchpriority={fetchpriority}

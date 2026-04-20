@@ -14,9 +14,12 @@ export const WIDGET_COMPONENT_MAP = {
   categories: "../components/widget/Categories.astro",
   tags: "../components/widget/Tags.astro",
   toc: "../components/widget/TOC.astro",
+  sidebarToc: "../components/widget/TOC.astro",
   advertisement: "../components/widget/Advertisement.astro",
   calendar: "../components/widget/Calendar.astro",
+  stats: "../components/widget/SiteStats.astro",
   "site-stats": "../components/widget/SiteStats.astro",
+  music: "../components/widget/MusicPlayer.svelte",
   "music-player": "../components/widget/MusicPlayer.svelte",
   custom: null, // Komponen kustom perlu menentukan path dalam konfigurasi
 } as const;
@@ -27,11 +30,9 @@ export const WIDGET_COMPONENT_MAP = {
  */
 export class WidgetManager {
   private config: SidebarLayoutConfig;
-  private enabledComponents: WidgetComponentConfig[];
 
   constructor(config: SidebarLayoutConfig = sidebarLayoutConfig) {
     this.config = config;
-    this.enabledComponents = this.getEnabledComponents();
   }
 
   /**
@@ -41,23 +42,77 @@ export class WidgetManager {
     return this.config;
   }
 
+  getAllConfiguredComponents(): WidgetComponentConfig[] {
+    return [
+      ...(this.config.components ?? []),
+      ...(this.config.leftComponents ?? []),
+      ...(this.config.rightComponents ?? []),
+      ...(this.config.mobileBottomComponents ?? []),
+    ];
+  }
+
   /**
    * Dapatkan daftar komponen yang diaktifkan
    */
-  private getEnabledComponents(): WidgetComponentConfig[] {
-    return this.config.components
+  private getRawComponents(side: "left" | "right"): WidgetComponentConfig[] {
+    const hasNewShape =
+      Array.isArray(this.config.leftComponents) ||
+      Array.isArray(this.config.rightComponents) ||
+      Array.isArray(this.config.mobileBottomComponents);
+
+    if (hasNewShape) {
+      return side === "left"
+        ? this.config.leftComponents ?? []
+        : this.config.rightComponents ?? [];
+    }
+
+    // Legacy single-list shape: map to the configured position side.
+    const legacy = this.config.components ?? [];
+    const legacySide = this.config.position === "right" ? "right" : "left";
+    return legacySide === side ? legacy : [];
+  }
+
+  private getEnabledComponents(
+    side: "left" | "right",
+    isPostPage: boolean
+  ): WidgetComponentConfig[] {
+    return this.getRawComponents(side)
       .filter((component) => component.enable)
-      .sort((a, b) => a.order - b.order);
+      .filter((component) => {
+        if (isPostPage) return component.showOnPostPage ?? true;
+        return component.showOnNonPostPage ?? true;
+      })
+      .map((component, index) => ({ component, index }))
+      .sort((a, b) => (a.component.order ?? a.index) - (b.component.order ?? b.index))
+      .map(({ component }) => component);
   }
 
   /**
    * Dapatkan daftar komponen berdasarkan posisi
    * @param position Posisi komponen: 'top' | 'sticky'
    */
-  getComponentsByPosition(position: "top" | "sticky"): WidgetComponentConfig[] {
-    return this.enabledComponents.filter(
-      (component) => component.position === position
-    );
+  getComponentsByPosition(
+    position: "top" | "sticky",
+    side: "left" | "right" = "left",
+    isPostPage = false
+  ): WidgetComponentConfig[] {
+    const enabled = this.getEnabledComponents(side, isPostPage);
+    return enabled.filter((component) => (component.position ?? "top") === position);
+  }
+
+  getMobileBottomComponents(isPostPage = false): WidgetComponentConfig[] {
+    return (this.config.mobileBottomComponents ?? [])
+      .filter((component) => component.enable)
+      .filter((component) => {
+        if (isPostPage) return component.showOnPostPage ?? true;
+        return component.showOnNonPostPage ?? true;
+      })
+      .map((component, index) => ({ component, index }))
+      .sort((a, b) => (a.component.order ?? a.index) - (b.component.order ?? b.index))
+      .map(({ component }) => ({
+        ...component,
+        position: component.position ?? "top",
+      }));
   }
 
   /**
@@ -101,10 +156,10 @@ export class WidgetManager {
             classes.push("hidden", "md:block");
             break;
           case "tablet":
-            classes.push("md:hidden", "lg:block");
+            classes.push("md:hidden", "xl:block");
             break;
           case "desktop":
-            classes.push("lg:hidden");
+            classes.push("xl:hidden");
             break;
         }
       });
@@ -169,6 +224,31 @@ export class WidgetManager {
   }
 
   /**
+   * Periksa apakah sebuah sisi sidebar harus tampil pada breakpoint tertentu.
+   */
+  shouldShowSidebarSide(
+    deviceType: "mobile" | "tablet" | "desktop",
+    side: "left" | "right",
+    isPostPage: boolean
+  ): boolean {
+    if (!this.shouldShowSidebar(deviceType)) return false;
+
+    if (isPostPage && this.config.showBothSidebarsOnPostPage) {
+      return true;
+    }
+
+    if (this.config.position === "both") {
+      if (deviceType === "tablet") {
+        const tabletSide = this.config.tabletSidebar ?? "left";
+        return tabletSide === side;
+      }
+      return true;
+    }
+
+    return this.config.position === side;
+  }
+
+  /**
    * Dapatkan konfigurasi breakpoint perangkat
    */
   getBreakpoints() {
@@ -181,7 +261,6 @@ export class WidgetManager {
    */
   updateConfig(newConfig: Partial<SidebarLayoutConfig>): void {
     this.config = { ...this.config, ...newConfig };
-    this.enabledComponents = this.getEnabledComponents();
   }
 
   /**
@@ -189,8 +268,11 @@ export class WidgetManager {
    * @param component Konfigurasi komponen
    */
   addComponent(component: WidgetComponentConfig): void {
-    this.config.components.push(component);
-    this.enabledComponents = this.getEnabledComponents();
+    // Default to left side for legacy API usage.
+    if (!this.config.leftComponents && !this.config.components) {
+      this.config.leftComponents = [];
+    }
+    (this.config.leftComponents ?? this.config.components ?? []).push(component);
   }
 
   /**
@@ -198,10 +280,13 @@ export class WidgetManager {
    * @param componentType Jenis komponen
    */
   removeComponent(componentType: WidgetComponentType): void {
-    this.config.components = this.config.components.filter(
-      (component) => component.type !== componentType
-    );
-    this.enabledComponents = this.getEnabledComponents();
+    const removeFrom = (list?: WidgetComponentConfig[]) =>
+      list ? list.filter((component) => component.type !== componentType) : list;
+
+    this.config.components = removeFrom(this.config.components);
+    this.config.leftComponents = removeFrom(this.config.leftComponents);
+    this.config.rightComponents = removeFrom(this.config.rightComponents);
+    this.config.mobileBottomComponents = removeFrom(this.config.mobileBottomComponents);
   }
 
   /**
@@ -210,12 +295,18 @@ export class WidgetManager {
    * @param enable Apakah akan diaktifkan
    */
   toggleComponent(componentType: WidgetComponentType, enable: boolean): void {
-    const component = this.config.components.find(
-      (c) => c.type === componentType
-    );
-    if (component) {
-      component.enable = enable;
-      this.enabledComponents = this.getEnabledComponents();
+    const lists: Array<WidgetComponentConfig[] | undefined> = [
+      this.config.components,
+      this.config.leftComponents,
+      this.config.rightComponents,
+      this.config.mobileBottomComponents,
+    ];
+
+    for (const list of lists) {
+      const component = list?.find((c) => c.type === componentType);
+      if (component) {
+        component.enable = enable;
+      }
     }
   }
 
@@ -225,12 +316,18 @@ export class WidgetManager {
    * @param newOrder Urutan baru
    */
   reorderComponent(componentType: WidgetComponentType, newOrder: number): void {
-    const component = this.config.components.find(
-      (c) => c.type === componentType
-    );
-    if (component) {
-      component.order = newOrder;
-      this.enabledComponents = this.getEnabledComponents();
+    const lists: Array<WidgetComponentConfig[] | undefined> = [
+      this.config.components,
+      this.config.leftComponents,
+      this.config.rightComponents,
+      this.config.mobileBottomComponents,
+    ];
+
+    for (const list of lists) {
+      const component = list?.find((c) => c.type === componentType);
+      if (component) {
+        component.order = newOrder;
+      }
     }
   }
 
@@ -239,8 +336,7 @@ export class WidgetManager {
    * @param componentType Jenis komponen
    */
   isSidebarComponent(componentType: WidgetComponentType): boolean {
-    // Filter komponen
-    return true;
+    return this.getComponentPath(componentType) !== null;
   }
 }
 
@@ -257,8 +353,8 @@ export function getComponentConfig(
   componentType: WidgetComponentType
 ): WidgetComponentConfig | undefined {
   return widgetManager
-    .getConfig()
-    .components.find((c) => c.type === componentType);
+    .getAllConfiguredComponents()
+    .find((component) => component.type === componentType);
 }
 
 /**
@@ -276,8 +372,12 @@ export function isComponentEnabled(
  * Fungsi utilitas: Dapatkan semua jenis komponen yang diaktifkan
  */
 export function getEnabledComponentTypes(): WidgetComponentType[] {
-  const enabledComponents = widgetManager
-    .getComponentsByPosition("top")
-    .concat(widgetManager.getComponentsByPosition("sticky"));
-  return enabledComponents.map((c) => c.type);
+  const enabled = [
+    ...widgetManager.getComponentsByPosition("top", "left"),
+    ...widgetManager.getComponentsByPosition("sticky", "left"),
+    ...widgetManager.getComponentsByPosition("top", "right"),
+    ...widgetManager.getComponentsByPosition("sticky", "right"),
+    ...widgetManager.getMobileBottomComponents(),
+  ];
+  return enabled.map((c) => c.type);
 }

@@ -12,6 +12,7 @@ import IconifyLoader from "../components/misc/IconifyLoader.astro";
 import ImageWrapper from "../components/misc/ImageWrapper.astro";
 import TypewriterText from "../components/TypewriterText.astro";
 import FloatingTOC from "../components/widget/FloatingTOC.astro";
+import MobileBottomWidgets from "../components/widget/MobileBottomWidgets.astro";
 import { siteConfig, sidebarLayoutConfig, live2dModelConfig, spineModelConfig } from "../config";
 import {
   BANNER_HEIGHT_EXTEND,
@@ -35,6 +36,62 @@ interface Props {
   headings?: MarkdownHeading[];
 }
 
+const normalizeImageValue = (value: unknown): string | null => {
+  if (typeof value === "string") {
+    return value.trim() || null;
+  }
+
+  if (value && typeof value === "object") {
+    const candidate =
+      ("image" in value && typeof value.image === "string" && value.image) ||
+      ("src" in value && typeof value.src === "string" && value.src) ||
+      ("value" in value && typeof value.value === "string" && value.value);
+
+    return candidate?.trim() || null;
+  }
+
+  return null;
+};
+
+const toImageArray = (src: unknown): string[] => {
+  if (!src) return [];
+
+  if (Array.isArray(src)) {
+    return src
+      .map((item) => normalizeImageValue(item))
+      .filter((item): item is string => Boolean(item));
+  }
+
+  const single = normalizeImageValue(src);
+  return single ? [single] : [];
+};
+
+const normalizeTextList = (value: unknown): string | string[] | undefined => {
+  if (typeof value === "string") {
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    const items = value
+      .map((entry) => {
+        if (typeof entry === "string") return entry.trim();
+        if (entry && typeof entry === "object") {
+          const candidate =
+            ("subtitle" in entry && typeof entry.subtitle === "string" && entry.subtitle) ||
+            ("text" in entry && typeof entry.text === "string" && entry.text) ||
+            ("value" in entry && typeof entry.value === "string" && entry.value);
+          return candidate?.trim() || "";
+        }
+        return "";
+      })
+      .filter(Boolean);
+
+    return items.length > 0 ? items : undefined;
+  }
+
+  return undefined;
+};
+
 const getBackgroundImages = () => {
   const bgSrc = siteConfig.backgroundWallpaper.src;
 
@@ -44,15 +101,22 @@ const getBackgroundImages = () => {
     !Array.isArray(bgSrc) &&
     ("desktop" in bgSrc || "mobile" in bgSrc)
   ) {
+    const desktopImages = toImageArray(bgSrc.desktop);
+    const mobileImages = toImageArray(bgSrc.mobile);
+
     return {
-      desktop: bgSrc.desktop || bgSrc.mobile || "",
-      mobile: bgSrc.mobile || bgSrc.desktop || "",
+      desktop: desktopImages.length > 0 ? desktopImages : mobileImages,
+      mobile: mobileImages.length > 0 ? mobileImages : desktopImages,
+      isMultiple: desktopImages.length > 1 || mobileImages.length > 1,
     };
   }
 
+  const images = toImageArray(bgSrc as string | string[]);
+
   return {
-    desktop: bgSrc,
-    mobile: bgSrc,
+    desktop: images,
+    mobile: images,
+    isMultiple: images.length > 1,
   };
 };
 
@@ -72,8 +136,9 @@ const customHeroImage = typeof banner === "string" && banner.trim() ? banner.tri
 const heroImages =
   customHeroImage !== ""
     ? {
-        desktop: customHeroImage,
-        mobile: customHeroImage,
+        desktop: [customHeroImage],
+        mobile: [customHeroImage],
+        isMultiple: false,
       }
     : backgroundImages;
 const heroBasePath = postSlug ? `content/posts/${postSlug}` : "/";
@@ -87,166 +152,568 @@ const heroMode = isBannerMode && isBackgroundEnabled ? (isHomePage ? "home" : "i
 const wavesConfig = siteConfig.backgroundWallpaper.banner?.waves?.enable;
 const wavesEnabledOnDesktop = typeof wavesConfig === "object" ? wavesConfig?.desktop : wavesConfig;
 const wavesEnabledOnMobile = typeof wavesConfig === "object" ? wavesConfig?.mobile : wavesConfig;
+const waveStyle = siteConfig.backgroundWallpaper.banner?.waves?.style ?? "contrast";
+const waveHeightConfig = siteConfig.backgroundWallpaper.banner?.waves?.height;
+const waveHeightDesktop =
+  typeof waveHeightConfig === "object" ? waveHeightConfig?.desktop || "10.5rem" : waveHeightConfig || "10.5rem";
+const waveHeightMobile =
+  typeof waveHeightConfig === "object" ? waveHeightConfig?.mobile || "6.75rem" : waveHeightConfig || "6.75rem";
+
+const heroAnimationSettings = siteConfig.backgroundWallpaper.banner?.animation;
+const heroAnimationConfig = {
+  enable: heroAnimationSettings?.enable ?? true,
+  scope: heroAnimationSettings?.scope ?? "global",
+  restartOnRouteChange: heroAnimationSettings?.restartOnRouteChange ?? true,
+  homePreset: {
+    duration: Math.max(heroAnimationSettings?.homePreset?.duration ?? 6400, 1000),
+    scaleFrom: heroAnimationSettings?.homePreset?.scaleFrom ?? 1.02,
+    scaleTo: heroAnimationSettings?.homePreset?.scaleTo ?? 1.11,
+    offsetStrength: heroAnimationSettings?.homePreset?.offsetStrength ?? 1.6,
+  },
+  innerPreset: {
+    duration: Math.max(heroAnimationSettings?.innerPreset?.duration ?? 5200, 1000),
+    scaleFrom: heroAnimationSettings?.innerPreset?.scaleFrom ?? 1.01,
+    scaleTo: heroAnimationSettings?.innerPreset?.scaleTo ?? 1.055,
+    offsetStrength: heroAnimationSettings?.innerPreset?.offsetStrength ?? 0.8,
+  },
+};
 
 const creditEnableConfig = siteConfig.backgroundWallpaper.banner?.credit?.enable;
 const creditEnabledOnDesktop =
-  typeof creditEnableConfig === "object" ? creditEnableConfig?.desktop : creditEnableConfig;
+  typeof creditEnableConfig === "object"
+    ? (creditEnableConfig?.desktop ?? creditEnableConfig?.mobile)
+    : creditEnableConfig;
 const creditEnabledOnMobile =
-  typeof creditEnableConfig === "object" ? creditEnableConfig?.mobile : creditEnableConfig;
+  typeof creditEnableConfig === "object"
+    ? (creditEnableConfig?.mobile ?? creditEnableConfig?.desktop)
+    : creditEnableConfig;
 
 const creditTextConfig = siteConfig.backgroundWallpaper.banner?.credit?.text;
 const creditTextDesktop = typeof creditTextConfig === "object" ? creditTextConfig?.desktop : creditTextConfig;
-const creditTextMobile = typeof creditTextConfig === "object" ? creditTextConfig?.mobile : creditTextConfig;
+const creditTextMobileRaw = typeof creditTextConfig === "object" ? creditTextConfig?.mobile : creditTextConfig;
+const creditTextMobile = creditTextMobileRaw ?? creditTextDesktop;
 
 const creditUrlConfig = siteConfig.backgroundWallpaper.banner?.credit?.url;
 const creditUrlDesktop = typeof creditUrlConfig === "object" ? creditUrlConfig?.desktop : creditUrlConfig;
-const creditUrlMobile = typeof creditUrlConfig === "object" ? creditUrlConfig?.mobile : creditUrlConfig;
+const creditUrlMobileRaw = typeof creditUrlConfig === "object" ? creditUrlConfig?.mobile : creditUrlConfig;
+const creditUrlMobile = creditUrlMobileRaw ?? creditUrlDesktop;
 
 const homeText = siteConfig.backgroundWallpaper.banner?.homeText;
-const renderHomeText = Boolean(homeText);
-const showHomeText = heroMode === "home" && Boolean(homeText?.enable);
+const renderHomeText = Boolean(homeText?.enable);
+const showHomeText = heroMode === "home" && renderHomeText;
+const heroTitleSize = homeText?.titleSize || "3.8rem";
+const heroSubtitleSize = homeText?.subtitleSize || "1.5rem";
+const heroSubtitle = normalizeTextList(homeText?.subtitle);
+const bannerCarouselEnabledDefault =
+  siteConfig.backgroundWallpaper.banner?.carousel?.enable ?? heroImages.isMultiple;
+const bannerCarouselSwitchable = siteConfig.backgroundWallpaper.banner?.carousel?.switchable ?? false;
+const bannerCarouselInterval = Math.max(siteConfig.backgroundWallpaper.banner?.carousel?.interval ?? 5000, 3000);
 const showInnerHeroText = heroMode === "inner" && Boolean(title || description);
 const hasHeadings = headings.length > 0;
 const shouldEnableTransparency = isOverlayMode && isBackgroundEnabled;
 const transparentClass = shouldEnableTransparency ? "wallpaper-transparent" : "";
 
 const globalSidebarEnabled = sidebarLayoutConfig.enable;
-const sidebarPosition = sidebarLayoutConfig.position || "left";
+const isPostPage = Astro.url.pathname.startsWith("/posts/");
 const mobileShowSidebar = globalSidebarEnabled && widgetManager.shouldShowSidebar("mobile");
 const tabletShowSidebar = globalSidebarEnabled && widgetManager.shouldShowSidebar("tablet");
 const desktopShowSidebar = globalSidebarEnabled && widgetManager.shouldShowSidebar("desktop");
+const mobileBottomComponents = widgetManager.getMobileBottomComponents(isPostPage);
+const hasMobileBottomComponents = globalSidebarEnabled && mobileBottomComponents.length > 0;
 
-const gridCols = `
-  grid-cols-1
-  ${tabletShowSidebar ? (sidebarPosition === "right" ? "md:grid-cols-[1fr_17.5rem]" : "md:grid-cols-[17.5rem_1fr]") : "md:grid-cols-1"}
-  ${desktopShowSidebar ? (sidebarPosition === "right" ? "lg:grid-cols-[1fr_17.5rem]" : "lg:grid-cols-[17.5rem_1fr]") : "lg:grid-cols-1"}
+const leftHasComponents =
+  widgetManager.getComponentsByPosition("top", "left", isPostPage).length > 0 ||
+  widgetManager.getComponentsByPosition("sticky", "left", isPostPage).length > 0;
+const rightHasComponents =
+  widgetManager.getComponentsByPosition("top", "right", isPostPage).length > 0 ||
+  widgetManager.getComponentsByPosition("sticky", "right", isPostPage).length > 0;
+
+const tabletShowLeft =
+  tabletShowSidebar && leftHasComponents && widgetManager.shouldShowSidebarSide("tablet", "left", isPostPage);
+const tabletShowRight =
+  tabletShowSidebar && rightHasComponents && widgetManager.shouldShowSidebarSide("tablet", "right", isPostPage);
+const desktopShowLeft =
+  desktopShowSidebar && leftHasComponents && widgetManager.shouldShowSidebarSide("desktop", "left", isPostPage);
+const desktopShowRight =
+  desktopShowSidebar && rightHasComponents && widgetManager.shouldShowSidebarSide("desktop", "right", isPostPage);
+
+const mdGridCols =
+  tabletShowLeft && tabletShowRight
+    ? "md:grid-cols-[17.5rem_1fr_17.5rem]"
+    : tabletShowLeft
+      ? "md:grid-cols-[17.5rem_1fr]"
+      : tabletShowRight
+        ? "md:grid-cols-[1fr_17.5rem]"
+        : "md:grid-cols-1";
+
+const xlGridCols =
+  desktopShowLeft && desktopShowRight
+    ? "xl:grid-cols-[17.5rem_1fr_17.5rem]"
+    : desktopShowLeft
+      ? "xl:grid-cols-[17.5rem_1fr]"
+      : desktopShowRight
+        ? "xl:grid-cols-[1fr_17.5rem]"
+        : "xl:grid-cols-1";
+
+const gridCols = `grid-cols-1 ${mdGridCols} ${xlGridCols}`.trim().replace(/\s+/g, " ");
+
+const mdMainCol = tabletShowLeft ? "md:col-start-2 md:col-end-3" : "md:col-start-1 md:col-end-2";
+const xlMainCol = desktopShowLeft ? "xl:col-start-2 xl:col-end-3" : "xl:col-start-1 xl:col-end-2";
+const mdRightCol = tabletShowLeft ? "md:col-start-3 md:col-end-4" : "md:col-start-2 md:col-end-3";
+const xlRightCol = desktopShowLeft ? "xl:col-start-3 xl:col-end-4" : "xl:col-start-2 xl:col-end-3";
+
+const leftSidebarClass = `
+  onload-animation row-start-2 row-end-3 w-full
+  ${mobileShowSidebar ? "block" : "hidden"}
+  ${tabletShowLeft ? "md:block md:row-start-1 md:row-end-2 md:max-w-[17.5rem] md:col-start-1 md:col-end-2" : "md:hidden"}
+  ${desktopShowLeft ? "xl:block xl:row-start-1 xl:row-end-2 xl:max-w-[17.5rem] xl:col-start-1 xl:col-end-2" : "xl:hidden"}
 `
   .trim()
   .replace(/\s+/g, " ");
 
-const sidebarClass = `
+const rightSidebarClass = `
   onload-animation row-start-2 row-end-3 w-full
   ${mobileShowSidebar ? "block" : "hidden"}
-  ${tabletShowSidebar ? `md:block md:row-start-1 md:row-end-2 md:max-w-[17.5rem] ${sidebarPosition === "right" ? "md:col-start-2 md:col-end-3" : "md:col-start-1 md:col-end-2"}` : "md:hidden"}
-  ${desktopShowSidebar ? `lg:block lg:row-start-1 lg:row-end-2 lg:max-w-[17.5rem] ${sidebarPosition === "right" ? "lg:col-start-2 lg:col-end-3" : "lg:col-start-1 lg:col-end-2"}` : "lg:hidden"}
+  ${tabletShowRight ? `md:block md:row-start-1 md:row-end-2 md:max-w-[17.5rem] ${mdRightCol}` : "md:hidden"}
+  ${desktopShowRight ? `xl:block xl:row-start-1 xl:row-end-2 xl:max-w-[17.5rem] ${xlRightCol}` : "xl:hidden"}
 `
   .trim()
   .replace(/\s+/g, " ");
 
 const mainContentClass = `
   transition-swup-fade min-w-0 overflow-hidden
-  ${tabletShowSidebar ? `${sidebarPosition === "right" ? "md:col-start-1 md:col-end-2" : "md:col-start-2 md:col-end-3"}` : "md:col-span-1"}
-  ${desktopShowSidebar ? `${sidebarPosition === "right" ? "lg:col-start-1 lg:col-end-2" : "lg:col-start-2 lg:col-end-3"}` : "lg:col-span-1"}
+  ${mdMainCol}
+  ${xlMainCol}
 `
   .trim()
   .replace(/\s+/g, " ");
+
+const rightTocEnabled = widgetManager
+  .getComponentsByPosition("top", "right", isPostPage)
+  .concat(widgetManager.getComponentsByPosition("sticky", "right", isPostPage))
+  .some((c) => c.type === "sidebarToc" || c.type === "toc");
+const shouldRenderFloatingToc =
+  siteConfig.toc.enable && hasHeadings && !(rightTocEnabled && (tabletShowRight || desktopShowRight));
+const desktopSidebarPosition = desktopShowLeft && desktopShowRight ? "both" : desktopShowLeft ? "left" : desktopShowRight ? "right" : "none";
+const tabletSidebarPosition = tabletShowLeft ? "left" : tabletShowRight ? "right" : "none";
+const showBothSidebarsOnPost = isPostPage && desktopShowLeft && desktopShowRight;
 ---
 
 <Layout title={title} banner={banner} description={description} lang={lang} setOGTypeArticle={setOGTypeArticle} postSlug={postSlug}>
-  {
-    isOverlayMode && isBackgroundEnabled && (
-      <FullscreenWallpaper
-        config={{
-          enable: isBackgroundEnabled,
-          src: {
-            desktop: typeof backgroundImages.desktop === "string" ? backgroundImages.desktop : "",
-            mobile: typeof backgroundImages.mobile === "string" ? backgroundImages.mobile : "",
-          },
-          position: siteConfig.backgroundWallpaper.position,
-          zIndex: siteConfig.backgroundWallpaper.overlay?.zIndex,
-          opacity: siteConfig.backgroundWallpaper.overlay?.opacity,
-          blur: siteConfig.backgroundWallpaper.overlay?.blur,
-        }}
-      />
-    )
-  }
+  <div id="page-shell-vars">
+    {
+      isOverlayMode && isBackgroundEnabled && (
+        <FullscreenWallpaper
+          config={{
+            enable: isBackgroundEnabled,
+            src: {
+              desktop: backgroundImages.desktop[0] || backgroundImages.mobile[0] || "",
+              mobile: backgroundImages.mobile[0] || backgroundImages.desktop[0] || "",
+            },
+            position: siteConfig.backgroundWallpaper.position,
+            zIndex: siteConfig.backgroundWallpaper.overlay?.zIndex,
+            opacity: siteConfig.backgroundWallpaper.overlay?.opacity,
+            blur: siteConfig.backgroundWallpaper.overlay?.blur,
+          }}
+        />
+      )
+    }
 
-  <IconifyLoader />
+    <IconifyLoader />
 
-  {
-    shouldEnableTransparency && (
-      <script>
-        document.body.classList.add("wallpaper-transparent");
-      </script>
-    )
-  }
+    {
+      shouldEnableTransparency && (
+        <script>
+          document.body.classList.add("wallpaper-transparent");
+        </script>
+      )
+    }
 
-  <slot slot="head" name="head" />
+    <slot slot="head" name="head" />
 
-  <div id="top-row" class="pointer-events-none fixed inset-x-0 top-0 z-[120] transition-all duration-300">
-    <div id="navbar-wrapper" class="pointer-events-auto mx-auto w-full max-w-[var(--page-width)] px-3 md:px-4">
-      <Navbar />
+    <div
+      id="top-row"
+      class="pointer-events-none fixed left-0 right-0 top-0 z-[80] mx-auto h-[4.5rem] w-full max-w-[var(--page-width)] px-0 transition-all duration-700 md:px-4 xl:w-[92vw]"
+    >
+      <div id="navbar-wrapper" class="pointer-events-auto transition-all">
+        <Navbar />
+      </div>
     </div>
-  </div>
 
   {
     heroMode !== "none" && (
-      <section id="banner-wrapper" data-hero-mode={heroMode} class="absolute inset-x-0 z-10 overflow-hidden">
-        <div class="relative h-full w-full">
-          <ImageWrapper
-            id="banner-mobile"
-            alt="Mobile background image of the blog"
-            class="hero-image block h-full w-full object-cover lg:hidden"
-            src={typeof heroImages.mobile === "string" ? heroImages.mobile : ""}
-            position={siteConfig.backgroundWallpaper.position}
-            basePath={heroBasePath}
-            width={900}
-            height={1176}
-            loading="eager"
-            decoding="async"
-            fetchpriority={heroMode === "home" ? "high" : "auto"}
-            sizes="100vw"
-            overlay={false}
-          />
-          <ImageWrapper
-            id="banner"
-            alt="Desktop background image of the blog"
-            class="hero-image hidden h-full w-full object-cover lg:block"
-            src={typeof heroImages.desktop === "string" ? heroImages.desktop : ""}
-            position={siteConfig.backgroundWallpaper.position}
-            basePath={heroBasePath}
-            width={1600}
-            height={911}
-            loading="eager"
-            decoding="async"
-            fetchpriority={heroMode === "home" ? "high" : "auto"}
-            sizes="100vw"
-            overlay={false}
-          />
+      <section
+        id="banner-wrapper"
+        data-hero-mode={heroMode}
+        data-wave-style={waveStyle}
+        class="absolute inset-x-0 z-10 overflow-hidden"
+      >
+        <div
+          id="banner-images-container"
+          class="relative h-full w-full"
+          data-mobile-count={heroImages.mobile.length}
+          data-desktop-count={heroImages.desktop.length}
+          data-carousel-enabled={bannerCarouselEnabledDefault}
+          data-carousel-switchable={bannerCarouselSwitchable}
+          data-carousel-interval={bannerCarouselInterval}
+        >
+          {
+            heroImages.mobile.length > 0 && (
+              <div class="banner-image-slot-mobile absolute inset-0 block lg:hidden">
+                <ImageWrapper
+                  id="banner-mobile"
+                  alt="Mobile background image of the blog"
+                  class="hero-image block h-full w-full object-cover"
+                  src={heroImages.mobile[0]}
+                  position={siteConfig.backgroundWallpaper.position}
+                  basePath={heroBasePath}
+                  width={900}
+                  height={1176}
+                  loading="eager"
+                  decoding="async"
+                  fetchpriority={heroMode === "home" ? "high" : "auto"}
+                  sizes="100vw"
+                  overlay={false}
+                />
+              </div>
+            )
+          }
+          {
+            heroImages.mobile.slice(1).map((src) => (
+              <template class="banner-tpl-mobile">
+                <ImageWrapper
+                  alt="Mobile background image of the blog"
+                  class="hero-image block h-full w-full object-cover"
+                  src={src}
+                  position={siteConfig.backgroundWallpaper.position}
+                  basePath={heroBasePath}
+                  width={900}
+                  height={1176}
+                  loading="lazy"
+                  decoding="async"
+                  fetchpriority="low"
+                  sizes="100vw"
+                  overlay={false}
+                />
+              </template>
+            ))
+          }
+
+          {
+            heroImages.desktop.length > 0 && (
+              <div class="banner-image-slot-desktop absolute inset-0 hidden lg:block">
+                <ImageWrapper
+                  id="banner"
+                  alt="Desktop background image of the blog"
+                  class="hero-image hidden h-full w-full object-cover lg:block"
+                  src={heroImages.desktop[0]}
+                  position={siteConfig.backgroundWallpaper.position}
+                  basePath={heroBasePath}
+                  width={1600}
+                  height={911}
+                  loading="eager"
+                  decoding="async"
+                  fetchpriority={heroMode === "home" ? "high" : "auto"}
+                  sizes="100vw"
+                  overlay={false}
+                />
+              </div>
+            )
+          }
+          {
+            heroImages.desktop.slice(1).map((src) => (
+              <template class="banner-tpl-desktop">
+                <ImageWrapper
+                  alt="Desktop background image of the blog"
+                  class="hero-image hidden h-full w-full object-cover lg:block"
+                  src={src}
+                  position={siteConfig.backgroundWallpaper.position}
+                  basePath={heroBasePath}
+                  width={1600}
+                  height={911}
+                  loading="lazy"
+                  decoding="async"
+                  fetchpriority="low"
+                  sizes="100vw"
+                  overlay={false}
+                />
+              </template>
+            ))
+          }
           <div class="hero-overlay absolute inset-0"></div>
         </div>
 
+        <script is:inline data-swup-ignore-script define:vars={{ heroAnimationConfig }}>
+          (() => {
+            const globalKey = "__ngetehHeroEngine";
+            const state =
+              window[globalKey] ||
+              (window[globalKey] = {
+                container: null,
+                bannerWrapper: null,
+                timerId: null,
+                fadeMs: 1400,
+                mobileFrames: [],
+                desktopFrames: [],
+                mobileIndex: 0,
+                desktopIndex: 0,
+                currentMode: "none",
+                config: heroAnimationConfig,
+                ready: false,
+                init() {},
+                sync() {},
+                stop() {
+                  if (this.timerId !== null) {
+                    clearInterval(this.timerId);
+                    this.timerId = null;
+                  }
+                },
+              });
+
+            state.collectFrames = function collectFrames(slotClass, tplClass) {
+              const slot = this.container?.querySelector(`.${slotClass}`);
+              const templates = Array.from(this.container?.querySelectorAll(`.${tplClass}`) || []);
+              const frames = [];
+
+              if (slot) {
+                frames.push(slot.innerHTML);
+              }
+
+              templates.forEach((template) => {
+                if (template instanceof HTMLTemplateElement) {
+                  frames.push(template.innerHTML);
+                }
+              });
+
+              return frames;
+            };
+
+            state.isSlotVisible = function isSlotVisible(slot) {
+              if (!(slot instanceof HTMLElement)) return false;
+              return window.getComputedStyle(slot).display !== "none";
+            };
+
+            state.clearMotion = function clearMotion() {
+              ["banner-image-slot-mobile", "banner-image-slot-desktop"].forEach((slotClass) => {
+                const slot = this.container?.querySelector(`.${slotClass}`);
+                if (!(slot instanceof HTMLElement)) return;
+                slot.classList.remove("banner-motion");
+              });
+            };
+
+            state.isCarouselEnabled = function isCarouselEnabled() {
+              if (!this.container) return false;
+              const switchable = this.container.dataset.carouselSwitchable === "true";
+              const defaultEnabled = this.container.dataset.carouselEnabled === "true";
+              if (!switchable) return defaultEnabled;
+              const stored = localStorage.getItem("bannerCarouselEnabled");
+              return stored === null ? defaultEnabled : stored === "true";
+            };
+
+            state.getPreset = function getPreset(mode) {
+              return mode === "inner" ? this.config.innerPreset : this.config.homePreset;
+            };
+
+            state.configureMotion = function configureMotion(slot, preset, directionIndex = 0) {
+              if (!(slot instanceof HTMLElement) || !preset) return;
+
+              const direction = directionIndex % 2 === 0 ? 1 : -1;
+              const strength = Math.max(Number(preset.offsetStrength ?? 0), 0);
+              const fromX = `${(-direction * strength).toFixed(3)}%`;
+              const fromY = `${(direction * strength * 0.45).toFixed(3)}%`;
+              const toX = `${(direction * strength).toFixed(3)}%`;
+              const toY = `${(-direction * strength * 0.75).toFixed(3)}%`;
+
+              slot.style.setProperty("--hero-motion-duration", `${Math.max(Number(preset.duration ?? 0), 1000)}ms`);
+              slot.style.setProperty("--hero-scale-from", `${preset.scaleFrom ?? 1.02}`);
+              slot.style.setProperty("--hero-scale-to", `${preset.scaleTo ?? 1.1}`);
+              slot.style.setProperty("--hero-translate-from-x", fromX);
+              slot.style.setProperty("--hero-translate-from-y", fromY);
+              slot.style.setProperty("--hero-translate-to-x", toX);
+              slot.style.setProperty("--hero-translate-to-y", toY);
+            };
+
+            state.playMotion = function playMotion(slot, preset, directionIndex = 0) {
+              if (!this.isSlotVisible(slot)) return;
+
+              this.configureMotion(slot, preset, directionIndex);
+              slot.classList.remove("banner-motion");
+              void slot.offsetWidth;
+              slot.classList.add("banner-motion");
+            };
+
+            state.resetSlot = function resetSlot(slotClass, frames, targetIndex = 0, preset) {
+              const slot = this.container?.querySelector(`.${slotClass}`);
+              if (!(slot instanceof HTMLElement) || frames.length === 0) return targetIndex;
+
+              const safeIndex = Math.min(Math.max(targetIndex, 0), frames.length - 1);
+              slot.innerHTML = frames[safeIndex];
+              slot.style.opacity = "1";
+              this.playMotion(slot, preset, safeIndex);
+              return safeIndex;
+            };
+
+            state.startCarousel = function startCarousel(mode) {
+              const mobileCount = Number.parseInt(this.container?.dataset.mobileCount || "0", 10);
+              const desktopCount = Number.parseInt(this.container?.dataset.desktopCount || "0", 10);
+              const interval = Math.max(Number.parseInt(this.container?.dataset.carouselInterval || "5000", 10), 3000);
+
+              if (!this.isCarouselEnabled() || (mobileCount <= 1 && desktopCount <= 1)) return;
+
+              const crossfade = (slotClass, frames, currentIndex, preset) => {
+                if (frames.length <= 1) return currentIndex;
+
+                const currentSlot = this.container?.querySelector(`.${slotClass}`);
+                if (!currentSlot || !this.isSlotVisible(currentSlot)) return currentIndex;
+
+                const nextIndex = (currentIndex + 1) % frames.length;
+                const nextSlot = document.createElement("div");
+                nextSlot.className = currentSlot.className.replace(/\bbanner-motion\b/g, "").trim();
+                nextSlot.style.opacity = "0";
+                nextSlot.style.transition = `opacity ${this.fadeMs}ms ease-in-out`;
+                nextSlot.innerHTML = frames[nextIndex];
+                currentSlot.parentNode?.insertBefore(nextSlot, currentSlot.nextSibling);
+
+                this.configureMotion(nextSlot, preset, nextIndex);
+
+                requestAnimationFrame(() => {
+                  requestAnimationFrame(() => {
+                    nextSlot.style.opacity = "1";
+                    nextSlot.classList.add("banner-motion");
+                  });
+                });
+
+                window.setTimeout(() => {
+                  currentSlot.remove();
+                  nextSlot.style.transition = "";
+                }, this.fadeMs + 50);
+
+                return nextIndex;
+              };
+
+              this.timerId = window.setInterval(() => {
+                const preset = this.getPreset(mode);
+                this.mobileIndex = crossfade("banner-image-slot-mobile", this.mobileFrames, this.mobileIndex, preset);
+                this.desktopIndex = crossfade("banner-image-slot-desktop", this.desktopFrames, this.desktopIndex, preset);
+              }, interval);
+            };
+
+            state.sync = function syncHero(options = {}) {
+              const phase = options.phase || "manual";
+              const forceRestart = options.forceRestart === true;
+              const nextMode = this.bannerWrapper?.dataset.heroMode || "none";
+              this.currentMode = nextMode;
+              this.config = heroAnimationConfig;
+
+              const animationEnabled = this.config.enable !== false && nextMode !== "none";
+              if (!animationEnabled) {
+                this.stop();
+                this.clearMotion();
+                return;
+              }
+
+              if (phase === "visit:start" && this.config.restartOnRouteChange) {
+                this.stop();
+                this.clearMotion();
+                return;
+              }
+
+              const shouldRestart =
+                forceRestart ||
+                phase === "initial" ||
+                phase === "page:view" ||
+                phase === "show-banner";
+
+              if (!shouldRestart) return;
+
+              this.stop();
+              const preset = this.getPreset(nextMode);
+              this.mobileIndex = this.resetSlot("banner-image-slot-mobile", this.mobileFrames, 0, preset);
+              this.desktopIndex = this.resetSlot("banner-image-slot-desktop", this.desktopFrames, 0, preset);
+              this.startCarousel(nextMode);
+            };
+
+            state.init = function initHeroEngine(options = {}) {
+              const container = document.getElementById("banner-images-container");
+              const bannerWrapper = document.getElementById("banner-wrapper");
+
+              if (!container || !bannerWrapper) {
+                this.stop();
+                this.container = null;
+                this.bannerWrapper = null;
+                this.mobileFrames = [];
+                this.desktopFrames = [];
+                return;
+              }
+
+              const isNewContainer = this.container !== container;
+              this.container = container;
+              this.bannerWrapper = bannerWrapper;
+
+              if (isNewContainer || this.mobileFrames.length === 0) {
+                this.mobileFrames = this.collectFrames("banner-image-slot-mobile", "banner-tpl-mobile");
+                this.desktopFrames = this.collectFrames("banner-image-slot-desktop", "banner-tpl-desktop");
+                this.mobileIndex = 0;
+                this.desktopIndex = 0;
+              }
+
+              this.sync({
+                phase: options.phase || (isNewContainer ? "initial" : "content:replace"),
+                forceRestart: options.forceRestart === true || isNewContainer,
+              });
+            };
+
+            if (!state.ready) {
+              state.ready = true;
+              document.addEventListener("swup:contentReplaced", () => state.init({ phase: "content:replace" }));
+              window.addEventListener("beforeunload", () => state.stop());
+            }
+
+            if (document.readyState === "loading") {
+              document.addEventListener(
+                "DOMContentLoaded",
+                () => state.init({ phase: "initial", forceRestart: true }),
+                { once: true },
+              );
+            } else {
+              state.init({ phase: "initial", forceRestart: true });
+            }
+          })();
+        </script>
+
         {
           renderHomeText && (
-            <div class:list={["banner-text-overlay absolute inset-0 z-20 flex items-center justify-center", { hidden: !showHomeText }]}>
-              <div class="mx-auto flex w-[min(90%,56rem)] flex-col items-center text-center">
-                {
-                  homeText?.title && (
-                    <h1 class="banner-title text-balance text-4xl font-bold text-white md:text-6xl lg:text-7xl">
-                      {homeText.title}
-                    </h1>
-                  )
-                }
-                {
-                  homeText?.subtitle && (
-                    <div class="banner-subtitle mt-4 text-balance text-base text-white/90 md:text-xl lg:text-2xl">
-                      {
-                        homeText.typewriter?.enable ? (
-                          <TypewriterText
-                            text={homeText.subtitle}
-                            speed={homeText.typewriter.speed}
-                            deleteSpeed={homeText.typewriter.deleteSpeed}
-                            pauseTime={homeText.typewriter.pauseTime}
-                          />
-                        ) : Array.isArray(homeText.subtitle) ? (
-                          homeText.subtitle[0]
-                        ) : (
-                          homeText.subtitle
-                        )
-                      }
-                    </div>
-                  )
-                }
+            <div class:list={["banner-home-text-overlay absolute inset-0 z-20 flex items-center justify-center", { hidden: !showHomeText }]}>
+              <div class="w-4/5 text-center lg:w-3/4">
+                <div class="flex flex-col">
+                  {
+                    homeText?.title && (
+                      <h1 class="banner-title mb-2 text-balance font-bold leading-tight text-white lg:mb-4" style={{ "--banner-title-size": heroTitleSize }}>
+                        {homeText.title}
+                      </h1>
+                    )
+                  }
+                  {
+                    heroSubtitle && (
+                      <div class="banner-subtitle text-balance leading-snug text-white/90" style={{ "--banner-subtitle-size": heroSubtitleSize }}>
+                        {
+                          homeText.typewriter?.enable ? (
+                            <TypewriterText
+                              text={heroSubtitle}
+                              speed={homeText.typewriter.speed}
+                              deleteSpeed={homeText.typewriter.deleteSpeed}
+                              pauseTime={homeText.typewriter.pauseTime}
+                            />
+                          ) : Array.isArray(heroSubtitle) ? (
+                            heroSubtitle[0]
+                          ) : (
+                            heroSubtitle
+                          )
+                        }
+                      </div>
+                    )
+                  }
+                </div>
               </div>
             </div>
           )
@@ -264,127 +731,155 @@ const mainContentClass = `
         }
 
         {
-          (wavesEnabledOnDesktop || wavesEnabledOnMobile) && (
-            <div
-              id="header-waves"
-              class:list={[
-                "waves absolute inset-x-0 bottom-0",
-                !wavesEnabledOnMobile && "hidden",
-                !wavesEnabledOnDesktop && "md:hidden",
-                wavesEnabledOnDesktop && "md:block",
-              ]}
-            >
-              <svg
-                class="h-full w-full"
-                xmlns="http://www.w3.org/2000/svg"
-                xmlns:xlink="http://www.w3.org/1999/xlink"
-                viewBox="0 20 150 32"
-                preserveAspectRatio="none"
-                shape-rendering="auto"
+          heroMode !== "none" &&
+            (wavesEnabledOnDesktop || wavesEnabledOnMobile) && (
+              <div
+                id="header-waves"
+                class:list={[
+                  "waves hero-wave-footer absolute inset-x-0 -bottom-px",
+                  !wavesEnabledOnMobile && "hidden",
+                  !wavesEnabledOnDesktop && "md:hidden",
+                  wavesEnabledOnDesktop && "md:block",
+                ]}
+                aria-hidden="true"
+                style="transform: translateZ(0);"
               >
-                <defs>
-                  <path
-                    id="gentle-wave"
-                    d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v48h-352z"
-                  ></path>
-                </defs>
-                <g class="parallax">
-                  <use xlink:href="#gentle-wave" x="48" y="0" class="opacity-25 fill-[var(--page-bg)]"></use>
-                  <use xlink:href="#gentle-wave" x="48" y="3" class="opacity-50 fill-[var(--page-bg)]"></use>
-                  <use xlink:href="#gentle-wave" x="48" y="5" class="opacity-75 fill-[var(--page-bg)]"></use>
-                  <use xlink:href="#gentle-wave" x="48" y="7" class="fill-[var(--page-bg)]"></use>
-                </g>
-              </svg>
-            </div>
-          )
+                <svg
+                  class="waves h-full w-full"
+                  xmlns="http://www.w3.org/2000/svg"
+                  xmlns:xlink="http://www.w3.org/1999/xlink"
+                  viewBox="0 24 150 28"
+                  preserveAspectRatio="none"
+                  shape-rendering="geometricPrecision"
+                >
+                  <defs>
+                    <path
+                      id="gentle-wave"
+                      d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v48h-352z"
+                    ></path>
+                  </defs>
+                  <g class="parallax">
+                    <use xlink:href="#gentle-wave" x="48" y="0" class="wave-layer wave-layer-1"></use>
+                    <use xlink:href="#gentle-wave" x="48" y="3" class="wave-layer wave-layer-2"></use>
+                    <use xlink:href="#gentle-wave" x="48" y="5" class="wave-layer wave-layer-3"></use>
+                    <use xlink:href="#gentle-wave" x="48" y="7" class="wave-layer wave-layer-4"></use>
+                  </g>
+                </svg>
+              </div>
+            )
         }
+
       </section>
     )
   }
 
-  <div id="content-shell" data-hero-mode={heroMode} class:list={["absolute inset-x-0 z-30 pointer-events-none", transparentClass]}>
-    <div class="pointer-events-auto relative mx-auto max-w-[var(--page-width)]">
-      <div id="main-grid" class:list={["mx-auto grid gap-4 px-2 md:px-4", gridCols]}>
-        {
-          heroMode !== "none" &&
-            creditEnabledOnDesktop && (
-              <a
-                href={creditUrlDesktop || "#"}
-                id="banner-credit-desktop"
-                target={creditUrlDesktop ? "_blank" : "_self"}
-                rel={creditUrlDesktop ? "noopener" : undefined}
-                aria-label="Visit image source"
-                class:list={[
-                  "group absolute right-4 top-0 hidden -translate-y-[3.25rem] items-center gap-2 rounded-full bg-black/60 px-3 py-2 text-xs text-white/80 transition hover:bg-black/75 md:flex",
-                  { "pr-9": Boolean(creditUrlDesktop) },
-                ]}
-              >
-                <Icon class="text-base" name="material-symbols:copyright-outline-rounded" />
-                <span>{creditTextDesktop}</span>
-                {
-                  creditUrlDesktop && (
-                    <Icon
-                      class="absolute right-4 text-[0.75rem] text-[oklch(0.75_0.14_var(--hue))] opacity-0 transition group-hover:opacity-100"
-                      name="fa6-solid:arrow-up-right-from-square"
-                    />
-                  )
-                }
-              </a>
-            )
-        }
+    <div
+      id="content-shell"
+      data-hero-mode={heroMode}
+      data-wave-style={waveStyle}
+      class:list={["absolute inset-x-0 z-30 w-full pointer-events-none", transparentClass]}
+    >
+      <div class="pointer-events-auto relative z-[2] mx-auto w-full max-w-[var(--page-width)] xl:w-[92vw]">
+        <div
+          id="main-grid"
+          class:list={[
+            "transition duration-700 left-0 right-0 mx-auto grid w-full grid-rows-[auto_1fr_auto] gap-4 px-2 md:px-4 lg:grid-rows-[auto]",
+            gridCols,
+          ]}
+          data-sidebar-position={desktopSidebarPosition}
+          data-tablet-sidebar={tabletSidebarPosition}
+          data-show-both-sidebars-on-post={String(showBothSidebarsOnPost)}
+        >
+          {
+            heroMode !== "none" &&
+              creditEnabledOnDesktop && (
+                <a
+                  href={creditUrlDesktop || "#"}
+                  id="banner-credit-desktop"
+                  target={creditUrlDesktop ? "_blank" : "_self"}
+                  rel={creditUrlDesktop ? "noopener" : undefined}
+                  aria-label="Visit image source"
+                  class:list={[
+                    "group absolute right-4 -top-13 hidden h-9 items-center justify-center rounded-full bg-black/60 px-3 text-xs text-white/80 transition-all hover:bg-black/70 active:bg-black/80 md:flex",
+                    { "pr-9": Boolean(creditUrlDesktop) },
+                  ]}
+                >
+                  <Icon class="mr-1 text-[1.25rem] text-white/75" name="material-symbols:copyright-outline-rounded" />
+                  <span>{creditTextDesktop}</span>
+                  {
+                    creditUrlDesktop && (
+                      <Icon
+                        class="absolute right-4 text-[0.75rem] text-[oklch(0.75_0.14_var(--hue))] opacity-0 transition group-hover:opacity-100"
+                        name="fa6-solid:arrow-up-right-from-square"
+                      />
+                    )
+                  }
+                </a>
+              )
+          }
 
-        {
-          heroMode !== "none" &&
-            creditEnabledOnMobile && (
-              <a
-                href={creditUrlMobile || "#"}
-                id="banner-credit-mobile"
-                target={creditUrlMobile ? "_blank" : "_self"}
-                rel={creditUrlMobile ? "noopener" : undefined}
-                aria-label="Visit image source"
-                class:list={[
-                  "group absolute right-4 top-0 flex -translate-y-[3.25rem] items-center gap-2 rounded-full bg-black/60 px-3 py-2 text-xs text-white/80 transition hover:bg-black/75 md:hidden",
-                  { "pr-9": Boolean(creditUrlMobile) },
-                ]}
-              >
-                <Icon class="text-base" name="material-symbols:copyright-outline-rounded" />
-                <span>{creditTextMobile}</span>
-                {
-                  creditUrlMobile && (
-                    <Icon
-                      class="absolute right-4 text-[0.75rem] text-[oklch(0.75_0.14_var(--hue))] opacity-0 transition group-hover:opacity-100"
-                      name="fa6-solid:arrow-up-right-from-square"
-                    />
-                  )
-                }
-              </a>
-            )
-        }
+          {
+            heroMode !== "none" &&
+              creditEnabledOnMobile && (
+                <a
+                  href={creditUrlMobile || "#"}
+                  id="banner-credit-mobile"
+                  target={creditUrlMobile ? "_blank" : "_self"}
+                  rel={creditUrlMobile ? "noopener" : undefined}
+                  aria-label="Visit image source"
+                  class:list={[
+                    "group absolute right-4 -top-13 flex h-9 items-center justify-center rounded-full bg-black/60 px-3 text-xs text-white/80 transition-all hover:bg-black/70 active:bg-black/80 md:hidden",
+                    { "pr-9": Boolean(creditUrlMobile) },
+                  ]}
+                >
+                  <Icon class="mr-1 text-[1.25rem] text-white/75" name="material-symbols:copyright-outline-rounded" />
+                  <span>{creditTextMobile}</span>
+                  {
+                    creditUrlMobile && (
+                      <Icon
+                        class="absolute right-4 text-[0.75rem] text-[oklch(0.75_0.14_var(--hue))] opacity-0 transition group-hover:opacity-100"
+                        name="fa6-solid:arrow-up-right-from-square"
+                      />
+                    )
+                  }
+                </a>
+              )
+          }
 
-        {
-          (mobileShowSidebar || tabletShowSidebar || desktopShowSidebar) && (
-            <SideBar class={`${sidebarClass} ${transparentClass}`} headings={headings} />
-          )
-        }
+          {globalSidebarEnabled && leftHasComponents && (
+            <SideBar class={`${leftSidebarClass} ${transparentClass}`} headings={headings} side="left" isPostPage={isPostPage} />
+          )}
 
-        <main id="swup-container" class={mainContentClass}>
-          <div id="content-wrapper" class="onload-animation transition-leaving">
-            <slot />
+          {globalSidebarEnabled && rightHasComponents && (
+            <SideBar class={`${rightSidebarClass} ${transparentClass}`} headings={headings} side="right" isPostPage={isPostPage} />
+          )}
+
+          <main id="swup-container" class={mainContentClass}>
+            <div id="content-wrapper" class="onload-animation transition-leaving">
+              <slot />
+            </div>
+          </main>
+
+          {hasMobileBottomComponents && (
+            <div class="col-span-full md:hidden">
+              <MobileBottomWidgets class="onload-animation" headings={headings} isPostPage={isPostPage} />
+            </div>
+          )}
+
+          <div class="footer onload-animation col-span-full">
+            <Footer />
           </div>
-        </main>
-
-        <div class="footer onload-animation md:col-span-2">
-          <Footer />
         </div>
-      </div>
 
-      <BackToTop />
-      {spineModelConfig.enable && <SpineModel />}
-      {live2dModelConfig.enable && <Live2DWidget config={live2dModelConfig} />}
+        <BackToTop />
+        {spineModelConfig.enable && <SpineModel />}
+        {live2dModelConfig.enable && <Live2DWidget config={live2dModelConfig} />}
+      </div>
     </div>
   </div>
 
-  {siteConfig.toc.enable && hasHeadings ? <FloatingTOC headings={headings} /> : <div id="toc"></div>}
+    {shouldRenderFloatingToc ? <FloatingTOC headings={headings} /> : <div id="toc"></div>}
+  </div>
 </Layout>
 
 <style
@@ -396,30 +891,38 @@ const mainContentClass = `
     heroHeightInnerMobile: `${HERO_HEIGHT_INNER_MOBILE}rem`,
     heroExtend: `${BANNER_HEIGHT_EXTEND}vh`,
     heroOverlap: `${MAIN_PANEL_OVERLAPS_BANNER_HEIGHT}rem`,
+    heroWaveDesktopHeight: waveHeightDesktop,
+    heroWaveMobileHeight: waveHeightMobile,
   }}
 >
-  :global(:root) {
+  #page-shell-vars {
     --hero-height-home: var(--heroHeightHomeDesktop);
     --hero-height-inner: var(--heroHeightInnerDesktop);
     --hero-extend: var(--heroExtend);
     --hero-overlap: var(--heroOverlap);
+    --hero-wave-height: var(--heroWaveDesktopHeight);
+    --navbar-shell-height: 6.25rem;
+    --navbar-clearance: calc(var(--navbar-shell-height) + 0.75rem);
   }
 
   @media (max-width: 1024px) {
-    :global(:root) {
+    #page-shell-vars {
       --hero-height-home: var(--heroHeightHomeTablet);
     }
   }
 
   @media (max-width: 768px) {
-    :global(:root) {
+    #page-shell-vars {
       --hero-height-home: var(--heroHeightHomeMobile);
       --hero-height-inner: var(--heroHeightInnerMobile);
+      --hero-wave-height: var(--heroWaveMobileHeight);
+      --navbar-shell-height: 5.75rem;
+      --navbar-clearance: calc(var(--navbar-shell-height) + 0.5rem);
     }
   }
 
   #banner-wrapper[data-hero-mode="home"] {
-    top: calc(-0.55 * var(--hero-extend));
+    top: 0;
     height: calc(var(--hero-height-home) + var(--hero-extend));
   }
 
@@ -429,24 +932,51 @@ const mainContentClass = `
   }
 
   #content-shell[data-hero-mode="home"] {
-    top: calc(var(--hero-height-home) - var(--hero-overlap));
-    min-height: calc(100vh - (var(--hero-height-home) - var(--hero-overlap)));
+    top: calc(var(--hero-height-home) + var(--hero-extend) - var(--hero-overlap));
+    min-height: calc(100vh - (var(--hero-height-home) + var(--hero-extend) - var(--hero-overlap)));
   }
 
   #content-shell[data-hero-mode="inner"] {
-    top: calc(var(--hero-height-inner) - 2.5rem);
-    min-height: calc(100vh - (var(--hero-height-inner) - 2.5rem));
+    top: var(--hero-height-inner);
+    min-height: calc(100vh - var(--hero-height-inner));
   }
 
   #content-shell[data-hero-mode="none"] {
-    top: 5.5rem;
-    min-height: calc(100vh - 5.5rem);
+    top: var(--navbar-clearance);
+    min-height: calc(100vh - var(--navbar-clearance));
+  }
+
+  /* Keep wallpaper confined to the hero area; the page body stays solid. */
+  #content-shell {
+    background: var(--page-bg);
+    overflow: visible;
+  }
+
+  #main-grid {
+    padding-bottom: 1.5rem;
+  }
+
+  #content-shell[data-hero-mode="home"] #main-grid {
+    padding-top: 0;
+  }
+
+  #content-shell[data-hero-mode="inner"] #main-grid,
+  #content-shell[data-hero-mode="none"] #main-grid {
+    padding-top: 0.75rem;
   }
 
   .hero-image {
-    animation: heroScaleIn 2s ease-out both;
     transform: translateZ(0);
     will-change: transform;
+    backface-visibility: hidden;
+  }
+
+  .banner-image-slot-mobile,
+  .banner-image-slot-desktop {
+    transform-origin: center center;
+    will-change: opacity, transform;
+    backface-visibility: hidden;
+    contain: paint;
   }
 
   .hero-overlay {
@@ -461,16 +991,25 @@ const mainContentClass = `
       linear-gradient(to right, rgba(9, 14, 24, 0.22), rgba(9, 14, 24, 0.05));
   }
 
-  .banner-text-overlay {
-    padding: clamp(1.5rem, 4vw, 3rem);
+  .banner-home-text-overlay {
+    padding:
+      max(clamp(1.5rem, 4vw, 3rem), var(--navbar-clearance))
+      clamp(1.5rem, 4vw, 3rem)
+      clamp(1.5rem, 4vw, 3rem);
     text-align: center;
   }
 
+  .inner-hero-overlay {
+    padding-top: var(--navbar-clearance);
+  }
+
   .banner-title {
+    font-size: clamp(2.75rem, 6vw, var(--banner-title-size, 3.8rem));
     text-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
   }
 
   .banner-subtitle {
+    font-size: clamp(1rem, 2.4vw, var(--banner-subtitle-size, 1.5rem));
     text-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   }
 
@@ -488,22 +1027,79 @@ const mainContentClass = `
     text-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   }
 
-  .waves {
-    height: min(16vh, 9rem);
-    min-height: 4rem;
+  .hero-wave-footer {
+    height: var(--hero-wave-height);
+    min-height: 4.5rem;
+    max-height: 15vh;
+    pointer-events: none;
+    filter: drop-shadow(0 -10px 22px rgba(6, 12, 18, 0.12));
+    z-index: 25;
   }
 
-  @keyframes heroScaleIn {
+  .hero-wave-footer svg {
+    display: block;
+  }
+
+  .hero-wave-footer .wave-layer {
+    fill: var(--page-bg);
+  }
+
+  #banner-wrapper[data-wave-style="contrast"] .hero-wave-footer .wave-layer-1 {
+    opacity: 0.25;
+  }
+
+  #banner-wrapper[data-wave-style="contrast"] .hero-wave-footer .wave-layer-2 {
+    opacity: 0.5;
+  }
+
+  #banner-wrapper[data-wave-style="contrast"] .hero-wave-footer .wave-layer-3 {
+    opacity: 0.65;
+  }
+
+  #banner-wrapper[data-wave-style="contrast"] .hero-wave-footer .wave-layer-4 {
+    opacity: 0.75;
+  }
+
+  #banner-wrapper[data-wave-style="soft"] .hero-wave-footer .wave-layer-1 {
+    opacity: 0.18;
+  }
+
+  #banner-wrapper[data-wave-style="soft"] .hero-wave-footer .wave-layer-2 {
+    opacity: 0.35;
+  }
+
+  #banner-wrapper[data-wave-style="soft"] .hero-wave-footer .wave-layer-3 {
+    opacity: 0.5;
+  }
+
+  #banner-wrapper[data-wave-style="soft"] .hero-wave-footer .wave-layer-4 {
+    opacity: 0.75;
+  }
+
+  :global(.dark) #banner-wrapper .hero-wave-footer {
+    filter: drop-shadow(0 -10px 22px rgba(0, 0, 0, 0.24));
+  }
+
+  @keyframes heroMotion {
     from {
-      transform: scale(1.05);
+      transform: scale(var(--hero-scale-from, 1.02))
+        translate3d(var(--hero-translate-from-x, 0%), var(--hero-translate-from-y, 0%), 0);
     }
     to {
-      transform: scale(1);
+      transform: scale(var(--hero-scale-to, 1.1))
+        translate3d(var(--hero-translate-to-x, 0%), var(--hero-translate-to-y, 0%), 0);
     }
+  }
+
+  .banner-motion {
+    animation: heroMotion var(--hero-motion-duration, 6400ms) ease-in-out infinite alternate;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .hero-image {
+    .hero-image,
+    .banner-image-slot-mobile,
+    .banner-image-slot-desktop,
+    .banner-motion {
       animation: none;
       transform: none;
     }

@@ -1,7 +1,19 @@
 ---
+import { Icon } from "astro-icon/components";
 import { getCollection } from "astro:content";
+import { siteConfig } from "../../config";
+import WidgetLayout from "./WidgetLayout.astro";
 import { getPostSlugFromId } from "../../utils/url-utils";
 
+interface Props {
+  class?: string;
+  style?: string;
+}
+
+const { class: className, style } = Astro.props;
+const isEnglish = siteConfig.lang === "en";
+
+const siteStartDate = "2025-01-01";
 const posts = await getCollection("posts", ({ data }) => !data.draft);
 const categories = new Set(posts.map((post) => post.data.category).filter(Boolean));
 const tags = new Set(posts.flatMap((post) => post.data.tags ?? []));
@@ -9,22 +21,89 @@ const latest = [...posts].sort(
   (left, right) => right.data.published.getTime() - left.data.published.getTime(),
 )[0];
 
+let totalWords = 0;
+for (const post of posts) {
+  if (!post.body) continue;
+  const text = post.body
+    .replace(/```[\s\S]*?```/g, "")
+    .replace(/`[^`]*`/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const chineseChars = text.match(/[\u4e00-\u9fa5]/g) || [];
+  const englishChars = text.match(/[a-zA-Z]/g) || [];
+  totalWords += chineseChars.length + englishChars.length;
+}
+
+const formatNumber = (value: number) => value.toLocaleString("id-ID");
+
 const stats = [
-  { label: "Artikel", value: posts.length },
-  { label: "Kategori", value: categories.size },
-  { label: "Tag", value: tags.size },
+  {
+    id: "articles",
+    icon: "material-symbols:article-outline",
+    label: isEnglish ? "Articles" : "Artikel",
+    value: posts.length,
+  },
+  {
+    id: "categories",
+    icon: "material-symbols:folder-outline",
+    label: isEnglish ? "Categories" : "Kategori",
+    value: categories.size,
+  },
+  {
+    id: "tags",
+    icon: "material-symbols:label-outline",
+    label: "Tag",
+    value: tags.size,
+  },
+  {
+    id: "words",
+    icon: "material-symbols:text-ad-outline-rounded",
+    label: isEnglish ? "Total Words" : "Total Kata",
+    value: formatNumber(totalWords),
+  },
+  {
+    id: "running-days",
+    icon: "material-symbols:calendar-clock-outline",
+    label: isEnglish ? "Site Age" : "Umur Situs",
+    value: "0",
+    suffix: isEnglish ? "days" : "hari",
+    dynamic: true,
+  },
+  {
+    id: "last-update",
+    icon: "material-symbols:favorite-outline-rounded",
+    label: isEnglish ? "Last Update" : "Update Terakhir",
+    value: "0",
+    suffix: isEnglish ? "days ago" : "hari lalu",
+    dynamic: true,
+  },
 ];
 ---
 
-<div class="card-base p-4">
-  <h3 class="mb-3 text-sm font-semibold">Statistik Situs</h3>
-
-  <div class="mb-3 grid grid-cols-3 gap-2">
+<WidgetLayout name={isEnglish ? "Site Stats" : "Statistik Situs"} id="site-stats" class={className} style={style}>
+  <div class="flex flex-col gap-1">
     {
       stats.map((stat) => (
-        <div class="rounded-xl bg-[var(--btn-plain-bg)] p-2 text-center">
-          <div class="text-xl font-bold text-[var(--primary)]">{stat.value}</div>
-          <div class="mt-0.5 text-xs text-50">{stat.label}</div>
+        <div class="flex items-center justify-between gap-3 rounded-xl px-3 py-2 transition hover:bg-[var(--btn-plain-bg-hover)]/60">
+          <div class="flex min-w-0 items-center gap-2.5">
+            <div class="shrink-0 text-lg text-[var(--primary)]">
+              <Icon name={stat.icon} />
+            </div>
+            <span class="truncate text-sm font-medium text-neutral-700 dark:text-neutral-300">
+              {stat.label}
+            </span>
+          </div>
+          <div class="flex shrink-0 items-baseline gap-1 text-right">
+            <span class="text-sm font-bold text-neutral-900 dark:text-neutral-100" data-stat-id={stat.dynamic ? stat.id : undefined}>
+              {stat.value}
+            </span>
+            {stat.suffix && (
+              <span class="text-[11px] text-neutral-500 dark:text-neutral-400" data-stat-suffix={stat.dynamic ? stat.id : undefined}>
+                {stat.suffix}
+              </span>
+            )}
+          </div>
         </div>
       ))
     }
@@ -32,12 +111,50 @@ const stats = [
 
   {
     latest && (
-      <div class="mt-1 border-t border-[var(--line-color)] pt-2 text-xs text-50">
-        Terbaru:{" "}
-        <a href={`/posts/${getPostSlugFromId(latest.id)}/`} class="text-[var(--primary)] hover:underline">
+      <div class="mt-3 border-t border-[var(--line-color)] pt-3 text-xs text-neutral-500 dark:text-neutral-400">
+        <span class="mr-1">{isEnglish ? "Latest article:" : "Artikel terbaru:"}</span>
+        <a href={`/posts/${getPostSlugFromId(latest.id)}/`} class="font-medium text-[var(--primary)] hover:underline">
           {latest.data.title}
         </a>
       </div>
     )
   }
-</div>
+</WidgetLayout>
+
+<script
+  is:inline
+  define:vars={{
+    siteStartDate,
+    lastPostDate: latest?.data.published.toISOString() ?? "",
+    todayLabel: isEnglish ? "today" : "hari ini",
+    lastUpdateSuffix: isEnglish ? "days ago" : "hari lalu",
+  }}
+>
+  function updateDynamicStats() {
+    const today = new Date();
+    const startDate = new Date(siteStartDate);
+    const runningDays = Math.ceil(Math.abs(today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+
+    document.querySelectorAll('[data-stat-id="running-days"]').forEach((element) => {
+      element.textContent = runningDays.toString();
+    });
+
+    if (!lastPostDate) return;
+
+    const lastPost = new Date(lastPostDate);
+    const daysSinceLastUpdate = Math.floor(Math.abs(today.getTime() - lastPost.getTime()) / (1000 * 60 * 60 * 24));
+
+    document.querySelectorAll('[data-stat-id="last-update"]').forEach((element) => {
+      element.textContent = daysSinceLastUpdate === 0 ? todayLabel : daysSinceLastUpdate.toString();
+    });
+
+    document.querySelectorAll('[data-stat-suffix="last-update"]').forEach((element) => {
+      element.textContent = daysSinceLastUpdate === 0 ? "" : lastUpdateSuffix;
+    });
+  }
+
+  updateDynamicStats();
+  document.addEventListener("swup:contentReplaced", () => {
+    setTimeout(updateDynamicStats, 100);
+  });
+</script>

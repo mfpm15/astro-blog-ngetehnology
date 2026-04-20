@@ -1,5 +1,6 @@
 ---
 import type { MarkdownHeading } from "astro";
+import type { WidgetComponentConfig } from "../../types/config";
 import { widgetManager } from "../../utils/widget-manager";
 import Announcement from "./Announcement.astro";
 import Categories from "./Categories.astro";
@@ -14,67 +15,74 @@ import SiteStats from "./SiteStats.astro";
 interface Props {
   class?: string;
   headings?: MarkdownHeading[];
+  side?: "left" | "right";
+  isPostPage?: boolean;
 }
 
-const { class: className, headings } = Astro.props;
+const { class: className, headings, side = "left", isPostPage = false } = Astro.props;
 
-// 获取配置的组件列表
-const topComponents = widgetManager.getComponentsByPosition("top");
-const stickyComponents = widgetManager.getComponentsByPosition("sticky");
+const topComponents = widgetManager.getComponentsByPosition("top", side, isPostPage);
+const stickyComponents = widgetManager.getComponentsByPosition("sticky", side, isPostPage);
 
-// 提取客户端需要的数据
-const breakpoints = widgetManager.getBreakpoints();
 const sidebarConfig = {
-  breakpoints: breakpoints,
+  breakpoints: widgetManager.getBreakpoints(),
   shouldShowSidebar: {
-    mobile: widgetManager.shouldShowSidebar("mobile"),
-    tablet: widgetManager.shouldShowSidebar("tablet"),
-    desktop: widgetManager.shouldShowSidebar("desktop"),
+    mobile: widgetManager.shouldShowSidebarSide("mobile", side, isPostPage),
+    tablet: widgetManager.shouldShowSidebarSide("tablet", side, isPostPage),
+    desktop: widgetManager.shouldShowSidebarSide("desktop", side, isPostPage),
   },
+  side,
 };
 
-// 组件映射表
 const componentMap = {
   profile: Profile,
   announcement: Announcement,
   categories: Categories,
   tags: Tags,
   toc: TOC,
+  sidebarToc: TOC,
   advertisement: Advertisement,
   calendar: Calendar,
+  stats: SiteStats,
   "site-stats": SiteStats,
+  music: MusicPlayer,
   "music-player": MusicPlayer,
 };
 
-// 渲染组件的辅助函数
-function renderComponent(component: any, index: number, _components: any[]) {
-  const ComponentToRender =
-    componentMap[component.type as keyof typeof componentMap];
+type RenderData = {
+  Component: any;
+  props: Record<string, unknown>;
+};
+
+function renderComponent(component: WidgetComponentConfig, index: number): RenderData | null {
+  const ComponentToRender = componentMap[component.type as keyof typeof componentMap];
   if (!ComponentToRender) return null;
 
-  const componentClass = widgetManager.getComponentClass(component, index);
-  const componentStyle = widgetManager.getComponentStyle(component, index);
+  const props: Record<string, unknown> = {
+    class: widgetManager.getComponentClass(component, index),
+    style: widgetManager.getComponentStyle(component, index),
+    componentConfig: component,
+    configId: component.configId,
+    ...component.customProps,
+  };
+
+  if ((component.type === "toc" || component.type === "sidebarToc") && headings) {
+    props.headings = headings;
+  }
 
   return {
-    Component: ComponentToRender,
-    props: {
-      class: componentClass,
-      style: componentStyle,
-      headings: component.type === "toc" ? headings : undefined,
-      configId: component.configId, // 传递configId给Advertisement组件
-      ...component.customProps,
-    },
+    Component: ComponentToRender as any,
+    props,
   };
 }
 ---
 
-<div id="sidebar" class:list={[className, "w-full"]}>
-  <!-- 顶部固定组件区域 -->
+<div id={`sidebar-${side}`} class:list={[className, "w-full"]}>
   {
     topComponents.length > 0 && (
-      <div class="flex flex-col w-full gap-4 mb-4">
+      <div class="mb-4 flex w-full flex-col gap-4">
         {topComponents.map((component, index) => {
-          const renderData = renderComponent(component, index, topComponents);
+          const renderData = renderComponent(component, index);
           if (!renderData) return null;
 
           const { Component, props } = renderData;
@@ -84,19 +92,14 @@ function renderComponent(component: any, index: number, _components: any[]) {
     )
   }
 
-  <!-- 粘性组件区域 -->
   {
     stickyComponents.length > 0 && (
       <div
-        id="sidebar-sticky"
-        class="transition-all duration-700 flex flex-col w-full gap-4 top-4 sticky top-4"
+        id={`sidebar-sticky-${side}`}
+        class="sticky top-4 flex w-full flex-col gap-4 transition-all duration-700"
       >
         {stickyComponents.map((component, index) => {
-          const renderData = renderComponent(
-            component,
-            index,
-            stickyComponents
-          );
+          const renderData = renderComponent(component, index);
           if (!renderData) return null;
 
           const { Component, props } = renderData;
@@ -107,49 +110,23 @@ function renderComponent(component: any, index: number, _components: any[]) {
   }
 </div>
 
-<!-- 响应式样式和JavaScript -->
-<style>
-  /* 响应式断点样式 */
-  @media (max-width: 768px) {
-    #sidebar {
-      display: var(--sidebar-mobile-display, block);
-    }
-  }
-
-  @media (min-width: 769px) and (max-width: 1024px) {
-    #sidebar {
-      display: var(--sidebar-tablet-display, block);
-    }
-  }
-
-  @media (min-width: 1025px) {
-    #sidebar {
-      display: var(--sidebar-desktop-display, block);
-    }
-  }
-</style>
-
 <script define:vars={{ sidebarConfig }}>
-  // 响应式布局管理
   class SidebarManager {
     constructor() {
       this.config = sidebarConfig;
+      this.handleResize = this.updateResponsiveDisplay.bind(this);
       this.init();
     }
 
     init() {
       this.updateResponsiveDisplay();
-      window.addEventListener("resize", () => this.updateResponsiveDisplay());
+      window.addEventListener("resize", this.handleResize);
+      document.addEventListener("astro:after-swap", this.handleResize);
+    }
 
-      // 监听SWUP内容替换事件
-      if (typeof window !== "undefined" && window.swup) {
-        window.swup.hooks.on("content:replace", () => {
-          // 延迟执行以确保DOM已更新
-          setTimeout(() => {
-            this.updateResponsiveDisplay();
-          }, 100);
-        });
-      }
+    destroy() {
+      window.removeEventListener("resize", this.handleResize);
+      document.removeEventListener("astro:after-swap", this.handleResize);
     }
 
     updateResponsiveDisplay() {
@@ -165,18 +142,14 @@ function renderComponent(component: any, index: number, _components: any[]) {
         deviceType = "desktop";
       }
 
-      const shouldShow = this.config.shouldShowSidebar[deviceType];
-      const sidebar = document.getElementById("sidebar");
+      const sidebar = document.getElementById(`sidebar-${this.config.side}`);
+      if (!sidebar) return;
 
-      if (sidebar) {
-        sidebar.style.setProperty(
-          `--sidebar-${deviceType}-display`,
-          shouldShow ? "block" : "none"
-        );
-      }
+      sidebar.style.display = this.config.shouldShowSidebar[deviceType] ? "block" : "none";
     }
   }
 
-  // 初始化侧边栏管理器
-  new SidebarManager();
+  window.__sidebarManagers ??= {};
+  window.__sidebarManagers[sidebarConfig.side]?.destroy?.();
+  window.__sidebarManagers[sidebarConfig.side] = new SidebarManager();
 </script>

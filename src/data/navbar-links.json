@@ -1,12 +1,12 @@
 {
   "links": [
     {
-      "name": "Beranda",
+      "name": "Home",
       "url": "/",
       "icon": "material-symbols:home"
     },
     {
-      "name": "Arsip",
+      "name": "Archive",
       "url": "/archive/",
       "icon": "material-symbols:archive"
     },
@@ -16,7 +16,7 @@
       "icon": "material-symbols:movie"
     },
     {
-      "name": "Tautan",
+      "name": "Links",
       "url": "/friends/",
       "icon": "material-symbols:link",
       "children": [
@@ -29,32 +29,32 @@
       ]
     },
     {
-      "name": "Teman",
+      "name": "Friends",
       "url": "/friends/",
       "icon": "material-symbols:group"
     },
     {
-      "name": "Tentang",
+      "name": "About",
       "url": "/about/",
       "icon": "material-symbols:info",
       "children": [
         {
-          "name": "Tentang",
+          "name": "About",
           "url": "/about/",
           "icon": "material-symbols:person"
         },
         {
-          "name": "Proyek Saya",
+          "name": "Projects",
           "url": "/projects/",
           "icon": "material-symbols:work"
         },
         {
-          "name": "Keahlian Saya",
+          "name": "Skills",
           "url": "/skills/",
           "icon": "material-symbols:psychology"
         },
         {
-          "name": "Pengalaman Saya",
+          "name": "Timeline",
           "url": "/timeline/",
           "icon": "material-symbols:timeline"
         }

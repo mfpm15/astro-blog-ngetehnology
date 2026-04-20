@@ -1,10 +1,10 @@
 {
-  "title": "Pengumuman",
-  "content": "Selamat datang di NgetehNology. Blog ini dibangun di atas Firefly dan sedang dirapikan agar alur menulis konten, konfigurasi, dan pengalaman membaca lebih stabil.",
+  "title": "Announcement",
+  "content": "Welcome to NgetehNology. This site is built on Firefly and is being refined so publishing, configuration, and reading feel more stable.",
   "closable": true,
   "link": {
     "enable": true,
-    "text": "Lihat Tentang Situs",
+    "text": "About This Site",
     "url": "/about/",
     "external": false
   }

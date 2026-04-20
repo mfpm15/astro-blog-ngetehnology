@@ -206,11 +206,20 @@ export type WidgetComponentType =
   | "announcement"
   | "categories"
   | "tags"
+  // Legacy key kept for backward compatibility. Prefer "sidebarToc".
   | "toc"
   | "advertisement"
   | "calendar"
+  // Firefly docs key. Alias of "site-stats".
+  | "stats"
+  // Legacy key kept for backward compatibility. Prefer "stats".
   | "site-stats"
+  // Firefly docs key. Alias of "music-player".
+  | "music"
+  // Legacy key kept for backward compatibility. Prefer "music".
   | "music-player"
+  // Firefly docs key for post-page sidebar toc. Alias of "toc".
+  | "sidebarToc"
   | "custom";
 
 export type WidgetComponentConfig = {
@@ -218,6 +227,8 @@ export type WidgetComponentConfig = {
   enable: boolean; // Enable this widget.
   order: number; // Render order, lower values appear first.
   position: "top" | "sticky"; // Widget area placement.
+  showOnPostPage?: boolean; // Show on post detail pages.
+  showOnNonPostPage?: boolean; // Show on non-post pages.
   class?: string; // Custom CSS classes.
   style?: string; // Custom inline styles.
   animationDelay?: number; // Animation delay in milliseconds.
@@ -231,8 +242,15 @@ export type WidgetComponentConfig = {
 
 export type SidebarLayoutConfig = {
   enable: boolean; // Enable sidebar.
-  position: "left" | "right"; // Sidebar position.
-  components: WidgetComponentConfig[]; // List of sidebar widgets.
+  position: "left" | "right" | "both"; // Sidebar position.
+  tabletSidebar?: "left" | "right"; // Which sidebar to show on tablet (only for "both").
+  showBothSidebarsOnPostPage?: boolean; // Show both sidebars on post pages even in single-sidebar mode.
+  // New (Firefly-like) config shape.
+  leftComponents?: WidgetComponentConfig[];
+  rightComponents?: WidgetComponentConfig[];
+  mobileBottomComponents?: WidgetComponentConfig[];
+  // Legacy config shape (single list) kept for backward compatibility.
+  components?: WidgetComponentConfig[];
   defaultAnimation: {
     enable: boolean; // Enable default widget animation.
     baseDelay: number; // Base delay in milliseconds.
@@ -342,13 +360,18 @@ export type Live2DModelConfig = {
 
 export type BackgroundWallpaperConfig = {
   enable: boolean; // Enable background wallpaper.
+  switchable?: boolean; // Allow users to switch wallpaper behavior.
   mode: "banner" | "overlay"; // Wallpaper mode.
   src:
     | string
-    | string[]
+    | Array<string | { image?: string; src?: string; value?: string }>
     | {
-        desktop?: string | string[];
-        mobile?: string | string[];
+        desktop?:
+          | string
+          | Array<string | { image?: string; src?: string; value?: string }>;
+        mobile?:
+          | string
+          | Array<string | { image?: string; src?: string; value?: string }>;
       }; // Supports single images, image arrays, or device-specific images.
   position?:
     | "top"
@@ -372,10 +395,33 @@ export type BackgroundWallpaperConfig = {
     | string; // Wallpaper position, matching CSS object-position values.
   // Banner-specific settings
   banner?: {
+    animation?: {
+      enable?: boolean; // Enable hero motion engine.
+      scope?: "global"; // Motion scope. Current implementation supports global only.
+      restartOnRouteChange?: boolean; // Restart motion when the route changes.
+      homePreset?: {
+        duration?: number; // Motion duration in ms.
+        scaleFrom?: number; // Starting scale.
+        scaleTo?: number; // Ending scale.
+        offsetStrength?: number; // Translate strength in percent.
+      };
+      innerPreset?: {
+        duration?: number; // Motion duration in ms.
+        scaleFrom?: number; // Starting scale.
+        scaleTo?: number; // Ending scale.
+        offsetStrength?: number; // Translate strength in percent.
+      };
+    };
     homeText?: {
       enable: boolean; // Show custom text on the homepage.
+      switchable?: boolean; // Allow toggling homepage text.
       title?: string; // Main title.
-      subtitle?: string | string[]; // Subtitle, supports one or multiple strings.
+      titleSize?: string; // Banner title size.
+      subtitle?:
+        | string
+        | string[]
+        | Array<{ subtitle?: string; text?: string; value?: string }>; // Subtitle, supports simple strings or Decap list objects.
+      subtitleSize?: string; // Banner subtitle size.
       typewriter?: {
         enable: boolean; // Enable typewriter effect.
         speed: number; // Typing speed in ms.
@@ -406,6 +452,11 @@ export type BackgroundWallpaperConfig = {
     navbar?: {
       transparentMode?: "semi" | "full" | "semifull"; // Navbar transparency mode.
     };
+    carousel?: {
+      enable: boolean; // Enable banner image carousel.
+      interval?: number; // Carousel interval in ms.
+      switchable?: boolean; // Allow toggling carousel mode.
+    };
     waves?: {
       enable:
         | boolean
@@ -413,6 +464,14 @@ export type BackgroundWallpaperConfig = {
             desktop: boolean; // Enable waves on desktop.
             mobile: boolean; // Enable waves on mobile.
           }; // Wave animation toggle.
+      switchable?: boolean; // Allow toggling waves.
+      style?: "soft" | "contrast"; // Visual wave preset.
+      height?:
+        | string
+        | {
+            desktop?: string; // Desktop wave height.
+            mobile?: string; // Mobile wave height.
+          }; // Wave height override.
     };
   };
   // Overlay-specific settings

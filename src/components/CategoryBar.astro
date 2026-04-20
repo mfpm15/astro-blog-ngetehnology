@@ -1,0 +1,398 @@
+---
+import { Icon } from "astro-icon/components";
+import { getCategoryList } from "../utils/content-utils";
+import { url } from "../utils/url-utils";
+
+interface Props {
+  class?: string;
+  style?: string;
+  currentPostCategory?: string;
+}
+
+const categories = await getCategoryList();
+const archiveCount = categories.reduce((total, category) => total + category.count, 0);
+const className = Astro.props.class;
+const style = Astro.props.style;
+const homePath = url("/");
+const archivePath = url("/archive/");
+const currentPostCategory = Astro.props.currentPostCategory ?? "";
+---
+
+<div id="category-bar-wrapper">
+  <div
+    id="category-bar"
+    class:list={["card-base category-bar p-3 onload-animation", className]}
+    style={style}
+    data-home-path={homePath}
+    data-archive-path={archivePath}
+    data-current-post-category={currentPostCategory}
+  >
+    <div class="category-bar-inner flex gap-2">
+      <a
+        href={homePath}
+        class="category-pill flex shrink-0 items-center justify-center rounded-lg px-2 py-1 text-sm transition-colors duration-150 ease-out"
+        data-category-name=""
+        aria-label="Beranda"
+      >
+        <Icon name="material-symbols:home" class="text-lg" />
+      </a>
+
+      <a
+        href={archivePath}
+        class="category-pill flex shrink-0 items-center justify-center rounded-lg px-3 py-1 text-sm whitespace-nowrap transition-colors duration-150 ease-out"
+        data-category-name="__archive__"
+      >
+        Arsip
+        <span class="ml-1 text-xs opacity-60">{archiveCount}</span>
+      </a>
+
+      <div class="category-divider shrink-0"></div>
+
+      <div class="scroll-area relative">
+        <div class="scroll-fade scroll-fade-left" aria-hidden="true"></div>
+        <div class="category-scroll flex gap-2 overflow-x-auto">
+          {
+            categories.map((category) => (
+              <a
+                href={category.url}
+                class="category-pill flex items-center justify-center rounded-lg px-3 py-1 text-sm whitespace-nowrap transition-colors duration-150 ease-out"
+                data-category-name={category.name.trim()}
+              >
+                {category.name.trim()}
+                <span class="ml-1 text-xs opacity-60">{category.count}</span>
+              </a>
+            ))
+          }
+        </div>
+        <div class="scroll-fade scroll-fade-right" aria-hidden="true"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let deferredScrollTimeout;
+
+  function getCategoryBarState(categoryBar, nextUrl) {
+    const normalizedPath = nextUrl.pathname.replace(/\/$/, "");
+    const homePath = (categoryBar.getAttribute("data-home-path") || "/").replace(/\/$/, "");
+    const archivePath = (categoryBar.getAttribute("data-archive-path") || "/archive/").replace(/\/$/, "");
+
+    return {
+      isHome: normalizedPath === homePath || normalizedPath === "" || normalizedPath === "/",
+      isArchive: normalizedPath === archivePath,
+      activeCategory: nextUrl.searchParams.get("category") || "",
+      hasTag: nextUrl.searchParams.has("tag"),
+      hasUncategorized: nextUrl.searchParams.has("uncategorized"),
+    };
+  }
+
+  function paintActiveState(categoryBar, nextUrl) {
+    const { isHome, isArchive, activeCategory, hasTag, hasUncategorized } = getCategoryBarState(categoryBar, nextUrl);
+    const currentPostCategory = (categoryBar.getAttribute("data-current-post-category") || "").trim();
+    const pills = categoryBar.querySelectorAll(".category-pill");
+
+    pills.forEach((pill) => {
+      pill.removeAttribute("data-active");
+      pill.removeAttribute("data-soft-active");
+    });
+
+    if (isHome) {
+      categoryBar.querySelector('.category-pill[data-category-name=""]')?.setAttribute("data-active", "");
+      return;
+    }
+
+    if (activeCategory) {
+      pills.forEach((pill) => {
+        if (pill.getAttribute("data-category-name") === activeCategory) {
+          pill.setAttribute("data-active", "");
+        }
+      });
+      return;
+    }
+
+    if (isArchive && !hasTag && !hasUncategorized) {
+      categoryBar.querySelector('.category-pill[data-category-name="__archive__"]')?.setAttribute("data-active", "");
+      return;
+    }
+
+    if (currentPostCategory) {
+      pills.forEach((pill) => {
+        if (pill.getAttribute("data-category-name") === currentPostCategory) {
+          pill.setAttribute("data-soft-active", "");
+        }
+      });
+    }
+  }
+
+  function centerActivePill(categoryBar, behavior = "smooth") {
+    const activePill =
+      categoryBar.querySelector(".category-pill[data-active]") ||
+      categoryBar.querySelector(".category-pill[data-soft-active]");
+    const scrollContainer = categoryBar.querySelector(".category-scroll");
+    if (!activePill || !scrollContainer) return;
+
+    const scrollLeft =
+      activePill.offsetLeft - scrollContainer.offsetLeft - (scrollContainer.clientWidth - activePill.offsetWidth) / 2;
+
+    scrollContainer.scrollTo({
+      left: Math.max(0, scrollLeft),
+      behavior,
+    });
+  }
+
+  function shouldDeferScroll(categoryBar, nextUrl) {
+    const { isHome } = getCategoryBarState(categoryBar, nextUrl);
+    const isMobile = window.innerWidth < 1024;
+    const bannerEnabled = document.body.classList.contains("enable-banner");
+    return isMobile && bannerEnabled && !isHome;
+  }
+
+  function syncCategoryBar(nextUrl = new URL(window.location.href), options = {}) {
+    const categoryBar = document.getElementById("category-bar");
+    if (!categoryBar) return;
+
+    const swupContainer = document.getElementById("swup-container");
+    if (swupContainer) {
+      const currentCategory = swupContainer.getAttribute("data-current-post-category") || "";
+      categoryBar.setAttribute("data-current-post-category", currentCategory);
+    }
+
+    paintActiveState(categoryBar, nextUrl);
+
+    const deferScroll = options.deferScroll ?? shouldDeferScroll(categoryBar, nextUrl);
+    const scrollBehavior = options.scrollBehavior ?? (deferScroll ? "auto" : "smooth");
+
+    if (deferredScrollTimeout) {
+      window.clearTimeout(deferredScrollTimeout);
+      deferredScrollTimeout = undefined;
+    }
+
+    if (deferScroll) {
+      deferredScrollTimeout = window.setTimeout(() => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            centerActivePill(categoryBar, scrollBehavior);
+            updateScrollFades();
+          });
+        });
+      }, 220);
+      return;
+    }
+
+    centerActivePill(categoryBar, scrollBehavior);
+    updateScrollFades();
+  }
+
+  function bindClickPreview() {
+    const categoryBar = document.getElementById("category-bar");
+    if (!categoryBar || categoryBar.dataset.clickBound === "true") return;
+
+    categoryBar.dataset.clickBound = "true";
+    categoryBar.addEventListener("click", (event) => {
+      if (!(event.target instanceof Element)) return;
+      const pill = event.target.closest(".category-pill");
+      if (
+        !pill ||
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey ||
+        (pill.target && pill.target !== "_self")
+      ) {
+        return;
+      }
+
+      const nextUrl = new URL(pill.href, window.location.href);
+      if (nextUrl.origin !== window.location.origin) return;
+
+      paintActiveState(categoryBar, nextUrl);
+      centerActivePill(categoryBar, "auto");
+    });
+  }
+
+  function bindScrollFeatures() {
+    const categoryBar = document.getElementById("category-bar");
+    if (!categoryBar) return;
+
+    const scrollContainer = categoryBar.querySelector(".category-scroll");
+    if (!scrollContainer) return;
+
+    if (scrollContainer.dataset.featuresBound === "true") {
+      updateScrollFades();
+      return;
+    }
+
+    scrollContainer.dataset.featuresBound = "true";
+    scrollContainer.addEventListener(
+      "wheel",
+      (event) => {
+        if (scrollContainer.scrollWidth <= scrollContainer.clientWidth) return;
+        event.preventDefault();
+        scrollContainer.scrollLeft += event.deltaY;
+      },
+      { passive: false },
+    );
+
+    scrollContainer.addEventListener("scroll", updateScrollFades);
+    window.addEventListener("resize", updateScrollFades);
+    updateScrollFades();
+  }
+
+  function updateScrollFades() {
+    const categoryBar = document.getElementById("category-bar");
+    if (!categoryBar) return;
+
+    const scrollContainer = categoryBar.querySelector(".category-scroll");
+    const leftFade = categoryBar.querySelector(".scroll-fade-left");
+    const rightFade = categoryBar.querySelector(".scroll-fade-right");
+    if (!scrollContainer || !leftFade || !rightFade) return;
+
+    const canScroll = scrollContainer.scrollWidth > scrollContainer.clientWidth + 1;
+    const atStart = scrollContainer.scrollLeft <= 1;
+    const atEnd = scrollContainer.scrollLeft + scrollContainer.clientWidth >= scrollContainer.scrollWidth - 1;
+
+    if (canScroll && !atStart) {
+      leftFade.setAttribute("data-visible", "");
+    } else {
+      leftFade.removeAttribute("data-visible");
+    }
+
+    if (canScroll && !atEnd) {
+      rightFade.setAttribute("data-visible", "");
+    } else {
+      rightFade.removeAttribute("data-visible");
+    }
+  }
+
+  function bindSwupPreview() {
+    if (!window.swup?.hooks) return;
+
+    window.swup.hooks.on("visit:start", (visit) => {
+      const categoryBar = document.getElementById("category-bar");
+      if (!categoryBar) return;
+      const nextUrl = new URL(visit.to.url, window.location.href);
+      paintActiveState(categoryBar, nextUrl);
+    });
+  }
+
+  syncCategoryBar();
+  bindClickPreview();
+  bindScrollFeatures();
+
+  document.addEventListener("astro:page-load", () => {
+    syncCategoryBar();
+    bindScrollFeatures();
+  });
+
+  document.addEventListener("swup:contentReplaced", () => {
+    syncCategoryBar();
+    requestAnimationFrame(() => {
+      syncCategoryBar();
+    });
+  });
+
+  if (window.swup?.hooks) {
+    bindSwupPreview();
+  } else {
+    document.addEventListener("swup:enable", bindSwupPreview);
+  }
+</script>
+
+<style>
+  .category-bar {
+    margin-bottom: 1rem;
+  }
+
+  .category-divider {
+    width: 1px;
+    align-self: stretch;
+    background: var(--line-divider);
+  }
+
+  .scroll-area {
+    flex: 1;
+    min-width: 0;
+    position: relative;
+  }
+
+  .scroll-fade {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    z-index: 1;
+    width: 2.5rem;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  .scroll-fade[data-visible] {
+    opacity: 1;
+  }
+
+  .scroll-fade-left {
+    left: 0;
+    background: linear-gradient(to left, transparent, var(--card-bg));
+  }
+
+  .scroll-fade-right {
+    right: 0;
+    background: linear-gradient(to right, transparent, var(--card-bg));
+  }
+
+  :global(body.wallpaper-transparent) .scroll-fade {
+    display: none;
+  }
+
+  .category-scroll {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    scroll-behavior: smooth;
+  }
+
+  .category-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .category-pill {
+    border: 1.5px solid var(--line-divider);
+    color: var(--btn-content);
+    background: transparent;
+  }
+
+  .category-pill:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: transparent;
+  }
+
+  .category-pill[data-active] {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: white;
+  }
+
+  .category-pill[data-active]:hover {
+    border-color: var(--primary);
+    background: var(--primary);
+    opacity: 0.9;
+    color: white;
+  }
+
+  .category-pill[data-soft-active] {
+    border-color: var(--line-divider);
+    background: color-mix(in srgb, var(--primary) 10%, transparent);
+    color: color-mix(in srgb, var(--primary) 72%, var(--btn-content));
+  }
+
+  .category-pill[data-soft-active]:hover,
+  .category-pill[data-soft-active][data-active],
+  .category-pill[data-soft-active][data-active]:hover {
+    border-color: var(--line-divider);
+    background: color-mix(in srgb, var(--primary) 15%, transparent);
+    color: color-mix(in srgb, var(--primary) 82%, var(--btn-content));
+  }
+</style>

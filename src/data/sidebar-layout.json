@@ -1,7 +1,9 @@
 {
   "enable": true,
-  "position": "left",
-  "components": [
+  "position": "both",
+  "tabletSidebar": "left",
+  "showBothSidebarsOnPostPage": true,
+  "leftComponents": [
     {
       "type": "profile",
       "enable": true,
@@ -11,7 +13,7 @@
       "animationDelay": 0
     },
     {
-      "type": "site-stats",
+      "type": "announcement",
       "enable": true,
       "order": 2,
       "position": "top",
@@ -19,28 +21,12 @@
       "animationDelay": 50
     },
     {
-      "type": "calendar",
-      "enable": true,
-      "order": 3,
-      "position": "top",
-      "class": "onload-animation",
-      "animationDelay": 150
-    },
-    {
-      "type": "announcement",
-      "enable": true,
-      "order": 4,
-      "position": "top",
-      "class": "onload-animation",
-      "animationDelay": 200
-    },
-    {
       "type": "categories",
       "enable": true,
-      "order": 5,
+      "order": 3,
       "position": "sticky",
       "class": "onload-animation",
-      "animationDelay": 250,
+      "animationDelay": 100,
       "responsive": {
         "collapseThreshold": 5
       }
@@ -48,32 +34,67 @@
     {
       "type": "tags",
       "enable": true,
-      "order": 6,
+      "order": 4,
       "position": "sticky",
       "class": "onload-animation",
-      "animationDelay": 300,
+      "animationDelay": 150,
       "responsive": {
         "collapseThreshold": 20
       }
-    },
-    {
-      "type": "advertisement",
-      "enable": false,
-      "order": 7,
-      "position": "sticky",
-      "class": "onload-animation",
-      "animationDelay": 350,
-      "configId": "ad1"
-    },
-    {
-      "type": "advertisement",
-      "enable": false,
-      "order": 8,
-      "position": "sticky",
-      "class": "onload-animation",
-      "animationDelay": 400,
-      "configId": "ad2"
     }
+  ],
+  "rightComponents": [
+    {
+      "type": "stats",
+      "enable": true,
+      "order": 1,
+      "position": "top",
+      "class": "onload-animation",
+      "animationDelay": 0
+    },
+    {
+      "type": "calendar",
+      "enable": true,
+      "order": 2,
+      "position": "top",
+      "class": "onload-animation",
+      "animationDelay": 50
+    },
+    {
+      "type": "sidebarToc",
+      "enable": true,
+      "order": 3,
+      "position": "sticky",
+      "class": "onload-animation",
+      "animationDelay": 100,
+      "showOnPostPage": true,
+      "showOnNonPostPage": false
+    },
+    {
+      "type": "advertisement",
+      "enable": false,
+      "order": 4,
+      "position": "sticky",
+      "class": "onload-animation",
+      "animationDelay": 150,
+      "configId": "ad1"
+    }
+  ],
+  "mobileBottomComponents": [
+    { "type": "profile", "enable": true, "order": 1, "position": "top", "showOnPostPage": true, "showOnNonPostPage": false, "class": "onload-animation", "animationDelay": 0 },
+    {
+      "type": "categories",
+      "enable": true,
+      "order": 2,
+      "position": "top",
+      "showOnPostPage": true,
+      "responsive": { "collapseThreshold": 5 },
+      "showOnNonPostPage": false,
+      "class": "onload-animation",
+      "animationDelay": 50
+    },
+    { "type": "stats", "enable": true, "order": 3, "position": "top", "showOnPostPage": true, "showOnNonPostPage": true, "class": "onload-animation", "animationDelay": 100 },
+    { "type": "calendar", "enable": true, "order": 4, "position": "top", "showOnPostPage": true, "showOnNonPostPage": true, "class": "onload-animation", "animationDelay": 150 }
   ],
   "defaultAnimation": {
     "enable": true,

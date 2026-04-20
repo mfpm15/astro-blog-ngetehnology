@@ -2,31 +2,57 @@
 
 import I18nKey from "../../i18n/i18nKey";
 import { i18n } from "../../i18n/translation";
+import type { WidgetComponentConfig } from "../../types/config";
 import { getTagList } from "../../utils/content-utils";
 import { getTagUrl } from "../../utils/url-utils";
 import ButtonTag from "../control/ButtonTag.astro";
 import WidgetLayout from "./WidgetLayout.astro";
-import { widgetManager } from "../../utils/widget-manager";
+import { getComponentConfig } from "../../utils/widget-manager";
 
 const tags = await getTagList();
+const sortedByFrequency = [...tags].sort((a, b) => {
+  if (b.count !== a.count) return b.count - a.count;
+  return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+});
+const displayTags = sortedByFrequency.slice(0, 10);
+
+const tagCounts = displayTags.map((tag) => tag.count);
+const maxTagCount = tagCounts.length > 0 ? Math.max(...tagCounts) : 0;
+const minTagCount = tagCounts.length > 0 ? Math.min(...tagCounts) : 0;
+
+const getTagFontSize = (count: number) => {
+  // Firefly-style "tag cloud" sizing, capped to avoid huge outliers.
+  const minSize = 0.85;
+  const maxSize = 1.08;
+  if (maxTagCount === minTagCount) return minSize;
+  const t = (count - minTagCount) / (maxTagCount - minTagCount);
+  return minSize + t * (maxSize - minSize);
+};
 
 const COLLAPSED_HEIGHT = "7.5rem";
 
 // 使用统一的组件管理器检查是否应该折叠
-const tagsComponent = widgetManager.config.components.find(c => c.type === "tags");
-const isCollapsed = tagsComponent ? widgetManager.isCollapsed(tagsComponent, tags.length) : false;
-
 interface Props {
-	class?: string;
-	style?: string;
+  class?: string;
+  style?: string;
+  componentConfig?: WidgetComponentConfig;
 }
 const className = Astro.props.class;
 const style = Astro.props.style;
+const tagsComponent = Astro.props.componentConfig ?? getComponentConfig("tags");
+const isCollapsed = Boolean(
+  tagsComponent?.responsive?.collapseThreshold &&
+    displayTags.length >= tagsComponent.responsive.collapseThreshold
+);
 ---
 <WidgetLayout name={i18n(I18nKey.tags)} id="tags" isCollapsed={isCollapsed} collapsedHeight={COLLAPSED_HEIGHT} class={className} style={style}>
     <div class="flex gap-2 flex-wrap">
-        {tags.map(t => (
-            <ButtonTag href={getTagUrl(t.name)} label={`View all posts with the ${t.name.trim()} tag`}>
+        {displayTags.map(t => (
+            <ButtonTag
+              href={getTagUrl(t.name)}
+              label={`View all posts with the ${t.name.trim()} tag`}
+              style={`font-size: ${getTagFontSize(t.count).toFixed(3)}rem;`}
+            >
                 {t.name.trim()}
             </ButtonTag>
         ))}

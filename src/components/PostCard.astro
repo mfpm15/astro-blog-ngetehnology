@@ -185,7 +185,14 @@ const { remarkPluginFrontmatter } = await render(entry);
               src={image}
               basePath={path.join("content", contentDir)}
               alt="Cover Image of the Post"
-              class="w-full h-full"
+              class="w-full h-full [&_img]:transition-transform [&_img]:duration-700 [&_img]:ease-out group-hover:[&_img]:scale-105"
+              width={1200}
+              sizes="(min-width: 768px) 28vw, 100vw"
+              quality={92}
+              loading="lazy"
+              decoding="async"
+              fetchpriority="auto"
+              overlay={false}
             />
           );
         })()}

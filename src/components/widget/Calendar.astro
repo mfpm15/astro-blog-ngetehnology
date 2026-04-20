@@ -1,50 +1,500 @@
 ---
-const now = new Date();
-const year = now.getFullYear();
-const month = now.getMonth();
-const today = now.getDate();
-const monthLabel = now.toLocaleString("id-ID", {
-  month: "long",
-  year: "numeric",
-});
+import { Icon } from "astro-icon/components";
+import { siteConfig } from "../../config";
+import { url } from "../../utils/url-utils";
+import WidgetLayout from "./WidgetLayout.astro";
 
-const firstDay = new Date(year, month, 1).getDay();
-const daysInMonth = new Date(year, month + 1, 0).getDate();
-const dayLabels = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
+interface Props {
+  class?: string;
+  style?: string;
+}
+
+const { class: className, style } = Astro.props;
+const locale = siteConfig.lang === "en" ? "en-US" : "id-ID";
+const monthNames = Array.from({ length: 12 }, (_, index) =>
+  new Date(2026, index, 1).toLocaleString(locale, { month: "short" }),
+);
+const weekDays =
+  locale === "en-US"
+    ? ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    : ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
+const labels =
+  locale === "en-US"
+    ? {
+        title: "Calendar",
+        today: "Today",
+        noMonthlyPosts: "No posts in this month yet.",
+        noDailyPosts: "No posts on this day.",
+        loading: "Loading post calendar...",
+      }
+    : {
+        title: "Kalender",
+        today: "Hari ini",
+        noMonthlyPosts: "Belum ada artikel di bulan ini.",
+        noDailyPosts: "Belum ada artikel di tanggal ini.",
+        loading: "Memuat kalender artikel...",
+      };
+
+const calendarDataUrl = url("/api/allPostMeta.json");
+const postUrlPrefix = url("/posts/");
 ---
 
-<div class="card-base p-4">
-  <div class="mb-3 flex items-center justify-between">
-    <h3 class="text-sm font-semibold">{monthLabel}</h3>
+<WidgetLayout name={labels.title} id="calendar-widget" class={className} style={style}>
+  <div
+    class="calendar-widget"
+    data-calendar-root
+    data-calendar-locale={locale}
+    data-calendar-url={calendarDataUrl}
+    data-calendar-post-prefix={postUrlPrefix}
+    data-label-today={labels.today}
+    data-label-no-monthly-posts={labels.noMonthlyPosts}
+    data-label-no-daily-posts={labels.noDailyPosts}
+    data-label-loading={labels.loading}
+  >
+    <div class="mb-3 flex items-center justify-between gap-2">
+      <button
+        type="button"
+        class="btn-plain flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+        data-calendar-prev
+        aria-label="Previous"
+      >
+        <Icon name="fa6-solid:chevron-left" class="text-sm" />
+      </button>
+
+      <button
+        type="button"
+        class="min-w-0 flex-1 rounded-lg px-2 py-1 text-center text-sm font-semibold text-neutral-800 transition hover:bg-[var(--btn-plain-bg-hover)] dark:text-neutral-100"
+        data-calendar-label
+        aria-label="Switch calendar view"
+      ></button>
+
+      <div class="flex items-center gap-1">
+        <button
+          type="button"
+          class="btn-plain flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+          data-calendar-reset
+          aria-label="Reset"
+        >
+          <Icon name="fa6-solid:arrow-rotate-left" class="text-sm" />
+        </button>
+        <button
+          type="button"
+          class="btn-plain flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+          data-calendar-next
+          aria-label="Next"
+        >
+          <Icon name="fa6-solid:chevron-right" class="text-sm" />
+        </button>
+      </div>
+    </div>
+
+    <div data-calendar-day-view>
+      <div class="mb-2 grid grid-cols-7 gap-1 text-[11px] font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
+        {
+          weekDays.map((label) => (
+            <div class="py-1 text-center">{label}</div>
+          ))
+        }
+      </div>
+
+      <div class="grid grid-cols-7 gap-1 pb-1" data-calendar-grid></div>
+    </div>
+
+    <div class="hidden grid-cols-3 gap-2" data-calendar-month-view></div>
+    <div class="hidden grid-cols-3 gap-2" data-calendar-year-view></div>
+
+    <div class="mt-3" data-calendar-posts>
+      <div class="mb-2 border-t border-[var(--line-color)]" data-calendar-divider></div>
+      <div class="flex max-h-44 flex-col gap-1 overflow-y-auto pr-1" data-calendar-post-list>
+        <div class="rounded-xl bg-[var(--btn-plain-bg)] px-3 py-2 text-sm text-neutral-500 dark:text-neutral-400">
+          {labels.loading}
+        </div>
+      </div>
+    </div>
   </div>
+</WidgetLayout>
 
-  <div class="grid grid-cols-7 gap-1 text-xs">
-    {
-      dayLabels.map((label) => (
-        <div class="py-1 text-center font-medium text-50">{label}</div>
-      ))
-    }
+<script
+  is:inline
+  data-swup-ignore-script
+  define:vars={{ monthNames, weekDays }}
+>
+  function initAdvancedCalendars() {
+    const roots = document.querySelectorAll("[data-calendar-root]");
 
-    {
-      Array.from({ length: firstDay }).map(() => <div aria-hidden="true"></div>)
-    }
+    roots.forEach((root) => {
+      if (!(root instanceof HTMLElement) || root.dataset.calendarInitialized === "true") return;
+      root.dataset.calendarInitialized = "true";
 
-    {
-      Array.from({ length: daysInMonth }, (_, index) => {
-        const day = index + 1;
-        return (
-          <div
-            class:list={[
-              "rounded-lg py-1 text-center transition",
-              day === today
-                ? "bg-[var(--primary)] font-bold text-white"
-                : "hover:bg-[var(--btn-plain-bg-hover)]",
-            ]}
-          >
-            {day}
-          </div>
-        );
-      })
-    }
-  </div>
-</div>
+      const locale = root.dataset.calendarLocale || "id-ID";
+      const calendarDataUrl = root.dataset.calendarUrl || "/api/allPostMeta.json";
+      const postUrlPrefix = root.dataset.calendarPostPrefix || "/posts/";
+      const labelToday = root.dataset.labelToday || "Today";
+      const noMonthlyPosts = root.dataset.labelNoMonthlyPosts || "No posts in this month yet.";
+      const noDailyPosts = root.dataset.labelNoDailyPosts || "No posts on this day.";
+
+      const dayView = root.querySelector("[data-calendar-day-view]");
+      const monthView = root.querySelector("[data-calendar-month-view]");
+      const yearView = root.querySelector("[data-calendar-year-view]");
+      const grid = root.querySelector("[data-calendar-grid]");
+      const label = root.querySelector("[data-calendar-label]");
+      const prevBtn = root.querySelector("[data-calendar-prev]");
+      const nextBtn = root.querySelector("[data-calendar-next]");
+      const resetBtn = root.querySelector("[data-calendar-reset]");
+      const postsWrapper = root.querySelector("[data-calendar-posts]");
+      const divider = root.querySelector("[data-calendar-divider]");
+      const postsList = root.querySelector("[data-calendar-post-list]");
+
+      if (
+        !dayView ||
+        !monthView ||
+        !yearView ||
+        !grid ||
+        !label ||
+        !prevBtn ||
+        !nextBtn ||
+        !resetBtn ||
+        !postsWrapper ||
+        !divider ||
+        !postsList
+      ) {
+        return;
+      }
+
+      const today = new Date();
+      let displayYear = today.getFullYear();
+      let displayMonth = today.getMonth();
+      let currentView = "day";
+      let selectedDateKey = "";
+      let allPostsData = [];
+      let postDateMap = {};
+      let availableYears = [];
+
+      function formatDateKey(year, month, day) {
+        return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+      }
+
+      function renderPostList(posts, emptyText) {
+        if (!posts.length) {
+          postsWrapper.style.display = "block";
+          divider.style.display = "none";
+          postsList.innerHTML = `<div class="rounded-xl bg-[var(--btn-plain-bg)] px-3 py-2 text-sm text-neutral-500 dark:text-neutral-400">${emptyText}</div>`;
+          return;
+        }
+
+        postsWrapper.style.display = "block";
+        divider.style.display = "block";
+        postsList.innerHTML = posts
+          .map((post) => {
+            const date = new Date(post.published);
+            const dateText = date.toLocaleDateString(locale, {
+              day: "2-digit",
+              month: "short",
+            });
+
+            return `
+              <a
+                href="${postUrlPrefix}${post.slug}/"
+                class="flex items-center justify-between gap-3 rounded-xl px-3 py-2 text-sm text-neutral-700 transition hover:bg-[var(--btn-plain-bg-hover)] dark:text-neutral-200"
+              >
+                <span class="truncate font-medium">${post.title}</span>
+                <span class="shrink-0 text-[11px] text-neutral-500 dark:text-neutral-400">${dateText}</span>
+              </a>
+            `;
+          })
+          .join("");
+      }
+
+      function updateHeader() {
+        const monthLabel = new Date(displayYear, displayMonth, 1).toLocaleDateString(locale, {
+          month: "long",
+          year: "numeric",
+        });
+
+        if (currentView === "day") {
+          label.textContent = monthLabel;
+        } else if (currentView === "month") {
+          label.textContent = String(displayYear);
+        } else {
+          label.textContent = labelToday;
+        }
+
+        const isCurrentMonth =
+          displayYear === today.getFullYear() && displayMonth === today.getMonth() && currentView === "day";
+        resetBtn.style.visibility = isCurrentMonth ? "hidden" : "visible";
+        prevBtn.style.visibility = currentView === "year" ? "hidden" : "visible";
+        nextBtn.style.visibility = currentView === "year" ? "hidden" : "visible";
+      }
+
+      function renderDayView() {
+        const firstDayOfMonth = new Date(displayYear, displayMonth, 1).getDay();
+        const daysInMonth = new Date(displayYear, displayMonth + 1, 0).getDate();
+        const isCurrentMonth =
+          displayYear === today.getFullYear() && displayMonth === today.getMonth();
+
+        const cells = [];
+
+        for (let index = 0; index < firstDayOfMonth; index += 1) {
+          cells.push('<div aria-hidden="true" class="aspect-square min-h-[2rem] rounded-xl sm:min-h-[2.2rem]"></div>');
+        }
+
+        for (let day = 1; day <= daysInMonth; day += 1) {
+          const dateKey = formatDateKey(displayYear, displayMonth, day);
+          const posts = postDateMap[dateKey] || [];
+          const isToday = isCurrentMonth && day === today.getDate();
+          const isSelected = selectedDateKey === dateKey;
+
+          const classNames = [
+            "calendar-day",
+            "relative",
+            "flex",
+            "aspect-square",
+            "min-h-[2rem]",
+            "items-center",
+            "justify-center",
+            "rounded-xl",
+            "text-xs",
+            "font-medium",
+            "transition",
+            "sm:min-h-[2.2rem]",
+          ];
+
+          if (posts.length > 0) {
+            classNames.push("cursor-pointer", "text-neutral-900", "dark:text-neutral-100");
+          } else {
+            classNames.push("text-neutral-600", "dark:text-neutral-400");
+          }
+
+          if (isToday) {
+            classNames.push("ring-2", "ring-[var(--primary)]");
+          }
+
+          if (isSelected) {
+            classNames.push("bg-[var(--btn-plain-bg-hover)]");
+          } else {
+            classNames.push("bg-[var(--btn-plain-bg)]");
+          }
+
+          cells.push(`
+            <button
+              type="button"
+              class="${classNames.join(" ")}"
+              data-date="${dateKey}"
+              data-has-post="${posts.length > 0}"
+            >
+              <span>${day}</span>
+              ${posts.length > 0 ? '<span class="absolute bottom-1 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-[var(--primary)]"></span>' : ""}
+              ${posts.length > 1 ? `<span class="absolute right-0.5 top-0.5 rounded-full bg-[var(--primary)]/14 px-1 text-[10px] font-bold text-[var(--primary)]">${posts.length}</span>` : ""}
+            </button>
+          `);
+        }
+
+        grid.innerHTML = cells.join("");
+
+        const currentMonthPosts = allPostsData.filter((post) => {
+          const date = new Date(post.published);
+          return date.getFullYear() === displayYear && date.getMonth() === displayMonth;
+        });
+
+        if (selectedDateKey && postDateMap[selectedDateKey]) {
+          renderPostList(postDateMap[selectedDateKey], noDailyPosts);
+        } else {
+          selectedDateKey = "";
+          renderPostList(currentMonthPosts, noMonthlyPosts);
+        }
+
+        grid.querySelectorAll("[data-date]").forEach((button) => {
+          button.addEventListener("click", () => {
+            const dateKey = button.getAttribute("data-date") || "";
+            const hasPost = button.getAttribute("data-has-post") === "true";
+            if (!hasPost) return;
+            if (!dateKey) return;
+
+            selectedDateKey = selectedDateKey === dateKey ? "" : dateKey;
+            renderDayView();
+          });
+        });
+      }
+
+      function renderMonthView() {
+        const monthsWithPosts = new Set();
+        allPostsData.forEach((post) => {
+          const date = new Date(post.published);
+          if (date.getFullYear() === displayYear) {
+            monthsWithPosts.add(date.getMonth());
+          }
+        });
+
+        monthView.innerHTML = monthNames
+          .map((monthName, index) => {
+            const active = index === displayMonth;
+            const hasPosts = monthsWithPosts.has(index);
+            return `
+              <button
+                type="button"
+                class="relative rounded-xl px-2 py-3 text-sm transition ${
+                  active
+                    ? "bg-[var(--btn-plain-bg-hover)] font-bold text-[var(--primary)]"
+                    : "bg-[var(--btn-plain-bg)] text-neutral-700 hover:bg-[var(--btn-plain-bg-hover)] dark:text-neutral-200"
+                }"
+                data-month="${index}"
+              >
+                ${monthName}
+                ${hasPosts ? '<span class="absolute bottom-1 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-[var(--primary)]"></span>' : ""}
+              </button>
+            `;
+          })
+          .join("");
+
+        monthView.querySelectorAll("[data-month]").forEach((button) => {
+          button.addEventListener("click", () => {
+            const month = Number.parseInt(button.getAttribute("data-month") || "0", 10);
+            displayMonth = month;
+            currentView = "day";
+            renderCalendar();
+          });
+        });
+      }
+
+      function renderYearView() {
+        const yearItems = availableYears.length
+          ? availableYears
+          : Array.from({ length: 9 }, (_, index) => today.getFullYear() - index);
+
+        yearView.innerHTML = yearItems
+          .map((year) => {
+            const active = year === displayYear;
+            return `
+              <button
+                type="button"
+                class="rounded-xl px-2 py-3 text-sm transition ${
+                  active
+                    ? "bg-[var(--btn-plain-bg-hover)] font-bold text-[var(--primary)]"
+                    : "bg-[var(--btn-plain-bg)] text-neutral-700 hover:bg-[var(--btn-plain-bg-hover)] dark:text-neutral-200"
+                }"
+                data-year="${year}"
+              >
+                ${year}
+              </button>
+            `;
+          })
+          .join("");
+
+        yearView.querySelectorAll("[data-year]").forEach((button) => {
+          button.addEventListener("click", () => {
+            displayYear = Number.parseInt(button.getAttribute("data-year") || `${today.getFullYear()}`, 10);
+            currentView = "month";
+            renderCalendar();
+          });
+        });
+      }
+
+      function renderCalendar() {
+        dayView.classList.toggle("hidden", currentView !== "day");
+        monthView.classList.toggle("hidden", currentView !== "month");
+        monthView.classList.toggle("grid", currentView === "month");
+        yearView.classList.toggle("hidden", currentView !== "year");
+        yearView.classList.toggle("grid", currentView === "year");
+        postsWrapper.classList.toggle("hidden", currentView !== "day");
+
+        updateHeader();
+
+        if (currentView === "day") {
+          renderDayView();
+        } else if (currentView === "month") {
+          renderMonthView();
+        } else {
+          renderYearView();
+        }
+      }
+
+      async function fetchCalendarData() {
+        try {
+          if (window.__allPostMetaCache) {
+            allPostsData = window.__allPostMetaCache;
+          } else {
+            const response = await fetch(calendarDataUrl);
+            allPostsData = await response.json();
+            window.__allPostMetaCache = allPostsData;
+          }
+
+          postDateMap = {};
+          const years = new Set();
+
+          allPostsData.forEach((post) => {
+            const date = new Date(post.published);
+            const dateKey = formatDateKey(date.getFullYear(), date.getMonth(), date.getDate());
+            if (!postDateMap[dateKey]) {
+              postDateMap[dateKey] = [];
+            }
+            postDateMap[dateKey].push(post);
+            years.add(date.getFullYear());
+          });
+
+          availableYears = Array.from(years).sort((left, right) => right - left);
+        } catch (error) {
+          console.error("Failed to load calendar metadata", error);
+          allPostsData = [];
+          postDateMap = {};
+          availableYears = [];
+        } finally {
+          renderCalendar();
+        }
+      }
+
+      prevBtn.addEventListener("click", () => {
+        if (currentView === "day") {
+          displayMonth -= 1;
+          if (displayMonth < 0) {
+            displayMonth = 11;
+            displayYear -= 1;
+          }
+        } else if (currentView === "month") {
+          displayYear -= 1;
+        }
+        selectedDateKey = "";
+        renderCalendar();
+      });
+
+      nextBtn.addEventListener("click", () => {
+        if (currentView === "day") {
+          displayMonth += 1;
+          if (displayMonth > 11) {
+            displayMonth = 0;
+            displayYear += 1;
+          }
+        } else if (currentView === "month") {
+          displayYear += 1;
+        }
+        selectedDateKey = "";
+        renderCalendar();
+      });
+
+      resetBtn.addEventListener("click", () => {
+        displayYear = today.getFullYear();
+        displayMonth = today.getMonth();
+        currentView = "day";
+        selectedDateKey = "";
+        renderCalendar();
+      });
+
+      label.addEventListener("click", () => {
+        if (currentView === "day") {
+          currentView = "month";
+        } else if (currentView === "month") {
+          currentView = "year";
+        } else {
+          currentView = "day";
+        }
+        renderCalendar();
+      });
+
+      fetchCalendarData();
+    });
+  }
+
+  initAdvancedCalendars();
+  document.addEventListener("swup:contentReplaced", () => {
+    setTimeout(initAdvancedCalendars, 100);
+  });
+</script>

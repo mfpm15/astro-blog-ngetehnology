@@ -1,12 +1,347 @@
 <!doctype html>
-<html lang="en">
+<html lang="id">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NgetehNology CMS</title>
+    <link rel="icon" href="/assets/images/logos.png" sizes="256x256" />
+    <link rel="stylesheet" href="/admin/admin-ui.css" />
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   </head>
   <body>
+    <div id="admin-shell" class="admin-shell" aria-hidden="true">
+      <div class="admin-shell__backdrop"></div>
+      <div class="admin-shell__panel">
+        <div class="admin-shell__eyebrow">NgetehNology / Admin</div>
+        <h1>Kelola konten lebih rapi</h1>
+        <p>
+          Editor ini sudah dihubungkan ke Decap CMS, lengkap dengan dukungan wallpaper hero,
+          navigasi, sidebar widget, dan konten blog.
+        </p>
+
+        <div class="admin-shell__status">
+          <span class="admin-shell__badge" id="admin-local-status" data-state="checking">
+            Mengecek local backend...
+          </span>
+          <span class="admin-shell__status-text">
+            Saat mode lokal aktif, perubahan langsung pakai proxy `127.0.0.1:8081`.
+          </span>
+        </div>
+
+        <div class="admin-shell__grid">
+          <div class="admin-shell__card">
+            <strong>Konten</strong>
+            <span>Tulis artikel, update halaman statis, dan atur metadata tanpa sentuh file manual.</span>
+          </div>
+          <div class="admin-shell__card">
+            <strong>Tampilan</strong>
+            <span>Wallpaper, widget, tema, dan navigasi sekarang punya schema yang lebih lengkap.</span>
+          </div>
+          <div class="admin-shell__card">
+            <strong>Local Backend</strong>
+            <span>Untuk mode lokal, jalankan backend di <code>127.0.0.1:8081</code>.</span>
+          </div>
+        </div>
+
+        <div class="admin-shell__actions">
+          <a href="/" target="_blank" rel="noopener noreferrer">Lihat situs</a>
+          <a href="https://decapcms.org/docs/intro/" target="_blank" rel="noopener noreferrer">Docs Decap CMS</a>
+        </div>
+      </div>
+    </div>
+
     <script src="https://unpkg.com/decap-cms@^3.8.4/dist/decap-cms.js"></script>
+    <script>
+      (function () {
+        function escapeHtml(value) {
+          return String(value || "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+        }
+
+        function assetUrl(asset) {
+          if (!asset) return "";
+          if (typeof asset === "string") return asset;
+          if (typeof asset.toString === "function") return asset.toString();
+          return "";
+        }
+
+        function registerEditorEnhancements() {
+          if (!window.CMS) return;
+          const createClassFn = window.createClass;
+          const hFn = window.h;
+
+          window.CMS.registerRemarkPlugin({
+            settings: {
+              bullet: "-",
+              fences: true,
+              listItemIndent: "one",
+            },
+          });
+
+          window.CMS.registerEditorComponent({
+            id: "admonition",
+            label: "Admonition",
+            fields: [
+              {
+                name: "type",
+                label: "Type",
+                widget: "select",
+                default: "note",
+                options: ["note", "tip", "important", "warning", "caution"],
+              },
+              {
+                name: "title",
+                label: "Custom Title",
+                widget: "string",
+                required: false,
+              },
+              {
+                name: "body",
+                label: "Content",
+                widget: "markdown",
+                modes: ["rich_text", "raw"],
+                buttons: ["bold", "italic", "link", "bulleted-list", "numbered-list"],
+                required: true,
+              },
+            ],
+            pattern: /:::(note|tip|important|warning|caution)(?:\[(.*?)\])?\n([\s\S]*?)\n:::/m,
+            fromBlock(match) {
+              return {
+                type: match[1],
+                title: match[2] || "",
+                body: (match[3] || "").trim(),
+              };
+            },
+            toBlock(data) {
+              const type = data.type || "note";
+              const title = data.title ? `[${data.title}]` : "";
+              const body = (data.body || "").trim();
+              return `:::${type}${title}\n${body}\n:::`;
+            },
+            toPreview(data) {
+              const palette = {
+                note: "#2563eb",
+                tip: "#059669",
+                important: "#7c3aed",
+                warning: "#d97706",
+                caution: "#dc2626",
+              };
+              const type = data.type || "note";
+              const title = data.title || type.charAt(0).toUpperCase() + type.slice(1);
+              const color = palette[type] || palette.note;
+              return `
+                <div style="border:1px solid ${color}33;background:${color}10;border-radius:16px;padding:16px 18px;">
+                  <div style="font-weight:700;color:${color};margin-bottom:8px;">${escapeHtml(title)}</div>
+                  <div style="color:#1f2937;line-height:1.7;">${escapeHtml(data.body || "").replace(/\n/g, "<br>")}</div>
+                </div>
+              `;
+            },
+          });
+
+          window.CMS.registerEditorComponent({
+            id: "details",
+            label: "Details",
+            fields: [
+              { name: "summary", label: "Summary", widget: "string" },
+              {
+                name: "body",
+                label: "Content",
+                widget: "markdown",
+                modes: ["rich_text", "raw"],
+                buttons: ["bold", "italic", "link", "bulleted-list", "numbered-list"],
+                required: true,
+              },
+            ],
+            pattern: /<details>\s*<summary>(.*?)<\/summary>\s*([\s\S]*?)\s*<\/details>/m,
+            fromBlock(match) {
+              return {
+                summary: match[1] || "",
+                body: (match[2] || "").trim(),
+              };
+            },
+            toBlock(data) {
+              const summary = (data.summary || "").trim();
+              const body = (data.body || "").trim();
+              return `<details>\n<summary>${summary}</summary>\n\n${body}\n\n</details>`;
+            },
+            toPreview(data) {
+              return `
+                <details open style="border:1px solid rgba(15,23,42,.12);background:rgba(255,255,255,.9);border-radius:16px;padding:14px 16px;">
+                  <summary style="font-weight:700;cursor:pointer;">${escapeHtml(data.summary || "Detail")}</summary>
+                  <div style="margin-top:12px;color:#334155;line-height:1.7;">${escapeHtml(data.body || "").replace(/\n/g, "<br>")}</div>
+                </details>
+              `;
+            },
+          });
+
+          window.CMS.registerEditorComponent({
+            id: "youtube",
+            label: "YouTube",
+            fields: [
+              { name: "videoId", label: "Video ID", widget: "string" },
+              { name: "title", label: "Title", widget: "string", required: false },
+            ],
+            pattern: /<iframe[^>]*src="https:\/\/www\.youtube\.com\/embed\/([^"?]+)[^"]*"[^>]*title="([^"]*)"[\s\S]*?<\/iframe>/m,
+            fromBlock(match) {
+              return {
+                videoId: match[1] || "",
+                title: match[2] || "",
+              };
+            },
+            toBlock(data) {
+              const videoId = (data.videoId || "").trim();
+              const title = (data.title || "YouTube video player").trim();
+              return `<iframe width="100%" height="468" src="https://www.youtube.com/embed/${videoId}" title="${title}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
+            },
+            toPreview(data) {
+              const videoId = escapeHtml(data.videoId || "");
+              const title = escapeHtml(data.title || "YouTube");
+              const thumb = videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : "";
+              return `
+                <div style="overflow:hidden;border-radius:18px;border:1px solid rgba(15,23,42,.12);background:#fff;">
+                  ${thumb ? `<img src="${thumb}" alt="${title}" style="display:block;width:100%;aspect-ratio:16/9;object-fit:cover;" />` : ""}
+                  <div style="padding:14px 16px;">
+                    <div style="font-weight:700;color:#0f172a;">${title}</div>
+                    <div style="margin-top:4px;font-size:13px;color:#475569;">YouTube embed: ${videoId}</div>
+                  </div>
+                </div>
+              `;
+            },
+          });
+
+          window.CMS.registerEditorComponent({
+            id: "github-card",
+            label: "GitHub Card",
+            fields: [{ name: "repo", label: "owner/repo", widget: "string" }],
+            pattern: /::github\{repo="([^"]+)"\}/m,
+            fromBlock(match) {
+              return { repo: match[1] || "" };
+            },
+            toBlock(data) {
+              return `::github{repo="${(data.repo || "").trim()}"}`;
+            },
+            toPreview(data) {
+              return `
+                <div style="border:1px solid rgba(15,23,42,.12);background:#fff;border-radius:16px;padding:14px 16px;">
+                  <div style="font-weight:700;color:#0f172a;">GitHub Repository</div>
+                  <div style="margin-top:6px;color:#475569;">${escapeHtml(data.repo || "")}</div>
+                </div>
+              `;
+            },
+          });
+
+          if (!createClassFn || !hFn) return;
+
+          const PreviewShell = createClassFn({
+            render() {
+              const title = this.props.title || "Untitled";
+              const description = this.props.description || "";
+              const cover = this.props.cover || "";
+              const body = this.props.widgetForBody ? this.props.widgetForBody : null;
+
+              return hFn(
+                "main",
+                { className: "cms-entry-preview" },
+                [
+                  cover
+                    ? hFn("img", {
+                        className: "cms-entry-preview__cover",
+                        src: cover,
+                        alt: title,
+                      })
+                    : null,
+                  hFn(
+                    "div",
+                    { className: "cms-entry-preview__meta" },
+                    [
+                      hFn("div", { className: "cms-entry-preview__eyebrow" }, this.props.eyebrow || "Live Preview"),
+                      hFn("h1", { className: "cms-entry-preview__title" }, title),
+                      description
+                        ? hFn("p", { className: "cms-entry-preview__description" }, description)
+                        : null,
+                    ].filter(Boolean),
+                  ),
+                  hFn("article", { className: "cms-entry-preview__body" }, body),
+                ].filter(Boolean),
+              );
+            },
+          });
+
+          const BlogPreview = createClassFn({
+            render() {
+              const entry = this.props.entry;
+              return hFn(PreviewShell, {
+                eyebrow: "Blog Preview",
+                title: entry.getIn(["data", "title"]) || "Untitled Post",
+                description: entry.getIn(["data", "description"]) || "",
+                cover: assetUrl(this.props.getAsset(entry.getIn(["data", "image"]))),
+                widgetForBody: this.props.widgetFor("body"),
+              });
+            },
+          });
+
+          const PagePreview = createClassFn({
+            render() {
+              const entry = this.props.entry;
+              return hFn(PreviewShell, {
+                eyebrow: "Page Preview",
+                title: entry.getIn(["data", "title"]) || entry.getIn(["data", "name"]) || "Static Page",
+                description: "",
+                cover: "",
+                widgetForBody: this.props.widgetFor("body"),
+              });
+            },
+          });
+
+          window.CMS.registerPreviewTemplate("blog", BlogPreview);
+          window.CMS.registerPreviewTemplate("pages", PagePreview);
+        }
+
+        function markReady() {
+          document.body.classList.add("cms-ready");
+        }
+
+        async function updateLocalStatus() {
+          const status = document.getElementById("admin-local-status");
+          if (!status) return;
+
+          try {
+            const response = await fetch("http://127.0.0.1:8081/api/v1", {
+              method: "GET",
+              mode: "cors",
+            });
+
+            if (response.ok || response.status < 500) {
+              status.textContent = "Local backend aktif";
+              status.dataset.state = "ready";
+              return;
+            }
+          } catch {}
+
+          status.textContent = "Mode Git Gateway / produksi";
+          status.dataset.state = "idle";
+        }
+
+        const observer = new MutationObserver(() => {
+          if (document.getElementById("nc-root")) {
+            markReady();
+          }
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
+        window.addEventListener("load", function () {
+          if (window.CMS && typeof window.CMS.registerPreviewStyle === "function") {
+            window.CMS.registerPreviewStyle("/admin/preview.css");
+            registerEditorEnhancements();
+          }
+          updateLocalStatus();
+          setTimeout(markReady, 2500);
+        });
+      })();
+    </script>
   </body>
 </html>

@@ -1,19 +1,32 @@
 {
   "enable": true,
+  "switchable": true,
   "mode": "banner",
   "src": {
-    "desktop": "/assets/images/d1-hero.webp",
-    "mobile": "/assets/images/m1-hero.webp"
+    "desktop": [
+      "/assets/images/d1-hero.webp",
+      "/assets/images/d1.webp",
+      "/assets/images/d2.webp"
+    ],
+    "mobile": [
+      "/assets/images/m1-hero.webp",
+      "/assets/images/m1.webp"
+    ]
   },
   "position": "0% 20%",
   "banner": {
     "homeText": {
       "enable": true,
+      "switchable": true,
       "title": "NgetehNology",
       "subtitle": [
-        "Belajar Keamanan Siber Sambil Ngeteh",
-        "Dari Pemula Hingga Mahir"
+        "Learn Cybersecurity One Sip at a Time",
+        "From Beginner Foundations to Practical Skills",
+        "Hands-on Notes, Labs, and Real-World Playbooks",
+        "Grow from Curious Learner to Security Builder"
       ],
+      "titleSize": "3.8rem",
+      "subtitleSize": "1.5rem",
       "typewriter": {
         "enable": true,
         "speed": 100,
@@ -24,24 +37,52 @@
     "credit": {
       "enable": {
         "desktop": true,
-        "mobile": false
+        "mobile": true
       },
       "text": {
-        "desktop": "Source",
-        "mobile": "Mobile Credit"
+        "desktop": "Pixiv - 晚晚喵",
+        "mobile": "Pixiv - 晚晚喵"
       },
       "url": {
-        "desktop": "#",
-        "mobile": ""
+        "desktop": "https://www.pixiv.net/users/108801776",
+        "mobile": "https://www.pixiv.net/users/108801776"
       }
     },
     "navbar": {
-      "transparentMode": "semifull"
+      "transparentMode": "semi"
+    },
+    "animation": {
+      "enable": true,
+      "scope": "global",
+      "restartOnRouteChange": true,
+      "homePreset": {
+        "duration": 6400,
+        "scaleFrom": 1.02,
+        "scaleTo": 1.11,
+        "offsetStrength": 1.6
+      },
+      "innerPreset": {
+        "duration": 5200,
+        "scaleFrom": 1.01,
+        "scaleTo": 1.055,
+        "offsetStrength": 0.8
+      }
+    },
+    "carousel": {
+      "enable": true,
+      "interval": 5000,
+      "switchable": true
     },
     "waves": {
       "enable": {
         "desktop": true,
         "mobile": true
+      },
+      "switchable": true,
+      "style": "contrast",
+      "height": {
+        "desktop": "10.5rem",
+        "mobile": "6.75rem"
       }
     }
   },

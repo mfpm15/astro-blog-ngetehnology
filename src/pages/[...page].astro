@@ -1,5 +1,6 @@
 ---
 import type { GetStaticPaths } from "astro";
+import CategoryBar from "../components/CategoryBar.astro";
 import Pagination from "../components/control/Pagination.astro";
 import PostPage from "../components/PostPage.astro";
 import MainGridLayout from "../layouts/MainGridLayout.astro";
@@ -56,6 +57,7 @@ const len = resolvedPage.data.length;
 ---
 
 <MainGridLayout>
+  <CategoryBar />
   <PostPage page={resolvedPage} />
   <Pagination
     class="mx-auto onload-animation"

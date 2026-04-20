@@ -1,0 +1,167 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #f5f9f7;
+  color: #0f172a;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+body {
+  padding: 1.5rem;
+  line-height: 1.75;
+}
+
+.cms-entry-preview {
+  max-width: 56rem;
+  margin: 0 auto;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 1.5rem;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+}
+
+.cms-entry-preview__cover {
+  display: block;
+  width: 100%;
+  max-height: 28rem;
+  object-fit: cover;
+}
+
+.cms-entry-preview__meta {
+  padding: 1.5rem 1.6rem 0;
+}
+
+.cms-entry-preview__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(22, 163, 74, 0.1);
+  color: #065f46;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.cms-entry-preview__title {
+  margin: 1rem 0 0;
+}
+
+.cms-entry-preview__description {
+  margin: 0.85rem 0 0;
+  font-size: 1rem;
+  color: rgba(15, 23, 42, 0.72);
+}
+
+.cms-entry-preview__body {
+  padding: 1.4rem 1.6rem 1.75rem;
+}
+
+main,
+.frame-content,
+[data-slate-editor] {
+  max-width: 52rem;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 1.75rem 0 0.85rem;
+  line-height: 1.2;
+  color: #052e16;
+}
+
+h1 {
+  font-size: 2.2rem;
+}
+
+h2 {
+  font-size: 1.75rem;
+}
+
+h3 {
+  font-size: 1.35rem;
+}
+
+p,
+ul,
+ol,
+blockquote,
+pre,
+table {
+  margin: 0 0 1rem;
+}
+
+a {
+  color: #047857;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 1rem;
+}
+
+blockquote {
+  padding: 0.9rem 1rem;
+  border-left: 4px solid #34d399;
+  border-radius: 0.85rem;
+  background: rgba(52, 211, 153, 0.08);
+  color: #14532d;
+}
+
+code,
+pre {
+  font-family:
+    "JetBrains Mono",
+    ui-monospace,
+    SFMono-Regular,
+    monospace;
+}
+
+code {
+  padding: 0.12rem 0.35rem;
+  border-radius: 0.4rem;
+  background: rgba(15, 23, 42, 0.06);
+}
+
+pre {
+  overflow-x: auto;
+  padding: 1rem 1.1rem;
+  border-radius: 1rem;
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow: hidden;
+  border-radius: 1rem;
+  background: white;
+}
+
+th,
+td {
+  padding: 0.75rem 0.85rem;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  text-align: left;
+}
+
+th {
+  background: rgba(52, 211, 153, 0.12);
+}
