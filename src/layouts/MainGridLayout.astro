@@ -335,25 +335,25 @@ const mdRightCol = tabletShowLeft ? "md:col-start-3 md:col-end-4" : "md:col-star
 const xlRightCol = desktopShowLeft ? "xl:col-start-3 xl:col-end-4" : "xl:col-start-2 xl:col-end-3";
 
 const leftSidebarClass = `
-  onload-animation row-start-2 row-end-3 w-full
+  row-start-2 row-end-3 w-full
   ${mobileShowSidebar ? "block" : "hidden"}
-  ${tabletShowLeft ? "md:block md:row-start-1 md:row-end-2 md:max-w-[17.5rem] md:col-start-1 md:col-end-2" : "md:hidden"}
-  ${desktopShowLeft ? "xl:block xl:row-start-1 xl:row-end-2 xl:max-w-[17.5rem] xl:col-start-1 xl:col-end-2" : "xl:hidden"}
+  ${tabletShowLeft ? "md:block md:row-start-1 md:row-end-3 md:max-w-[17.5rem] md:col-start-1 md:col-end-2" : "md:hidden"}
+  ${desktopShowLeft ? "xl:block xl:row-start-1 xl:row-end-3 xl:max-w-[17.5rem] xl:col-start-1 xl:col-end-2" : "xl:hidden"}
 `
   .trim()
   .replace(/\s+/g, " ");
 
 const rightSidebarClass = `
-  ${isReadingPage ? "reading-sidebar-column" : ""} onload-animation row-start-2 row-end-3 w-full
+  ${isReadingPage ? "reading-sidebar-column" : ""} row-start-2 row-end-3 w-full
   ${mobileShowSidebar ? "block" : "hidden"}
   ${
     tabletShowRight
-      ? `md:block md:row-start-1 md:row-end-2 ${isReadingPage ? "" : "md:max-w-[17.5rem]"} ${mdRightCol}`
+      ? `md:block md:row-start-1 md:row-end-3 ${isReadingPage ? "" : "md:max-w-[17.5rem]"} ${mdRightCol}`
       : "md:hidden"
   }
   ${
     desktopShowRight
-      ? `xl:block xl:row-start-1 xl:row-end-2 ${isReadingPage ? "" : "xl:max-w-[17.5rem]"} ${xlRightCol}`
+      ? `xl:block xl:row-start-1 xl:row-end-3 ${isReadingPage ? "" : "xl:max-w-[17.5rem]"} ${xlRightCol}`
       : "xl:hidden"
   }
 `
@@ -1117,7 +1117,7 @@ const showBothSidebarsOnPost = isPostPage && desktopShowLeft && desktopShowRight
   }
 
   #main-grid[data-layout-mode="reading"] {
-    align-items: start;
+    align-items: stretch;
     column-gap: clamp(1rem, 2.2vw, 1.65rem);
     row-gap: 1rem;
   }
@@ -1134,7 +1134,7 @@ const showBothSidebarsOnPost = isPostPage && desktopShowLeft && desktopShowRight
   #main-grid[data-layout-mode="reading"] .reading-sidebar-column {
     width: 100%;
     min-width: 0;
-    align-self: start;
+    align-self: stretch;
   }
 
   .hero-image {

@@ -44,6 +44,8 @@ const maxLevel = siteConfig.toc.depth;
     headings = [];
     tocEntries = [];
     activeIndicator = null;
+    progressTrack = null;
+    progressFill = null;
     activeIndex = -1;
 
     scheduled = false;
@@ -114,6 +116,8 @@ const maxLevel = siteConfig.toc.depth;
       this.headings = [];
       this.tocEntries = [];
       this.activeIndicator = null;
+      this.progressTrack = null;
+      this.progressFill = null;
       this.activeIndex = -1;
       this.anchorNavTarget = null;
       this.tocEl = null;
@@ -164,6 +168,8 @@ const maxLevel = siteConfig.toc.depth;
       if (!this.tocEl || !this.activeIndicator) return;
       if (this.activeIndex < 0 || this.activeIndex >= this.tocEntries.length) {
         this.activeIndicator.setAttribute("style", "opacity: 0");
+        this.progressTrack?.setAttribute("style", "opacity: 0");
+        this.progressFill?.setAttribute("style", "opacity: 0");
         return;
       }
 
@@ -177,11 +183,46 @@ const maxLevel = siteConfig.toc.depth;
         "style",
         `top: ${top}px; height: ${bottom - top}px; opacity: 1`,
       );
+
+      this.updateProgressRail();
     };
 
-    toggleActiveHeading = () => {
+    updateProgressRail = () => {
+      if (!this.progressTrack || !this.progressFill || this.tocEntries.length === 0) return;
+
+      const firstEntry = this.tocEntries[0];
+      const lastEntry = this.tocEntries[this.tocEntries.length - 1];
+      const activeEntry = this.tocEntries[this.activeIndex];
+
+      if (!firstEntry || !lastEntry || !activeEntry) {
+        this.progressTrack.setAttribute("style", "opacity: 0");
+        this.progressFill.setAttribute("style", "opacity: 0");
+        return;
+      }
+
+      const start = firstEntry.offsetTop + firstEntry.offsetHeight / 2;
+      const end = lastEntry.offsetTop + lastEntry.offsetHeight / 2;
+      const activeCenter = activeEntry.offsetTop + activeEntry.offsetHeight / 2;
+      const trackHeight = Math.max(0, end - start);
+      const fillHeight = Math.max(0, activeCenter - start);
+      const opacity = trackHeight > 6 ? 1 : 0;
+
+      this.progressTrack.setAttribute(
+        "style",
+        `top: ${start}px; height: ${trackHeight}px; opacity: ${opacity}`,
+      );
+      this.progressFill.setAttribute(
+        "style",
+        `top: ${start}px; height: ${fillHeight}px; opacity: ${opacity}`,
+      );
+    };
+
+    toggleActiveHeading = (force = false) => {
       this.tocEntries.forEach((entry, idx) => {
-        entry.classList.toggle(this.visibleClass, idx === this.activeIndex);
+        const isActive = idx === this.activeIndex;
+        if (force || entry.classList.contains(this.visibleClass) !== isActive) {
+          entry.classList.toggle(this.visibleClass, isActive);
+        }
       });
 
       this.updateIndicator();
@@ -217,8 +258,10 @@ const maxLevel = siteConfig.toc.depth;
 
     updateActiveState = () => {
       if (!this.tocEntries.length || !this.headings.length) return;
-      this.activeIndex = this.resolveActiveIndex();
-      this.toggleActiveHeading();
+      const nextIndex = this.resolveActiveIndex();
+      const hasChanged = nextIndex !== this.activeIndex;
+      this.activeIndex = nextIndex;
+      this.toggleActiveHeading(hasChanged);
       this.scrollToActiveHeading();
     };
 
@@ -278,6 +321,8 @@ const maxLevel = siteConfig.toc.depth;
       this.tocEl.addEventListener("click", this.handleAnchorClick, true);
 
       this.activeIndicator = this.querySelector("#active-indicator");
+      this.progressTrack = this.querySelector("#toc-progress-track");
+      this.progressFill = this.querySelector("#toc-progress-fill");
       this.tocEntries = Array.from(
         this.querySelectorAll("a[href^='#']"),
       );
@@ -378,6 +423,8 @@ const maxLevel = siteConfig.toc.depth;
 
       this.innerHTML =
         tocHTML +
+        '<div id="toc-progress-track" style="opacity: 0" class="toc-progress-track"></div>' +
+        '<div id="toc-progress-fill" style="opacity: 0" class="toc-progress-fill"></div>' +
         '<div id="active-indicator" style="opacity: 0" class="toc-active-indicator"></div>';
     }
 
@@ -443,6 +490,7 @@ const maxLevel = siteConfig.toc.depth;
 
   :global(table-of-contents.toc-widget .toc-entry.visible) {
     color: var(--primary);
+    transform: translateX(3px);
   }
 
   :global(table-of-contents.toc-widget .toc-marker-slot) {
@@ -558,5 +606,33 @@ const maxLevel = siteConfig.toc.depth;
       height 180ms ease,
       opacity 180ms ease;
     pointer-events: none;
+  }
+
+  :global(table-of-contents.toc-widget .toc-progress-track),
+  :global(table-of-contents.toc-widget .toc-progress-fill) {
+    position: absolute;
+    left: 1.48rem;
+    width: 2px;
+    border-radius: 9999px;
+    pointer-events: none;
+    transition:
+      top 180ms ease,
+      height 180ms ease,
+      opacity 180ms ease;
+  }
+
+  :global(table-of-contents.toc-widget .toc-progress-track) {
+    z-index: 0;
+    background: color-mix(in srgb, currentColor 12%, transparent);
+  }
+
+  :global(table-of-contents.toc-widget .toc-progress-fill) {
+    z-index: 1;
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--primary) 72%, white),
+      var(--primary)
+    );
+    box-shadow: 0 0 18px color-mix(in srgb, var(--primary) 18%, transparent);
   }
 </style>

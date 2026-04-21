@@ -949,8 +949,49 @@ const homeHeroRestartWindow = window as Window & {
 	__ngetehHomeHeroRestartBound?: boolean;
 	__ngetehHomeHeroRestartRafA?: number | null;
 	__ngetehHomeHeroRestartRafB?: number | null;
+	__ngetehHomeHeroRestartRetry?: number | null;
 	__ngetehTypewriterInit?: (options?: { resetText?: boolean }) => void;
+	__ngetehTypewriterCleanup?: (resetText?: boolean) => void;
 };
+
+function restartHomeTypewriter(attempt: number = 0) {
+	if (!pathsEqual(window.location.pathname, url('/'))) {
+		return;
+	}
+
+	const bannerWrapper = document.getElementById('banner-wrapper');
+	const homeTextOverlay = document.querySelector('.banner-home-text-overlay');
+	if (bannerWrapper) {
+		bannerWrapper.setAttribute('data-hero-mode', 'home');
+		bannerWrapper.setAttribute('data-page-kind', 'home');
+	}
+	if (homeTextOverlay instanceof HTMLElement) {
+		homeTextOverlay.classList.remove('hidden');
+		homeTextOverlay.setAttribute('aria-hidden', 'false');
+	}
+
+	const typewriterElements = document.querySelectorAll('.banner-home-text-overlay .typewriter');
+	if (typewriterElements.length === 0) {
+		if (attempt < 12) {
+			homeHeroRestartWindow.__ngetehHomeHeroRestartRetry = window.setTimeout(() => {
+				restartHomeTypewriter(attempt + 1);
+			}, 120);
+		}
+		return;
+	}
+
+	if (typeof homeHeroRestartWindow.__ngetehTypewriterInit === 'function') {
+		homeHeroRestartWindow.__ngetehTypewriterCleanup?.(true);
+		homeHeroRestartWindow.__ngetehTypewriterInit({ resetText: true });
+		return;
+	}
+
+	if (attempt < 12) {
+		homeHeroRestartWindow.__ngetehHomeHeroRestartRetry = window.setTimeout(() => {
+			restartHomeTypewriter(attempt + 1);
+		}, 120);
+	}
+}
 
 function runHomeHeroRestart() {
 	if (!pathsEqual(window.location.pathname, url('/'))) {
@@ -958,7 +999,7 @@ function runHomeHeroRestart() {
 	}
 
 	const heroEngine = (window as any).__ngetehHeroEngine;
-	homeHeroRestartWindow.__ngetehTypewriterInit?.({ resetText: true });
+	restartHomeTypewriter(0);
 	heroEngine?.sync?.({
 		route: window.location.pathname,
 		phase: 'page:view',
@@ -977,6 +1018,10 @@ function queueHomeHeroRestart() {
 	}
 	if (homeHeroRestartWindow.__ngetehHomeHeroRestartRafB !== null && homeHeroRestartWindow.__ngetehHomeHeroRestartRafB !== undefined) {
 		cancelAnimationFrame(homeHeroRestartWindow.__ngetehHomeHeroRestartRafB);
+	}
+	if (homeHeroRestartWindow.__ngetehHomeHeroRestartRetry !== null && homeHeroRestartWindow.__ngetehHomeHeroRestartRetry !== undefined) {
+		clearTimeout(homeHeroRestartWindow.__ngetehHomeHeroRestartRetry);
+		homeHeroRestartWindow.__ngetehHomeHeroRestartRetry = null;
 	}
 
 	homeHeroRestartWindow.__ngetehHomeHeroRestartRafA = requestAnimationFrame(() => {
@@ -1242,6 +1287,14 @@ function resolveTocShell(): HTMLElement | null {
 	return el instanceof HTMLElement ? el : null;
 }
 
+function resolveTocRevealThreshold(defaultThreshold: number): number {
+	const contentShell = document.getElementById('content-shell');
+	const navbar = document.getElementById('navbar');
+	const navbarHeight = navbar ? navbar.getBoundingClientRect().height : 80;
+	const shellTop = contentShell instanceof HTMLElement ? contentShell.offsetTop : defaultThreshold;
+	return Math.max(0, shellTop - navbarHeight - 16);
+}
+
 // Throttle helper.
 function throttle(func: Function, limit: number) {
 	let inThrottle: boolean;
@@ -1259,8 +1312,11 @@ function throttle(func: Function, limit: number) {
 function scrollFunction() {
 	const scrollTop = document.documentElement.scrollTop;
 	const bannerWrapper = document.getElementById('banner-wrapper');
+	const contentShell = document.getElementById('content-shell');
+	const isPostPage = contentShell?.getAttribute('data-page-kind') === 'post';
 	const hasBanner = !!bannerWrapper;
 	const bannerHeight = bannerWrapper?.offsetHeight || window.innerHeight * (BANNER_HEIGHT / 100);
+	const tocRevealThreshold = resolveTocRevealThreshold(bannerHeight);
 
 	// Batch DOM updates into rAF to reduce layout thrash.
 	requestAnimationFrame(() => {
@@ -1280,7 +1336,7 @@ function scrollFunction() {
 				tocShell = resolveTocShell();
 			}
 			if (tocShell) {
-				if (scrollTop > bannerHeight) {
+				if (isPostPage || scrollTop >= tocRevealThreshold) {
 					tocShell.classList.remove('toc-hide')
 				} else {
 					tocShell.classList.add('toc-hide')

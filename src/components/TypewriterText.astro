@@ -35,8 +35,9 @@ const initialText =
 
   type TypewriterWindow = Window & {
     __ngetehTypewriterBound?: boolean;
+    __ngetehTypewriterRetry?: number | null;
     __ngetehTypewriterTimers?: Set<number>;
-    __ngetehTypewriterInit?: (options?: { resetText?: boolean }) => void;
+    __ngetehTypewriterInit?: (options?: { resetText?: boolean; retry?: boolean; attempt?: number }) => void;
     __ngetehTypewriterCleanup?: (resetText?: boolean) => void;
   };
 
@@ -197,7 +198,43 @@ const initialText =
     clearTrackedTimeouts();
   }
 
+  function isHomeRoute(): boolean {
+    return window.location.pathname === "/" || window.location.pathname === "";
+  }
+
+  function syncHomeOverlayState() {
+    if (!isHomeRoute()) return;
+
+    const homeOverlay = document.querySelector(".banner-home-text-overlay");
+    const bannerWrapper = document.getElementById("banner-wrapper");
+    const contentShell = document.getElementById("content-shell");
+
+    if (bannerWrapper) {
+      bannerWrapper.setAttribute("data-hero-mode", "home");
+      bannerWrapper.setAttribute("data-page-kind", "home");
+    }
+
+    if (contentShell) {
+      contentShell.setAttribute("data-hero-mode", "home");
+      contentShell.setAttribute("data-page-kind", "home");
+    }
+
+    if (homeOverlay instanceof HTMLElement) {
+      homeOverlay.classList.remove("hidden");
+      homeOverlay.setAttribute("aria-hidden", "false");
+    }
+  }
+
+  function clearTypewriterRetry() {
+    if (typewriterWindow.__ngetehTypewriterRetry !== null && typewriterWindow.__ngetehTypewriterRetry !== undefined) {
+      clearTimeout(typewriterWindow.__ngetehTypewriterRetry);
+      typewriterWindow.__ngetehTypewriterRetry = null;
+    }
+  }
+
   function initTypewriters(options: { resetText?: boolean } = {}) {
+    syncHomeOverlayState();
+
     const typewriterElements =
       document.querySelectorAll<TypewriterElement>(".typewriter");
 
@@ -217,9 +254,26 @@ const initialText =
     });
   }
 
-  function queueTypewriterInit(options: { resetText?: boolean } = {}) {
+  function queueTypewriterInit(options: { resetText?: boolean; retry?: boolean; attempt?: number } = {}) {
+    clearTypewriterRetry();
+
     window.requestAnimationFrame(() => {
       initTypewriters(options);
+
+      if (!options.retry || !isHomeRoute()) return;
+
+      const typewriterElements =
+        document.querySelectorAll<TypewriterElement>(".banner-home-text-overlay .typewriter");
+      const hasRunningTypewriter = Array.from(typewriterElements).some(
+        (element) => element.__typewriterInstance,
+      );
+
+      const attempt = options.attempt ?? 0;
+      if ((typewriterElements.length === 0 || !hasRunningTypewriter) && attempt < 12) {
+        typewriterWindow.__ngetehTypewriterRetry = window.setTimeout(() => {
+          queueTypewriterInit({ resetText: true, retry: true, attempt: attempt + 1 });
+        }, 120);
+      }
     });
   }
 
@@ -237,6 +291,17 @@ const initialText =
     document.addEventListener("swup:contentReplaced", queueTypewriterInit);
     document.addEventListener("swup:content:replace", queueTypewriterInit);
     document.addEventListener("swup:page:view", queueTypewriterInit);
+    window.addEventListener("pageshow", () => {
+      queueTypewriterInit({ resetText: isHomeRoute(), retry: true });
+    });
+    window.addEventListener("popstate", () => {
+      queueTypewriterInit({ resetText: isHomeRoute(), retry: true });
+    });
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        queueTypewriterInit({ retry: true });
+      }
+    });
   }
 
   if (document.readyState === "loading") {
