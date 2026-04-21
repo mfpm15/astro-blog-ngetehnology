@@ -399,10 +399,11 @@ const maxLevel = siteConfig.toc.depth;
   :global(table-of-contents.toc-widget) {
     position: relative;
     display: flex;
-    max-height: min(28rem, calc(100vh - 11rem));
+    max-height: calc(100vh - var(--navbar-clearance) - 2rem);
     flex-direction: column;
     gap: 0.35rem;
     overflow-y: auto;
+    overscroll-behavior: contain;
     padding-right: 0.2rem;
     scroll-behavior: smooth;
   }
