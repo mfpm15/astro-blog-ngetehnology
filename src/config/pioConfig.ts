@@ -2,7 +2,7 @@ import type { SpineModelConfig, Live2DModelConfig } from "../types/config";
 
 // Konfigurasi Karakter Spine
 export const spineModelConfig: SpineModelConfig = {
-  enable: false, // Dinonaktifkan default demi performa; bisa diaktifkan lagi bila dibutuhkan
+  enable: true, // Enabled for the desktop recommendation assistant
   model: {
     // Path file model Spine (.json)
     path: "/pio/models/spine/firefly/1310.json",
@@ -32,12 +32,12 @@ export const spineModelConfig: SpineModelConfig = {
       "emoji_6",
     ], // Daftar animasi yang diputar secara acak saat diklik
     clickMessages: [
-      "Halo! Ada yang bisa dibantu?",
-      "Jangan lupa istirahat ya!",
-      "Hari ini cerah sekali!",
-      "Bagaimana kalau kita coba lihat bintang?",
-      "Setiap perjalanan dimulai dengan satu langkah.",
-      "Teruslah belajar hal baru setiap hari!",
+      "Need a fresh read?",
+      "I can point you to something new.",
+      "Try another post when you have a minute.",
+      "Want a different article suggestion?",
+      "There is always one more post to explore.",
+      "Let me recommend something fun to read.",
     ], // Pesan teks yang ditampilkan secara acak saat diklik
     messageDisplayTime: 3000, // Waktu tampilan pesan (ms)
     idleAnimations: ["idle", "emoji_0", "emoji_1", "emoji_3", "emoji_4"], // Daftar animasi idle

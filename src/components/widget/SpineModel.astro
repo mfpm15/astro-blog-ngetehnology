@@ -2,7 +2,7 @@
 import { spineModelConfig } from "../../config/pioConfig";
 ---
 
-<!-- CSS Spine Web Player dimuat dinamis di script. -->{
+<!-- Spine Web Player CSS is loaded dynamically in the script. -->{
   spineModelConfig.enable && (
     <div
       id="spine-model-container"
@@ -60,24 +60,227 @@ import { spineModelConfig } from "../../config/pioConfig";
     document.head.appendChild(cdnLink);
   }
 
-  // Simpan referensi bubble pesan yang sedang aktif.
+  // Track the active bubble and timers.
   let currentMessageContainer = null;
   let hideMessageTimer = null;
-  let isClickProcessing = false; // Cegah klik ganda beruntun.
-  let lastClickTime = 0; // Catat waktu klik terakhir.
+  let idleAnimationTimer = null;
+  let isClickProcessing = false;
+  let lastClickTime = 0;
 
-  // Cegah inisialisasi dobel.
+  const recommendationModes = ["latest", "trending", "random"];
+  const recommendationLabels = {
+    latest: "Latest pick",
+    trending: "Trending pick",
+    random: "Random pick",
+  };
+
+  // Prevent duplicate initialization and keep session-level state on window.
   window.spineModelInitialized = window.spineModelInitialized || false;
   window.spinePlayerInstance = window.spinePlayerInstance || null;
+  window.__ngetehSpinePostMeta = Array.isArray(window.__ngetehSpinePostMeta)
+    ? window.__ngetehSpinePostMeta
+    : null;
+  window.__ngetehSpinePostMetaPromise =
+    window.__ngetehSpinePostMetaPromise || null;
+  window.__ngetehSpineRecommendationMode = Number.isInteger(
+    window.__ngetehSpineRecommendationMode
+  )
+    ? window.__ngetehSpineRecommendationMode
+    : 0;
+  window.__ngetehSpineEventsBound = window.__ngetehSpineEventsBound || false;
 
-  // Tampilkan bubble pesan di dekat model.
-  function showMessage(message) {
-    // Abaikan pesan kosong.
-    if (!message || !message.trim()) {
+  function normalizePostMetaList(data) {
+    if (!Array.isArray(data)) return [];
+
+    return data.filter((item) => {
+      return (
+        item &&
+        typeof item === "object" &&
+        typeof item.title === "string" &&
+        typeof item.url === "string" &&
+        typeof item.published === "string"
+      );
+    });
+  }
+
+  function getPostPublishedTime(post) {
+    const publishedTime = Date.parse(post.published || "");
+    return Number.isFinite(publishedTime) ? publishedTime : 0;
+  }
+
+  function getPostsSortedByDate(posts) {
+    return [...posts].sort((left, right) => {
+      const timeDiff = getPostPublishedTime(right) - getPostPublishedTime(left);
+      if (timeDiff !== 0) return timeDiff;
+      return String(left.title || "").localeCompare(String(right.title || ""));
+    });
+  }
+
+  function resolveTrendingPost(posts) {
+    const sortedPosts = getPostsSortedByDate(posts);
+    const pinnedPosts = sortedPosts.filter((post) => post.pinned === true);
+    if (pinnedPosts.length > 0) {
+      return pinnedPosts[0];
+    }
+
+    const categoryCounts = sortedPosts.reduce((counts, post) => {
+      const category =
+        typeof post.category === "string" ? post.category.trim() : "";
+      if (!category) return counts;
+      counts[category] = (counts[category] || 0) + 1;
+      return counts;
+    }, {});
+
+    const rankedCategories = Object.entries(categoryCounts).sort(
+      ([leftCategory, leftCount], [rightCategory, rightCount]) => {
+        if (rightCount !== leftCount) {
+          return rightCount - leftCount;
+        }
+
+        return leftCategory.localeCompare(rightCategory);
+      }
+    );
+
+    if (rankedCategories.length > 0) {
+      const [topCategory] = rankedCategories[0];
+      const categoryPost = sortedPosts.find(
+        (post) =>
+          typeof post.category === "string" &&
+          post.category.trim() === topCategory
+      );
+      if (categoryPost) {
+        return categoryPost;
+      }
+    }
+
+    return sortedPosts[0] || null;
+  }
+
+  function getRecommendationPost(posts, mode) {
+    const sortedPosts = getPostsSortedByDate(posts);
+    if (sortedPosts.length === 0) {
+      return null;
+    }
+
+    if (mode === "trending") {
+      return resolveTrendingPost(sortedPosts);
+    }
+
+    if (mode === "random") {
+      const randomIndex = Math.floor(Math.random() * sortedPosts.length);
+      return sortedPosts[randomIndex];
+    }
+
+    return sortedPosts[0];
+  }
+
+  async function getPostMetaList() {
+    if (Array.isArray(window.__ngetehSpinePostMeta)) {
+      return window.__ngetehSpinePostMeta;
+    }
+
+    if (!window.__ngetehSpinePostMetaPromise) {
+      window.__ngetehSpinePostMetaPromise = fetch("/api/allPostMeta.json", {
+        headers: {
+          Accept: "application/json",
+        },
+        credentials: "same-origin",
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`Failed to fetch post metadata: ${response.status}`);
+          }
+
+          return response.json();
+        })
+        .then((data) => normalizePostMetaList(data))
+        .catch((error) => {
+          console.warn("Spine recommendations are unavailable.", error);
+          return [];
+        })
+        .then((posts) => {
+          window.__ngetehSpinePostMeta = posts;
+          return posts;
+        });
+    }
+
+    return window.__ngetehSpinePostMetaPromise;
+  }
+
+  function buildMessageBody(content, isDarkMode) {
+    if (typeof content === "string") {
+      const text = document.createElement("div");
+      text.textContent = content;
+      return text;
+    }
+
+    const wrapper = document.createElement("div");
+    wrapper.style.display = "flex";
+    wrapper.style.flexDirection = "column";
+    wrapper.style.alignItems = "center";
+    wrapper.style.gap = "0.4rem";
+
+    if (content.eyebrow) {
+      const eyebrow = document.createElement("div");
+      eyebrow.textContent = content.eyebrow;
+      Object.assign(eyebrow.style, {
+        fontSize: "11px",
+        fontWeight: "700",
+        letterSpacing: "0.08em",
+        opacity: "0.72",
+        textTransform: "uppercase",
+      });
+      wrapper.appendChild(eyebrow);
+    }
+
+    const titleEl = content.url
+      ? document.createElement("a")
+      : document.createElement("div");
+
+    titleEl.textContent = content.title;
+    Object.assign(titleEl.style, {
+      color: isDarkMode ? "#f8fafc" : "#0f172a",
+      fontSize: "14px",
+      fontWeight: "700",
+      lineHeight: "1.45",
+      textDecoration: "none",
+    });
+
+    if (titleEl instanceof HTMLAnchorElement) {
+      titleEl.href = content.url;
+      titleEl.rel = "noopener";
+      titleEl.style.pointerEvents = "auto";
+      titleEl.style.textDecoration = "underline";
+      titleEl.style.textUnderlineOffset = "0.16em";
+      titleEl.style.textDecorationColor = isDarkMode
+        ? "rgba(148, 163, 184, 0.8)"
+        : "rgba(71, 85, 105, 0.75)";
+    }
+
+    wrapper.appendChild(titleEl);
+
+    if (content.helperText) {
+      const helper = document.createElement("div");
+      helper.textContent = content.helperText;
+      Object.assign(helper.style, {
+        fontSize: "12px",
+        opacity: "0.75",
+      });
+      wrapper.appendChild(helper);
+    }
+
+    return wrapper;
+  }
+
+  // Show a bubble near the model. The content can be plain text or a linked recommendation.
+  function showMessage(content) {
+    if (
+      (typeof content === "string" && !content.trim()) ||
+      (typeof content !== "string" && (!content || !content.title))
+    ) {
       return;
     }
 
-    // Hapus pesan sebelumnya lebih dulu.
     if (currentMessageContainer) {
       clearTimeout(hideMessageTimer);
       if (currentMessageContainer.parentNode) {
@@ -86,7 +289,6 @@ import { spineModelConfig } from "../../config/pioConfig";
       currentMessageContainer = null;
     }
 
-    // Pastikan tidak ada container pesan lama tertinggal.
     const existingMessages = document.querySelectorAll(
       ".spine-message-container"
     );
@@ -95,35 +297,31 @@ import { spineModelConfig } from "../../config/pioConfig";
         msg.parentNode.removeChild(msg);
       }
     });
-    // Deteksi mode gelap.
+
     const isDarkMode =
       document.documentElement.classList.contains("dark") ||
       window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const isInteractiveMessage =
+      typeof content === "object" && content !== null && !!content.url;
 
-    // Buat container pesan.
     const messageContainer = document.createElement("div");
     messageContainer.className = "spine-message-container";
-
-    // Buat elemen pesan.
     const messageEl = document.createElement("div");
     messageEl.className = "spine-message";
-    messageEl.textContent = message;
+    const messageBody = buildMessageBody(content, isDarkMode);
 
-    // Buat panah bubble.
     const arrowEl = document.createElement("div");
     arrowEl.className = "spine-message-arrow";
 
-    // Gaya dasar container.
     Object.assign(messageContainer.style, {
       position: "fixed",
       zIndex: "1001",
-      pointerEvents: "none",
+      pointerEvents: isInteractiveMessage ? "auto" : "none",
       opacity: "0",
       transform: "translateY(15px) translateX(-50%) scale(0.9)",
       transition: "all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
     });
 
-    // Gaya bubble pesan, termasuk dukungan tema gelap.
     const messageStyles = {
       position: "relative",
       background: isDarkMode
@@ -153,12 +351,11 @@ import { spineModelConfig } from "../../config/pioConfig";
     };
     Object.assign(messageEl.style, messageStyles);
 
-    // Gaya panah bubble.
     Object.assign(arrowEl.style, {
       position: "absolute",
       top: "100%",
       left: "50%",
-      transform: "translateX(-50%)", // Pusatkan panah.
+      transform: "translateX(-50%)",
       width: "0",
       height: "0",
       borderLeft: "8px solid transparent",
@@ -169,33 +366,24 @@ import { spineModelConfig } from "../../config/pioConfig";
       filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))",
     });
 
-    // Susun elemen bubble.
+    messageEl.appendChild(messageBody);
     messageEl.appendChild(arrowEl);
     messageContainer.appendChild(messageEl);
 
-    // Tempel ke dokumen dan simpan referensinya.
     document.body.appendChild(messageContainer);
     currentMessageContainer = messageContainer;
 
-    // Posisikan pesan di atas model Firefly.
     const container = document.getElementById("spine-model-container");
     if (container) {
       const rect = container.getBoundingClientRect();
-
-      // Posisikan bubble di atas model.
       const containerCenterX = rect.left + rect.width / 2;
-
-      // Gunakan estimasi ukuran bubble untuk posisi awal.
-      const estimatedMessageWidth = 240; // Estimasi lebar awal.
-      const estimatedMessageHeight = 60; // Estimasi tinggi awal.
-      const screenPadding = 10; // Jarak aman dari tepi layar.
-
-      // Hitung posisi aktual bubble.
+      const estimatedMessageWidth = 240;
+      const estimatedMessageHeight = 72;
+      const screenPadding = 10;
       let messageX = containerCenterX;
-      let messageY = rect.top - estimatedMessageHeight - 25; // Beri jarak 25 px dari bagian atas model.
+      let messageY = rect.top - estimatedMessageHeight - 25;
 
-      // Batas layar horizontal.
-      const minX = screenPadding + estimatedMessageWidth / 2; // Perhitungkan offset translateX(-50%).
+      const minX = screenPadding + estimatedMessageWidth / 2;
       const maxX =
         window.innerWidth - screenPadding - estimatedMessageWidth / 2;
 
@@ -205,14 +393,11 @@ import { spineModelConfig } from "../../config/pioConfig";
         messageX = maxX;
       }
 
-      // Batas layar vertikal.
       const minY = screenPadding;
       const maxY = window.innerHeight - estimatedMessageHeight - screenPadding;
 
       if (messageY < minY) {
-        // Jika ruang atas sempit, pindahkan ke bawah model.
         messageY = rect.bottom + 25;
-        // Balik arah panah.
         arrowEl.style.top = "0";
         arrowEl.style.bottom = "auto";
         arrowEl.style.borderTop = "none";
@@ -223,17 +408,14 @@ import { spineModelConfig } from "../../config/pioConfig";
         messageY = maxY;
       }
 
-      // Terapkan posisi awal.
       messageContainer.style.left = messageX + "px";
       messageContainer.style.top = messageY + "px";
 
-      // Setelah dirender, rapikan lagi posisinya.
       setTimeout(() => {
         const actualMessageRect = messageContainer.getBoundingClientRect();
         const actualWidth = actualMessageRect.width;
         const actualHeight = actualMessageRect.height;
 
-        // Hitung ulang posisi horizontal.
         let adjustedX = containerCenterX;
         const actualMinX = screenPadding + actualWidth / 2;
         const actualMaxX = window.innerWidth - screenPadding - actualWidth / 2;
@@ -244,11 +426,10 @@ import { spineModelConfig } from "../../config/pioConfig";
           adjustedX = actualMaxX;
         }
 
-        // Hitung ulang posisi vertikal.
         let adjustedY = rect.top - actualHeight - 25;
         const actualMinY = screenPadding;
         const actualMaxY = window.innerHeight - actualHeight - screenPadding;
-        let isAboveModel = true; // Penanda posisi bubble terhadap model.
+        let isAboveModel = true;
 
         if (adjustedY < actualMinY) {
           adjustedY = rect.bottom + 25;
@@ -257,21 +438,17 @@ import { spineModelConfig } from "../../config/pioConfig";
           adjustedY = actualMaxY;
         }
 
-        // Hitung arah panah ke pusat model.
         const modelCenterX = rect.left + rect.width / 2;
-        const messageCenterX = adjustedX; // Posisi pusat bubble pesan.
-        const arrowOffsetX = modelCenterX - messageCenterX; // Offset panah terhadap pusat bubble.
+        const messageCenterX = adjustedX;
+        const arrowOffsetX = modelCenterX - messageCenterX;
 
-        // Batasi offset panah agar tidak keluar bubble.
-        const maxOffset = actualWidth / 2 - 20; // Sisakan margin 20 px.
+        const maxOffset = actualWidth / 2 - 20;
         const clampedOffsetX = Math.max(
           -maxOffset,
           Math.min(maxOffset, arrowOffsetX)
         );
 
-        // Sesuaikan arah panah berdasarkan posisi final.
         if (isAboveModel) {
-          // Bubble berada di atas model, panah mengarah ke bawah.
           Object.assign(arrowEl.style, {
             position: "absolute",
             top: "100%",
@@ -289,7 +466,6 @@ import { spineModelConfig } from "../../config/pioConfig";
             filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))",
           });
         } else {
-          // Bubble berada di bawah model, panah mengarah ke atas.
           Object.assign(arrowEl.style, {
             position: "absolute",
             top: "0",
@@ -308,21 +484,21 @@ import { spineModelConfig } from "../../config/pioConfig";
           });
         }
 
-        // Terapkan posisi akhir.
         messageContainer.style.left = adjustedX + "px";
         messageContainer.style.top = adjustedY + "px";
-      }, 50); // Beri jeda singkat agar bubble selesai dirender.
+      }, 50);
     }
 
-    // Animasi muncul.
     setTimeout(() => {
       messageContainer.style.opacity = "1";
       messageContainer.style.transform =
         "translateY(0) translateX(-50%) scale(1)";
     }, 100);
 
-    // Sembunyikan otomatis.
-    const displayTime = spineModelConfig.interactive.messageDisplayTime || 3000;
+    const displayTime = Math.max(
+      spineModelConfig.interactive.messageDisplayTime || 3000,
+      isInteractiveMessage ? 5000 : 3000
+    );
     hideMessageTimer = setTimeout(() => {
       messageContainer.style.opacity = "0";
       messageContainer.style.transform =
@@ -331,12 +507,34 @@ import { spineModelConfig } from "../../config/pioConfig";
         if (messageContainer.parentNode) {
           messageContainer.parentNode.removeChild(messageContainer);
         }
-        // Bersihkan referensi.
         if (currentMessageContainer === messageContainer) {
           currentMessageContainer = null;
         }
       }, 400);
     }, displayTime);
+  }
+
+  async function showNextRecommendation() {
+    const modeIndex =
+      window.__ngetehSpineRecommendationMode % recommendationModes.length;
+    const mode = recommendationModes[modeIndex];
+    window.__ngetehSpineRecommendationMode =
+      (modeIndex + 1) % recommendationModes.length;
+
+    const posts = await getPostMetaList();
+    const recommendation = getRecommendationPost(posts, mode);
+
+    if (!recommendation) {
+      showMessage("No posts yet.");
+      return;
+    }
+
+    showMessage({
+      eyebrow: recommendationLabels[mode],
+      title: recommendation.title,
+      url: recommendation.url,
+      helperText: "Open article",
+    });
   }
 
   // Perbarui visibilitas responsif.
@@ -359,6 +557,10 @@ import { spineModelConfig } from "../../config/pioConfig";
 
   // Bersihkan instance model yang ada.
   function cleanupSpineModel() {
+    if (idleAnimationTimer) {
+      clearInterval(idleAnimationTimer);
+      idleAnimationTimer = null;
+    }
     console.log("🧹 Cleaning up existing Spine model...");
 
     // Bersihkan bubble pesan yang masih aktif.
@@ -529,17 +731,15 @@ import { spineModelConfig } from "../../config/pioConfig";
               "#spine-player-container canvas"
             );
             if (canvas) {
-              canvas.addEventListener("click", () => {
-                // Debounce klik agar tidak dobel.
+              canvas.addEventListener("click", async () => {
                 const currentTime = Date.now();
                 if (isClickProcessing || currentTime - lastClickTime < 500) {
-                  return; // Abaikan klik beruntun dalam 500 ms.
+                  return;
                 }
 
                 isClickProcessing = true;
                 lastClickTime = currentTime;
 
-                // Putar animasi klik acak.
                 const clickAnims =
                   spineModelConfig.interactive.clickAnimations ||
                   (spineModelConfig.interactive.clickAnimation
@@ -552,7 +752,6 @@ import { spineModelConfig } from "../../config/pioConfig";
                       clickAnims[Math.floor(Math.random() * clickAnims.length)];
                     player.setAnimation(randomClickAnim, false);
 
-                    // Setelah animasi selesai, kembali ke idle.
                     setTimeout(() => {
                       const idleAnims =
                         spineModelConfig.interactive.idleAnimations;
@@ -565,23 +764,15 @@ import { spineModelConfig } from "../../config/pioConfig";
                   }
                 }
 
-                // Tampilkan pesan acak.
-                const messages = spineModelConfig.interactive.clickMessages;
-                if (messages && messages.length > 0) {
-                  const randomMessage =
-                    messages[Math.floor(Math.random() * messages.length)];
-                  showMessage(randomMessage);
-                }
+                await showNextRecommendation();
 
-                // Reset status debounce.
                 setTimeout(() => {
                   isClickProcessing = false;
                 }, 500);
               });
 
-              // Atur loop animasi idle.
               if (spineModelConfig.interactive.idleAnimations.length > 1) {
-                setInterval(() => {
+                idleAnimationTimer = setInterval(() => {
                   try {
                     const idleAnims =
                       spineModelConfig.interactive.idleAnimations;
@@ -746,33 +937,54 @@ import { spineModelConfig } from "../../config/pioConfig";
     }
   }
 
-  // Bersihkan resource saat halaman ditutup.
-  window.addEventListener("beforeunload", cleanupSpineModel);
+  function bindSpineEvents() {
+    if (window.__ngetehSpineEventsBound) {
+      return;
+    }
 
-  // Saat halaman berganti via Swup, cukup perbarui visibilitasnya.
-  if (typeof window.swup !== "undefined" && window.swup.hooks) {
-    window.swup.hooks.on("content:replace", () => {
-      // Tidak perlu membuat ulang model, cukup update tampilannya.
+    window.__ngetehSpineEventsBound = true;
+    window.addEventListener("beforeunload", cleanupSpineModel);
+    window.addEventListener("resize", updateResponsiveDisplay);
+    window.addEventListener("popstate", () => {
       setTimeout(() => {
         updateResponsiveDisplay();
       }, 100);
     });
+    window.addEventListener("pageshow", () => {
+      setTimeout(() => {
+        updateResponsiveDisplay();
+      }, 100);
+    });
+
+    if (typeof window.swup !== "undefined" && window.swup.hooks) {
+      window.swup.hooks.on("content:replace", () => {
+        setTimeout(() => {
+          updateResponsiveDisplay();
+        }, 100);
+      });
+    }
   }
 
-  // Dengarkan navigasi browser maju-mundur.
-  window.addEventListener("popstate", () => {
-    setTimeout(() => {
-      updateResponsiveDisplay();
-    }, 100);
-  });
+  function scheduleSpineInit() {
+    const start = () => {
+      initSpineModel();
+    };
 
-  // Dengarkan resize window.
-  window.addEventListener("resize", updateResponsiveDisplay);
+    if (typeof window.requestIdleCallback === "function") {
+      window.requestIdleCallback(start, { timeout: 1500 });
+      return;
+    }
 
-  // Inisialisasi sekali saat halaman siap.
+    window.setTimeout(start, 1);
+  }
+
+  bindSpineEvents();
+
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initSpineModel);
+    document.addEventListener("DOMContentLoaded", scheduleSpineInit, {
+      once: true,
+    });
   } else {
-    initSpineModel();
+    scheduleSpineInit();
   }
 </script>
