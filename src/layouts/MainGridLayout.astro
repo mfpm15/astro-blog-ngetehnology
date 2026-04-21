@@ -1027,10 +1027,8 @@ const showBothSidebarsOnPost = isPostPage && desktopShowLeft && desktopShowRight
     heroHeightHomeMobile: `${HERO_HEIGHT_HOME_MOBILE}vh`,
     heroHeightInnerDesktop: `${HERO_HEIGHT_INNER}rem`,
     heroHeightInnerMobile: `${HERO_HEIGHT_INNER_MOBILE}rem`,
-    heroPostExtraDesktop: "4rem",
-    heroPostExtraMobile: "2.25rem",
-    heroPostOffsetDesktop: "3.5rem",
-    heroPostOffsetMobile: "2.25rem",
+    heroHeightPostDesktop: "clamp(30rem, 56vh, 42rem)",
+    heroHeightPostMobile: "clamp(24rem, 46vh, 32rem)",
     heroExtend: `${BANNER_HEIGHT_EXTEND}vh`,
     heroOverlap: `${MAIN_PANEL_OVERLAPS_BANNER_HEIGHT}rem`,
     heroWaveDesktopHeight: waveHeightDesktop,
@@ -1040,8 +1038,7 @@ const showBothSidebarsOnPost = isPostPage && desktopShowLeft && desktopShowRight
   #page-shell-vars {
     --hero-height-home: var(--heroHeightHomeDesktop);
     --hero-height-inner: var(--heroHeightInnerDesktop);
-    --hero-post-extra: var(--heroPostExtraDesktop);
-    --hero-post-offset: var(--heroPostOffsetDesktop);
+    --hero-height-post: var(--heroHeightPostDesktop);
     --hero-extend: var(--heroExtend);
     --hero-overlap: var(--heroOverlap);
     --hero-wave-height: var(--heroWaveDesktopHeight);
@@ -1059,8 +1056,7 @@ const showBothSidebarsOnPost = isPostPage && desktopShowLeft && desktopShowRight
     #page-shell-vars {
       --hero-height-home: var(--heroHeightHomeMobile);
       --hero-height-inner: var(--heroHeightInnerMobile);
-      --hero-post-extra: var(--heroPostExtraMobile);
-      --hero-post-offset: var(--heroPostOffsetMobile);
+      --hero-height-post: var(--heroHeightPostMobile);
       --hero-wave-height: var(--heroWaveMobileHeight);
       --navbar-shell-height: 5.75rem;
       --navbar-clearance: calc(var(--navbar-shell-height) + 0.5rem);
@@ -1078,7 +1074,7 @@ const showBothSidebarsOnPost = isPostPage && desktopShowLeft && desktopShowRight
   }
 
   #banner-wrapper[data-hero-mode="inner"][data-page-kind="post"] {
-    height: calc(var(--hero-height-inner) + var(--hero-post-extra));
+    height: var(--hero-height-post);
   }
 
   #content-shell[data-hero-mode="home"] {
@@ -1092,8 +1088,8 @@ const showBothSidebarsOnPost = isPostPage && desktopShowLeft && desktopShowRight
   }
 
   #content-shell[data-hero-mode="inner"][data-page-kind="post"] {
-    top: calc(var(--hero-height-inner) + var(--hero-post-offset));
-    min-height: calc(100vh - (var(--hero-height-inner) + var(--hero-post-offset)));
+    top: calc(var(--hero-height-post) - var(--hero-overlap));
+    min-height: calc(100vh - (var(--hero-height-post) - var(--hero-overlap)));
   }
 
   #content-shell[data-hero-mode="none"] {
