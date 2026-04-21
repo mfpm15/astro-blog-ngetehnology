@@ -4,7 +4,7 @@ import Markdown from "@components/misc/Markdown.astro";
 import I18nKey from "../i18n/i18nKey";
 import { i18n } from "../i18n/translation";
 import MainGridLayout from "../layouts/MainGridLayout.astro";
-import { getEnabledFriends } from "../config";
+import { getEnabledFriends, getFriendExchangeConfig } from "../config";
 import Comment from "@components/comment/index.astro";
 
 const friendsPost = await getEntry("spec", "friends.md");
@@ -17,6 +17,39 @@ const { Content } = await render(friendsPost);
 
 // Use friend-link data from config (already ordered by weight).
 const items = getEnabledFriends();
+const exchange = getFriendExchangeConfig();
+const exchangeEnabled = exchange.enable !== false;
+const contactInfo = exchange.contact ?? {};
+const customBody = friendsPost.body?.trim() ?? "";
+
+const rawRequirements = (exchange.requirements ?? []) as unknown[];
+const normalizedRequirements = rawRequirements
+  .map((value) => {
+    if (typeof value === "string") return value;
+    if (value && typeof value === "object") {
+      const maybe = (value as { requirement?: unknown }).requirement;
+      if (typeof maybe === "string") return maybe;
+    }
+    return "";
+  })
+  .filter(Boolean);
+
+const tagOrder: string[] = [];
+const tagSet = new Set<string>();
+items.forEach((item) => {
+  (item.tags ?? []).forEach((tag) => {
+    if (tagSet.has(tag)) return;
+    tagSet.add(tag);
+    tagOrder.push(tag);
+  });
+});
+
+const defaultFriend = items[0];
+const defaultAvatar = defaultFriend?.imgurl || "/assets/images/logo-320.webp";
+const defaultTitle = defaultFriend?.title || "NgetehNology";
+const defaultDesc = defaultFriend?.desc || "";
+const defaultUrl = defaultFriend?.siteurl || "/";
+const defaultTags = defaultFriend?.tags ?? [];
 ---
 
 <MainGridLayout
@@ -24,50 +57,73 @@ const items = getEnabledFriends();
   description={i18n(I18nKey.friends)}
   pageLayout="reading"
 >
-  <div
-    class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32"
-  >
-    <div class="card-base z-10 px-9 py-6 relative w-full">
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-8 my-4">
-        {
-          items.map((item) => (
-            <div class="flex flex-nowrap items-stretch h-24 sm:h-28 gap-3 sm:gap-4 rounded-[var(--radius-large)]">
-              <div class="w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 rounded-lg overflow-hidden bg-zinc-200 dark:bg-zinc-900">
+  <div class="card-base px-5 py-5 sm:px-7 sm:py-6 lg:px-9" data-friends-root>
+    <div class="mb-4">
+      <h1 class="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-100">
+        {friendsPost.data?.title ?? i18n(I18nKey.friends)}
+      </h1>
+      {friendsPost.data?.description && (
+        <p class="mt-2 text-sm leading-relaxed text-50">
+          {friendsPost.data.description}
+        </p>
+      )}
+    </div>
+
+    <div class="flex flex-wrap items-center gap-2" data-friends-filters>
+      <button type="button" class="friends-filter-btn" data-filter="__all" data-active>
+        All
+      </button>
+      {tagOrder.map((tag) => (
+        <button type="button" class="friends-filter-btn" data-filter={tag}>
+          {tag}
+        </button>
+      ))}
+    </div>
+
+    <div class="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.92fr)]">
+      <div class="min-w-0">
+        <div class="space-y-3" data-friends-list>
+          {items.map((item) => (
+            <div
+              class="friends-card group flex items-stretch gap-3 sm:gap-4 rounded-[var(--radius-large)] p-3 sm:p-4"
+              tabindex="0"
+              role="button"
+              data-friend-card
+              data-title={item.title}
+              data-desc={item.desc}
+              data-url={item.siteurl}
+              data-avatar={item.imgurl || "/assets/images/logo-320.webp"}
+              data-tags={(item.tags ?? []).join("|")}
+            >
+              <div class="w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 rounded-lg overflow-hidden bg-zinc-200 dark:bg-zinc-900">
                 <img
-                  src={item.imgurl}
+                  src={item.imgurl || "/assets/images/logo-320.webp"}
                   alt="Site avatar"
-                  class="w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
+                  class="w-full h-full object-cover transition duration-500 group-hover:scale-105"
                 />
               </div>
-              <div class="grow w-full flex flex-col justify-between min-w-0">
+
+              <div class="grow w-full min-w-0 flex flex-col justify-between">
                 <div class="min-w-0 flex-1">
-                  <a
-                    href={item.siteurl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="font-bold transition text-base sm:text-lg text-neutral-900 dark:text-neutral-100 mb-1 hover:text-[var(--primary)] block truncate"
-                  >
+                  <div class="font-bold transition text-base sm:text-lg text-neutral-900 dark:text-neutral-100 mb-1 truncate">
                     {item.title}
-                  </a>
+                  </div>
                   <div class="text-50 text-xs sm:text-sm font-medium line-clamp-2 leading-relaxed">
                     {item.desc}
                   </div>
                 </div>
-                <div
-                  class:list={[
-                    "items-center flex-shrink-0 mt-1 sm:mt-2",
-                    { flex: true, "hidden md:flex": false },
-                  ]}
-                >
+
+                <div class="items-center flex-shrink-0 mt-1 sm:mt-2 flex">
                   <div class="flex flex-row items-center gap-1 overflow-hidden">
-                    {item.tags &&
-                      item.tags.length > 0 &&
-                      item.tags.map((tag) => (
+                    {item.tags && item.tags.length > 0 ? (
+                      item.tags.slice(0, 3).map((tag) => (
                         <span class="btn-regular h-5 sm:h-6 text-xs px-1.5 sm:px-2 rounded-md whitespace-nowrap flex-shrink-0">
                           {tag}
                         </span>
-                      ))}
-                    {!(item.tags && item.tags.length > 0) && (
+                      ))
+                    ) : (
                       <div class="transition text-50 text-xs sm:text-sm font-medium">
                         {i18n(I18nKey.noTags)}
                       </div>
@@ -75,18 +131,20 @@ const items = getEnabledFriends();
                   </div>
                 </div>
               </div>
+
               <a
                 href={item.siteurl}
                 target="_blank"
                 rel="noopener noreferrer"
-                class="flex btn-regular w-[3.25rem] rounded-lg bg-[var(--enter-btn-bg)] hover:bg-[var(--enter-btn-bg-hover)] active:bg-[var(--enter-btn-bg-active)] active:scale-95 flex-shrink-0"
+                aria-label={`Visit ${item.title}`}
+                class="flex btn-regular w-12 sm:w-[3.25rem] rounded-lg bg-[var(--enter-btn-bg)] hover:bg-[var(--enter-btn-bg-hover)] active:bg-[var(--enter-btn-bg-active)] active:scale-95 flex-shrink-0"
+                data-friend-visit
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  xmlns:xlink="http://www.w3.org/1999/xlink"
                   aria-hidden="true"
                   role="img"
-                  class="transition text-[var(--primary)] text-2xl sm:text-4xl mx-auto iconify iconify--material-symbols"
+                  class="transition text-[var(--primary)] text-2xl sm:text-4xl mx-auto"
                   width="1em"
                   height="1em"
                   viewBox="0 0 24 24"
@@ -98,16 +156,406 @@ const items = getEnabledFriends();
                 </svg>
               </a>
             </div>
-          ))
-        }
+          ))}
+
+          {items.length === 0 && (
+            <div class="rounded-2xl border border-dashed border-black/10 p-6 text-sm text-50 dark:border-white/15">
+              No friend links yet.
+            </div>
+          )}
+
+          <div class="hidden rounded-2xl border border-dashed border-black/10 p-6 text-sm text-50 dark:border-white/15" data-friends-empty>
+            No results for this filter.
+          </div>
+        </div>
       </div>
-      <Markdown class="mt-2">
+
+      <aside class="min-w-0">
+        <div class="rounded-2xl overflow-hidden border border-black/10 bg-[var(--card-bg)] shadow-sm dark:border-white/15">
+          <div class="relative h-36 sm:h-44 overflow-hidden">
+            <img
+              src={defaultAvatar}
+              alt="Selected site cover"
+              loading="lazy"
+              decoding="async"
+              class="h-full w-full object-cover"
+              data-friend-detail-avatar
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent pointer-events-none" />
+          </div>
+
+          <div class="p-5 sm:p-6">
+            <div class="flex items-start justify-between gap-4">
+              <div class="min-w-0">
+                <h3 class="truncate text-xl font-bold text-neutral-900 dark:text-neutral-100" data-friend-detail-title>
+                  {defaultTitle}
+                </h3>
+                <p class="mt-2 text-sm leading-relaxed text-50" data-friend-detail-desc>
+                  {defaultDesc}
+                </p>
+              </div>
+              <a
+                href={defaultUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn-regular h-9 px-3 rounded-lg font-semibold text-[var(--primary)] flex items-center justify-center shrink-0"
+                data-friend-detail-visit
+              >
+                Visit
+              </a>
+            </div>
+
+            <div class="mt-4 flex flex-wrap gap-2" data-friend-detail-tags>
+              {defaultTags.length > 0 ? (
+                defaultTags.map((tag) => (
+                  <span class="btn-regular h-7 text-xs px-2 rounded-md whitespace-nowrap">
+                    {tag}
+                  </span>
+                ))
+              ) : (
+                <span class="text-xs text-50">{i18n(I18nKey.noTags)}</span>
+              )}
+            </div>
+
+            <dl class="mt-5 space-y-2 text-xs">
+              <div class="grid grid-cols-[6.5rem_minmax(0,1fr)] gap-2">
+                <dt class="font-semibold text-neutral-500 dark:text-neutral-400">Site Name</dt>
+                <dd class="truncate text-neutral-800 dark:text-neutral-200" data-friend-detail-name>
+                  {defaultTitle}
+                </dd>
+              </div>
+              <div class="grid grid-cols-[6.5rem_minmax(0,1fr)] gap-2">
+                <dt class="font-semibold text-neutral-500 dark:text-neutral-400">Site Description</dt>
+                <dd class="truncate text-neutral-800 dark:text-neutral-200" data-friend-detail-desc-inline>
+                  {defaultDesc}
+                </dd>
+              </div>
+              <div class="grid grid-cols-[6.5rem_minmax(0,1fr)] gap-2">
+                <dt class="font-semibold text-neutral-500 dark:text-neutral-400">Site Link</dt>
+                <dd class="truncate text-neutral-800 dark:text-neutral-200">
+                  <a
+                    href={defaultUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="transition hover:text-[var(--primary)]"
+                    data-friend-detail-url
+                  >
+                    {defaultUrl}
+                  </a>
+                </dd>
+              </div>
+              <div class="grid grid-cols-[6.5rem_minmax(0,1fr)] gap-2">
+                <dt class="font-semibold text-neutral-500 dark:text-neutral-400">Avatar Link</dt>
+                <dd class="truncate text-neutral-800 dark:text-neutral-200" data-friend-detail-avatar-url>
+                  {defaultAvatar}
+                </dd>
+              </div>
+            </dl>
+
+            {exchangeEnabled && (
+              <div class="mt-6 border-t border-black/10 pt-6 dark:border-white/15">
+                <div class="text-lg font-bold text-neutral-900 dark:text-neutral-100">
+                  Apply friend link
+                </div>
+
+                {exchange.steps && exchange.steps.length > 0 && (
+                  <div class="mt-4 space-y-4">
+                    {exchange.steps.slice(0, 3).map((step, index) => (
+                      <div class="flex gap-3">
+                        <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--primary)] text-xs font-bold text-white">
+                          {index + 1}
+                        </div>
+                        <div>
+                          <div class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                            {step.title}
+                          </div>
+                          <div class="text-xs leading-relaxed text-50">
+                            {step.description}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {contactInfo.url && (
+                  <a
+                    href={contactInfo.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="btn-regular mt-5 flex h-10 w-full items-center justify-center rounded-xl font-semibold text-[var(--primary)]"
+                  >
+                    {contactInfo.label || "Send your request"}
+                  </a>
+                )}
+
+                {normalizedRequirements.length > 0 && (
+                  <div class="mt-6">
+                    <div class="text-sm font-bold text-neutral-900 dark:text-neutral-100">
+                      Notes
+                    </div>
+                    <ul class="mt-2 space-y-1.5 text-xs leading-relaxed text-50">
+                      {normalizedRequirements.slice(0, 10).map((requirement) => (
+                        <li class="flex gap-2">
+                          <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--primary)]" />
+                          <span>{requirement}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {exchange.tip && (
+                  <div class="mt-5 rounded-2xl bg-[oklch(0.95_0.03_var(--hue))] p-4 text-sm leading-relaxed text-neutral-700 dark:bg-white/10 dark:text-neutral-200">
+                    {exchange.tip}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  {customBody && (
+    <div class="card-base mt-4 px-5 py-5 sm:px-7 sm:py-6 lg:px-9">
+      <Markdown>
         <Content />
       </Markdown>
     </div>
-  </div>
+  )}
 
   <div class="mt-4">
     <Comment post={friendsPost} customPath="/friends" />
   </div>
 </MainGridLayout>
+
+<script type="module">
+  (function () {
+    function initFriends() {
+      const root = document.querySelector("[data-friends-root]");
+      if (!(root instanceof HTMLElement)) return;
+      if (root.dataset.friendsBound === "true") return;
+      root.dataset.friendsBound = "true";
+
+      const filterWrap = root.querySelector("[data-friends-filters]");
+      const filterButtons = filterWrap
+        ? Array.from(filterWrap.querySelectorAll("button[data-filter]"))
+        : [];
+
+      const listWrap = root.querySelector("[data-friends-list]");
+      if (!listWrap) return;
+      const cards = Array.from(listWrap.querySelectorAll("[data-friend-card]"));
+      const emptyState = listWrap.querySelector("[data-friends-empty]");
+
+      const detail = root.querySelector("aside");
+      if (!detail) return;
+      const detailTitle = detail.querySelector("[data-friend-detail-title]");
+      const detailDesc = detail.querySelector("[data-friend-detail-desc]");
+      const detailDescInline = detail.querySelector("[data-friend-detail-desc-inline]");
+      const detailName = detail.querySelector("[data-friend-detail-name]");
+      const detailAvatar = detail.querySelector("[data-friend-detail-avatar]");
+      const detailAvatarUrl = detail.querySelector("[data-friend-detail-avatar-url]");
+      const detailUrl = detail.querySelector("[data-friend-detail-url]");
+      const detailVisit = detail.querySelector("[data-friend-detail-visit]");
+      const detailTags = detail.querySelector("[data-friend-detail-tags]");
+
+      function readTags(el) {
+        const raw = el.getAttribute("data-tags") || "";
+        return raw
+          .split("|")
+          .map((v) => v.trim())
+          .filter(Boolean);
+      }
+
+      function setActiveCard(activeCard) {
+        cards.forEach((card) => card.removeAttribute("data-active"));
+        if (activeCard) activeCard.setAttribute("data-active", "");
+
+        if (!(activeCard instanceof HTMLElement)) return;
+        const title = activeCard.getAttribute("data-title") || "";
+        const desc = activeCard.getAttribute("data-desc") || "";
+        const url = activeCard.getAttribute("data-url") || "#";
+        const avatar = activeCard.getAttribute("data-avatar") || "";
+        const tags = readTags(activeCard);
+
+        if (detailTitle) detailTitle.textContent = title;
+        if (detailDesc) detailDesc.textContent = desc;
+        if (detailDescInline) detailDescInline.textContent = desc;
+        if (detailName) detailName.textContent = title;
+        if (detailAvatar instanceof HTMLImageElement) detailAvatar.src = avatar;
+        if (detailAvatarUrl) detailAvatarUrl.textContent = avatar;
+        if (detailUrl instanceof HTMLAnchorElement) {
+          detailUrl.href = url;
+          detailUrl.textContent = url;
+        }
+        if (detailVisit instanceof HTMLAnchorElement) detailVisit.href = url;
+
+        if (detailTags) {
+          detailTags.innerHTML = "";
+          if (tags.length === 0) {
+            const span = document.createElement("span");
+            span.className = "text-xs text-50";
+            span.textContent = "No tags";
+            detailTags.appendChild(span);
+          } else {
+            tags.forEach((tag) => {
+              const span = document.createElement("span");
+              span.className = "btn-regular h-7 text-xs px-2 rounded-md whitespace-nowrap";
+              span.textContent = tag;
+              detailTags.appendChild(span);
+            });
+          }
+        }
+      }
+
+      function applyFilter(filter) {
+        let visibleCount = 0;
+        let firstVisible = null;
+
+        cards.forEach((card) => {
+          if (!(card instanceof HTMLElement)) return;
+          const tags = readTags(card);
+          const ok = filter === "__all" ? true : tags.includes(filter);
+          card.style.display = ok ? "" : "none";
+          if (ok) {
+            visibleCount += 1;
+            if (!firstVisible) firstVisible = card;
+          }
+        });
+
+        if (emptyState instanceof HTMLElement) {
+          emptyState.classList.toggle("hidden", visibleCount !== 0);
+        }
+
+        const currentActive = cards.find((card) => card.hasAttribute("data-active"));
+        const activeHidden =
+          currentActive instanceof HTMLElement &&
+          (currentActive.style.display === "none" || currentActive.offsetParent === null);
+
+        if (!currentActive || activeHidden) setActiveCard(firstVisible);
+      }
+
+      function setActiveFilter(btn) {
+        filterButtons.forEach((b) => b.removeAttribute("data-active"));
+        if (btn) btn.setAttribute("data-active", "");
+        const filter = btn?.getAttribute("data-filter") || "__all";
+        applyFilter(filter);
+      }
+
+      cards.forEach((card) => {
+        card.addEventListener("click", (event) => {
+          const target = event.target;
+          if (target instanceof Element && target.closest("[data-friend-visit]")) return;
+          setActiveCard(card);
+        });
+
+        card.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            setActiveCard(card);
+          }
+        });
+      });
+
+      filterButtons.forEach((btn) => {
+        btn.addEventListener("click", () => setActiveFilter(btn));
+      });
+
+      // Default: apply "All" and pick first visible card.
+      setActiveFilter(filterButtons.find((b) => b.hasAttribute("data-active")) || filterButtons[0]);
+    }
+
+    function scheduleInit() {
+      window.setTimeout(initFriends, 0);
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initFriends, { once: true });
+    } else {
+      initFriends();
+    }
+
+    if (!window.__friendsPageBound) {
+      window.__friendsPageBound = true;
+      document.addEventListener("astro:page-load", scheduleInit);
+      document.addEventListener("swup:contentReplaced", scheduleInit);
+
+      if (window.swup?.hooks) {
+        window.swup.hooks.on("content:replace", scheduleInit);
+        window.swup.hooks.on("page:view", scheduleInit);
+      }
+
+      window.addEventListener("pageshow", function (event) {
+        if (event.persisted) scheduleInit();
+      });
+    }
+  })();
+</script>
+
+<style>
+  .friends-filter-btn {
+    height: 2rem;
+    padding: 0 0.75rem;
+    border-radius: 0.75rem;
+    border: 1.5px solid var(--line-divider);
+    color: var(--btn-content);
+    background: transparent;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition:
+      border-color 150ms ease,
+      background-color 150ms ease,
+      color 150ms ease,
+      opacity 150ms ease;
+  }
+
+  .friends-filter-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+
+  .friends-filter-btn[data-active] {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: white;
+  }
+
+  .friends-filter-btn[data-active]:hover {
+    opacity: 0.92;
+    color: white;
+  }
+
+  .friends-card {
+    cursor: pointer;
+    border: 1px solid color-mix(in oklab, var(--line-color) 55%, transparent);
+    background: color-mix(in oklab, var(--card-bg) 92%, transparent);
+    transition:
+      transform 180ms ease,
+      border-color 180ms ease,
+      background-color 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+  .friends-card:focus-visible {
+    outline: none;
+    border-color: color-mix(in oklab, var(--primary) 60%, var(--line-color));
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--primary) 22%, transparent);
+  }
+
+  .friends-card:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in oklab, var(--primary) 40%, var(--line-color));
+    box-shadow: 0 16px 38px rgba(15, 23, 42, 0.08);
+  }
+
+  .friends-card[data-active] {
+    border-color: color-mix(in oklab, var(--primary) 55%, var(--line-color));
+    background: color-mix(in oklab, var(--primary) 10%, var(--card-bg));
+  }
+
+  :global(body.dark) .friends-card:hover {
+    box-shadow: 0 16px 42px rgba(0, 0, 0, 0.35);
+  }
+</style>

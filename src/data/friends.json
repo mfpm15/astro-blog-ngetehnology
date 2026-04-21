@@ -1,4 +1,40 @@
 {
+  "exchange": {
+    "enable": true,
+    "title": "Exchange Links",
+    "description": "Want to become a friend of NgetehNology? Add this site first, then send your site details so we can review and publish it here.",
+    "site": {
+      "name": "NgetehNology",
+      "description": "Blog tentang Keamanan Siber dan Teknologi.",
+      "url": "https://github.com/mfpm15/astro-blog-ngetehnology",
+      "avatar": "/assets/images/logo-320.webp"
+    },
+    "contact": {
+      "label": "Send your request",
+      "url": "https://github.com/mfpm15/astro-blog-ngetehnology/issues"
+    },
+    "steps": [
+      {
+        "title": "Add this site",
+        "description": "Place NgetehNology on your friend links page using the site details above."
+      },
+      {
+        "title": "Send your details",
+        "description": "Share your site name, description, URL, avatar, and preferred tags."
+      },
+      {
+        "title": "Wait for review",
+        "description": "After checking the link and site quality, your site will be added here."
+      }
+    ],
+    "requirements": [
+      "HTTPS enabled and reachable",
+      "Original or useful content",
+      "No malware, spam, or harmful material",
+      "Maintained site with reasonable loading speed"
+    ],
+    "tip": "💡 Tips: Tautan teman bukan hanya koneksi antar situs, tetapi juga ikatan persahabatan antar blogger. Mari kita bertemu dan bertumbuh bersama di dunia digital ini!"
+  },
   "items": [
     {
       "title": "NgetehNology",

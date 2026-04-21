@@ -5,15 +5,15 @@ import I18nKey from "../i18n/i18nKey";
 import { i18n } from "../i18n/translation";
 import MainGridLayout from "../layouts/MainGridLayout.astro";
 
-// Pastikan halaman anime memang diaktifkan.
+// Ensure the anime page is enabled.
 if (!siteConfig.pages.anime) {
   return Astro.redirect("/404/");
 }
 
-// Hanya kirim konfigurasi yang dibutuhkan ke klien.
+// Only send the configuration needed by the client.
 const BANGUMI_USER_ID = siteConfig.bangumi?.userId || "your-user-id";
 
-// Pemetaan status koleksi Bangumi.
+// Bangumi collection status mapping.
 const COLLECTION_TYPES = {
   1: { key: "wish", name: "Want to Watch", icon: "⏰", color: "amber" },
   2: { key: "done", name: "Completed", icon: "✅", color: "blue" },
@@ -31,7 +31,7 @@ const COLLECTION_TYPES = {
     class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32"
   >
     <div class="card-base z-10 px-9 py-6 relative w-full">
-      <!-- Judul halaman -->
+      <!-- Page title -->
       <div class="relative w-full mb-8">
         <div class="mb-6">
           <h1 class="text-4xl font-bold text-black/90 dark:text-white/90 mb-2">
@@ -41,30 +41,30 @@ const COLLECTION_TYPES = {
             {i18n(I18nKey.animeSubtitle)}
           </p>
           <h2 class="text-black/75 dark:text-white/75">
-            Karena keterbatasan dari sumber data, terkadang Anda perlu menekan F5 sekali agar koleksi anime berhasil dimuat.
+            Due to data-source limitations, you may need to refresh once (F5) for the anime collection to load correctly.
           </h2>
         </div>
 
-        <!-- Kontrol filter -->
+        <!-- Filter controls -->
         <div class="mb-8">
           <div class="filter-container">
-            <button class="filter-tag active" data-status="all">Semua</button>
-            <button class="filter-tag" data-status="doing">Sedang Ditonton</button>
-            <button class="filter-tag" data-status="done">Selesai</button>
-            <button class="filter-tag" data-status="wish">Ingin Ditonton</button>
-            <button class="filter-tag" data-status="onhold">Ditunda</button>
-            <button class="filter-tag" data-status="dropped">Ditinggalkan</button>
+            <button class="filter-tag active" data-status="all">All</button>
+            <button class="filter-tag" data-status="doing">Watching</button>
+            <button class="filter-tag" data-status="done">Completed</button>
+            <button class="filter-tag" data-status="wish">Want to Watch</button>
+            <button class="filter-tag" data-status="onhold">On Hold</button>
+            <button class="filter-tag" data-status="dropped">Dropped</button>
           </div>
         </div>
       </div>
 
-      <!-- Daftar anime -->
+      <!-- Anime list -->
       <div class="mb-8">
         <h2 class="text-2xl font-bold text-black/90 dark:text-white/90 mb-4">
           {i18n(I18nKey.animeList)}
         </h2>
 
-        <!-- Status loading -->
+        <!-- Loading state -->
         <div id="loadingState" class="text-center py-16">
           <div
             class="inline-flex items-center justify-center w-16 h-16 bg-[var(--btn-regular-bg)] rounded-full mb-6 border border-[var(--line-divider)]"
@@ -77,14 +77,14 @@ const COLLECTION_TYPES = {
           <h3
             class="text-xl font-semibold text-black/80 dark:text-white/80 mb-3"
           >
-            Sedang memuat koleksi anime...
+            Loading your anime collection...
           </h3>
           <p class="text-black/60 dark:text-white/60">
-            Mohon tunggu, data koleksi sedang diambil dari Bangumi.
+            Please wait while we fetch your collection from Bangumi.
           </p>
         </div>
 
-        <!-- Status error -->
+        <!-- Error state -->
         <div id="errorState" class="hidden text-center py-16">
           <div
             class="inline-flex items-center justify-center w-16 h-16 bg-[var(--btn-regular-bg)] rounded-full mb-6 border border-[var(--line-divider)]"
@@ -102,9 +102,9 @@ const COLLECTION_TYPES = {
                 d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
           </div>
-          <h3 class="text-xl font-semibold text-red-500 mb-3">Gagal Memuat Data</h3>
+          <h3 class="text-xl font-semibold text-red-500 mb-3">Failed to Load Data</h3>
           <p class="text-black/60 dark:text-white/60 mb-6">
-            Tidak dapat terhubung ke API Bangumi. Periksa koneksi Anda lalu coba lagi.
+            Unable to connect to the Bangumi API. Check your connection and try again.
           </p>
           <button
             id="retryButton"
@@ -123,11 +123,11 @@ const COLLECTION_TYPES = {
                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
               ></path>
             </svg>
-            Muat Ulang
+            Retry
           </button>
         </div>
 
-        <!-- Status kosong -->
+        <!-- Empty state -->
         <div id="emptyState" class="hidden text-center py-16">
           <div
             class="inline-flex items-center justify-center w-16 h-16 bg-[var(--btn-regular-bg)] rounded-full mb-6 border border-[var(--line-divider)]"
@@ -149,17 +149,17 @@ const COLLECTION_TYPES = {
           <h3
             class="text-xl font-semibold text-black/80 dark:text-white/80 mb-3"
           >
-            Belum Ada Data
+            No Data Yet
           </h3>
           <p class="text-black/60 dark:text-white/60">
-            Belum ada anime yang ditemukan untuk kategori ini.
+            No anime entries were found for this category.
           </p>
           <p class="text-sm text-black/50 dark:text-white/50 mt-2">
-            Coba ganti ke kategori lain.
+            Try switching to another category.
           </p>
         </div>
 
-        <!-- Status belum dikonfigurasi -->
+        <!-- Not configured state -->
         {
           BANGUMI_USER_ID === "your-user-id" ? (
             <div id="unconfiguredState" class="text-center py-12">
@@ -168,22 +168,22 @@ const COLLECTION_TYPES = {
                 {i18n(I18nKey.animeEmpty)}
               </h3>
               <p class="text-black/60 dark:text-white/60">
-                Atur Bangumi user ID Anda di `src/config/siteConfig.ts`.
+                Set your Bangumi user ID in `src/config/siteConfig.ts`.
               </p>
             </div>
           ) : null
         }
 
-        <!-- Container daftar anime -->
+        <!-- Anime grid -->
         <div
           id="animeGrid"
           class="hidden grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6"
         >
-          <!-- Kartu anime dirender oleh JavaScript -->
+          <!-- Cards are rendered by JavaScript -->
         </div>
       </div>
 
-      <!-- Kontrol pagination -->
+      <!-- Pagination controls -->
       <div id="paginationContainer" class="hidden">
         <div
           class="bg-gradient-to-r from-[var(--card-bg)] to-[var(--card-bg)] border border-[var(--line-divider)] rounded-[var(--radius-large)] p-4 md:p-6 mb-6 shadow-sm"
@@ -193,16 +193,16 @@ const COLLECTION_TYPES = {
               id="pagination"
               class="flex justify-center items-center gap-1 md:gap-2 flex-wrap"
             >
-              <!-- Tombol pagination dirender oleh JavaScript -->
+              <!-- Pagination buttons are rendered by JavaScript -->
             </div>
 
-            <!-- Informasi halaman -->
+            <!-- Page info -->
             <div
               id="pageInfo"
               class="flex items-center gap-2 text-xs md:text-sm text-[var(--btn-content)] bg-[var(--btn-regular-bg)] px-3 md:px-4 py-1.5 md:py-2 rounded-full border border-[var(--line-divider)]"
             >
               <span class="text-sm md:text-lg">📄</span>
-              <!-- Teks informasi halaman dirender oleh JavaScript -->
+              <!-- Page info text is rendered by JavaScript -->
             </div>
           </div>
         </div>
@@ -225,13 +225,13 @@ const COLLECTION_TYPES = {
     PAGINATION_RECORDS: i18n(I18nKey.paginationRecords),
   }}
 >
-  // Kirim konfigurasi ke sisi klien.
+  // Send configuration to the client.
   window.animePageConfig = {
     userId: BANGUMI_USER_ID,
     apiBase: "https://api.bgm.tv",
     collectionTypes: COLLECTION_TYPES,
     pageSize: 20,
-    // Teks pagination.
+    // Pagination strings.
     pagination: {
       first: PAGINATION_FIRST,
       prev: PAGINATION_PREV,
@@ -376,7 +376,7 @@ const COLLECTION_TYPES = {
         }
       } catch (error) {
         console.error("Failed to load anime data:", error);
-        this.showError("Gagal memuat data");
+        this.showError("Failed to load data");
       }
     }
 

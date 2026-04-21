@@ -404,6 +404,44 @@ collections:
         file: "src/data/friends.json"
         format: "json"
         fields:
+          - label: "Exchange Panel"
+            name: "exchange"
+            widget: "object"
+            required: false
+            fields:
+              - { label: "Enable", name: "enable", widget: "boolean", default: true, required: false }
+              - { label: "Title", name: "title", widget: "string", required: false }
+              - { label: "Description", name: "description", widget: "text", required: false }
+              - label: "Site Info"
+                name: "site"
+                widget: "object"
+                required: false
+                fields:
+                  - { label: "Name", name: "name", widget: "string", required: false }
+                  - { label: "Description", name: "description", widget: "text", required: false }
+                  - { label: "URL", name: "url", widget: "string", required: false }
+                  - { label: "Avatar", name: "avatar", widget: "image", allow_multiple: false, required: false }
+              - label: "Contact"
+                name: "contact"
+                widget: "object"
+                required: false
+                fields:
+                  - { label: "Label", name: "label", widget: "string", required: false }
+                  - { label: "URL", name: "url", widget: "string", required: false }
+              - label: "Application Steps"
+                name: "steps"
+                widget: "list"
+                required: false
+                summary: "{{fields.title}}"
+                fields:
+                  - { label: "Title", name: "title", widget: "string", required: false }
+                  - { label: "Description", name: "description", widget: "text", required: false }
+              - label: "Requirements"
+                name: "requirements"
+                widget: "list"
+                required: false
+                field: { label: "Requirement", name: "requirement", widget: "string" }
+              - { label: "Tip", name: "tip", widget: "text", required: false, hint: "Keep the friendship tip shown on the Friends page." }
           - label: "Items"
             name: "items"
             widget: "list"
@@ -853,6 +891,44 @@ collections:
         file: "src/data/friends.json"
         format: "json"
         fields:
+          - label: "Exchange Panel"
+            name: "exchange"
+            widget: "object"
+            required: false
+            fields:
+              - { label: "Enable", name: "enable", widget: "boolean", default: true, required: false }
+              - { label: "Title", name: "title", widget: "string", required: false }
+              - { label: "Description", name: "description", widget: "text", required: false }
+              - label: "Site Info"
+                name: "site"
+                widget: "object"
+                required: false
+                fields:
+                  - { label: "Name", name: "name", widget: "string", required: false }
+                  - { label: "Description", name: "description", widget: "text", required: false }
+                  - { label: "URL", name: "url", widget: "string", required: false }
+                  - { label: "Avatar", name: "avatar", widget: "image", allow_multiple: false, required: false }
+              - label: "Contact"
+                name: "contact"
+                widget: "object"
+                required: false
+                fields:
+                  - { label: "Label", name: "label", widget: "string", required: false }
+                  - { label: "URL", name: "url", widget: "string", required: false }
+              - label: "Application Steps"
+                name: "steps"
+                widget: "list"
+                required: false
+                summary: "{{fields.title}}"
+                fields:
+                  - { label: "Title", name: "title", widget: "string", required: false }
+                  - { label: "Description", name: "description", widget: "text", required: false }
+              - label: "Requirements"
+                name: "requirements"
+                widget: "list"
+                required: false
+                field: { label: "Requirement", name: "requirement", widget: "string" }
+              - { label: "Tip", name: "tip", widget: "text", required: false, hint: "Keep the friendship tip shown on the Friends page." }
           - label: "Items"
             name: "items"
             widget: "list"

@@ -806,16 +806,22 @@ const showBothSidebarsOnPost = isPostPage && desktopShowLeft && desktopShowRight
           )
         }
 
-        {
-          showInnerHeroText && (
-            <div class="inner-hero-overlay absolute inset-x-0 bottom-0 z-20">
-              <div class="mx-auto flex w-full max-w-[var(--page-width)] flex-col gap-2 px-4 pb-8 pt-20 md:px-6 md:pb-10">
-                {title && <div class="inner-hero-title text-balance">{title}</div>}
-                {innerHeroDescription && <p class="inner-hero-description max-w-3xl text-balance">{innerHeroDescription}</p>}
-              </div>
-            </div>
-          )
-        }
+        <div
+          id="inner-hero-overlay"
+          class:list={["inner-hero-overlay absolute inset-0 z-20 flex items-center justify-center", { hidden: !showInnerHeroText }]}
+          data-active={showInnerHeroText ? "true" : "false"}
+          aria-hidden={showInnerHeroText ? "false" : "true"}
+        >
+          <div class="mx-auto flex w-full max-w-[min(var(--page-width),56rem)] flex-col items-center gap-3 px-4 text-center md:px-6">
+            <div class="inner-hero-title text-balance" data-inner-hero-title>{title}</div>
+            <p
+              class:list={["inner-hero-description mx-auto max-w-3xl text-balance", { hidden: !innerHeroDescription }]}
+              data-inner-hero-description
+            >
+              {innerHeroDescription}
+            </p>
+          </div>
+        </div>
 
         <div
           id="banner-post-meta-overlay"
@@ -915,6 +921,13 @@ const showBothSidebarsOnPost = isPostPage && desktopShowLeft && desktopShowRight
     >
       <div class="pointer-events-auto relative z-[2] mx-auto w-full max-w-[var(--page-width)] xl:w-[92vw]">
         <main id="swup-container" class={swupContainerClass} data-layout-mode={resolvedPageLayout}>
+          <div
+            hidden
+            data-page-hero-meta="true"
+            data-page-kind={pageKind}
+            data-title={title || ""}
+            data-description={innerHeroDescription}
+          ></div>
           <div
             id="main-grid"
             class:list={[

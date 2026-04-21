@@ -1,14 +1,15 @@
-import type { FriendLink } from "../types/config";
+import type { FriendExchangeConfig, FriendLink, FriendsDataConfig } from "../types/config";
 import friendsData from "../data/friends.json";
 
-// Anda dapat menulis konten kustom di bawah halaman tautan teman di src/content/spec/friends.md
+const rawFriendsData = friendsData as FriendsDataConfig;
 
-// Konfigurasi Tautan Teman
-export const friendsConfig: FriendLink[] = (friendsData.items ?? []) as FriendLink[];
+export const friendsConfig: FriendLink[] = (rawFriendsData.items ?? []) as FriendLink[];
+export const friendExchangeConfig: FriendExchangeConfig = rawFriendsData.exchange ?? {};
 
-// Dapatkan tautan teman yang diaktifkan dan urutkan berdasarkan bobot
 export const getEnabledFriends = (): FriendLink[] => {
   return friendsConfig
     .filter((friend) => friend.enabled)
-    .sort((a, b) => b.weight - a.weight); // Urutkan berdasarkan bobot secara menurun
+    .sort((a, b) => b.weight - a.weight);
 };
+
+export const getFriendExchangeConfig = (): FriendExchangeConfig => friendExchangeConfig;

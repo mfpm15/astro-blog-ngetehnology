@@ -23,7 +23,7 @@ export { navBarConfig } from "./navBarConfig";
 export { musicPlayerConfig } from "./musicConfig";
 export { spineModelConfig, live2dModelConfig } from "./pioConfig";
 export { adConfig1, adConfig2 } from "./adConfig";
-export { getEnabledFriends } from "./friendsConfig";
+export { getEnabledFriends, getFriendExchangeConfig } from "./friendsConfig";
 
 // Types
 export type {
@@ -40,4 +40,7 @@ export type {
   NavBarConfig,
   WidgetComponentConfig,
   WidgetComponentType,
+  FriendExchangeConfig,
+  FriendLink,
+  FriendsDataConfig,
 } from "../types/config";

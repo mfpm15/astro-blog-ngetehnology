@@ -523,6 +523,33 @@ export type FriendLink = {
   enabled: boolean; // Enable this entry.
 };
 
+export type FriendExchangeConfig = {
+  enable?: boolean; // Show the exchange information panel.
+  title?: string; // Panel title.
+  description?: string; // Short application intro.
+  site?: {
+    name?: string; // Current site name.
+    description?: string; // Current site description.
+    url?: string; // Current site URL.
+    avatar?: string; // Current site avatar URL.
+  };
+  contact?: {
+    label?: string; // Contact button label.
+    url?: string; // Contact target URL.
+  };
+  steps?: Array<{
+    title?: string; // Step title.
+    description?: string; // Step details.
+  }>;
+  requirements?: string[]; // Requirements for friend-link applications.
+  tip?: string; // Highlighted friendship tip.
+};
+
+export type FriendsDataConfig = {
+  exchange?: FriendExchangeConfig;
+  items?: FriendLink[];
+};
+
 // Music player configuration
 export type MusicPlayerConfig = {
   // Base toggle

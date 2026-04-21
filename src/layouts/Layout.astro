@@ -909,6 +909,101 @@ function syncBannerPostMeta(routeKind: string, phase: string) {
 	setActive(true);
 }
 
+function getAstroScopeAttribute(source: Element | null): string | null {
+	return source?.getAttributeNames().find((name) => name.startsWith('data-astro-cid-')) || null;
+}
+
+function applyAstroScopeAttribute(scopeAttribute: string | null, elements: HTMLElement[]) {
+	if (!scopeAttribute) return;
+	elements.forEach((element) => element.setAttribute(scopeAttribute, ''));
+}
+
+function ensureInnerHeroOverlay() {
+	const existingOverlay = document.getElementById('inner-hero-overlay');
+	if (existingOverlay instanceof HTMLElement) return existingOverlay;
+
+	const bannerWrapper = document.getElementById('banner-wrapper');
+	if (!(bannerWrapper instanceof HTMLElement)) return null;
+
+	const scopeAttribute = getAstroScopeAttribute(bannerWrapper);
+	const overlay = document.createElement('div');
+	overlay.id = 'inner-hero-overlay';
+	overlay.className = 'inner-hero-overlay absolute inset-0 z-20 flex items-center justify-center hidden';
+	overlay.dataset.active = 'false';
+	overlay.setAttribute('aria-hidden', 'true');
+
+	const container = document.createElement('div');
+	container.className = 'mx-auto flex w-full max-w-[min(var(--page-width),56rem)] flex-col items-center gap-3 px-4 text-center md:px-6';
+
+	const titleEl = document.createElement('div');
+	titleEl.className = 'inner-hero-title text-balance';
+	titleEl.dataset.innerHeroTitle = '';
+
+	const descriptionEl = document.createElement('p');
+	descriptionEl.className = 'inner-hero-description mx-auto max-w-3xl text-balance hidden';
+	descriptionEl.dataset.innerHeroDescription = '';
+
+	applyAstroScopeAttribute(scopeAttribute, [overlay, container, titleEl, descriptionEl]);
+	container.appendChild(titleEl);
+	container.appendChild(descriptionEl);
+	overlay.appendChild(container);
+
+	const postMetaOverlay = document.getElementById('banner-post-meta-overlay');
+	bannerWrapper.insertBefore(overlay, postMetaOverlay || null);
+	return overlay;
+}
+
+function syncInnerHeroMeta(routeKind: string, phase: string) {
+	const overlay =
+		phase === 'visit:start' || routeKind === 'home' || routeKind === 'post'
+			? document.getElementById('inner-hero-overlay')
+			: ensureInnerHeroOverlay();
+	if (!(overlay instanceof HTMLElement)) return;
+
+	const titleEl = overlay.querySelector('[data-inner-hero-title]');
+	const descriptionEl = overlay.querySelector('[data-inner-hero-description]');
+
+	const setActive = (active: boolean) => {
+		overlay.classList.toggle('hidden', !active);
+		overlay.setAttribute('data-active', active ? 'true' : 'false');
+		overlay.setAttribute('aria-hidden', (!active).toString());
+	};
+
+	const clearText = () => {
+		if (titleEl) titleEl.textContent = '';
+		if (descriptionEl instanceof HTMLElement) {
+			descriptionEl.textContent = '';
+			descriptionEl.classList.add('hidden');
+		}
+	};
+
+	if (phase === 'visit:start' || routeKind === 'home' || routeKind === 'post') {
+		clearText();
+		setActive(false);
+		return;
+	}
+
+	const carrier = document.querySelector('[data-page-hero-meta="true"]');
+	const carrierTitle = carrier instanceof HTMLElement ? carrier.dataset.title || '' : '';
+	const carrierDescription = carrier instanceof HTMLElement ? carrier.dataset.description || '' : '';
+	const fallbackTitle = document.title.replace(/\s+-\s+.*$/, '').trim();
+	const title = (carrierTitle || fallbackTitle).trim();
+	const description = carrierDescription.trim();
+
+	if (!title) {
+		clearText();
+		setActive(false);
+		return;
+	}
+
+	if (titleEl) titleEl.textContent = title;
+	if (descriptionEl instanceof HTMLElement) {
+		descriptionEl.textContent = description;
+		descriptionEl.classList.toggle('hidden', !description);
+	}
+	setActive(true);
+}
+
 function syncShellRouteState(nextUrl: string, phase: string = 'manual') {
 	const routeKind = getShellRouteKind(nextUrl);
 	const isHomeRoute = routeKind === 'home';
@@ -935,6 +1030,7 @@ function syncShellRouteState(nextUrl: string, phase: string = 'manual') {
 		bannerTextOverlay.setAttribute('aria-hidden', (!isHomeRoute).toString());
 	}
 
+	syncInnerHeroMeta(routeKind, phase);
 	syncBannerPostMeta(routeKind, phase);
 
 	heroEngine?.sync?.({
@@ -1251,6 +1347,8 @@ const setup = () => {
 
 	})
 	window.swup.hooks.on('content:replace', () => {
+		syncShellRouteState(window.location.pathname, 'content:replace')
+
 		// Re-init KaTeX containers to use the native scrollbar.
 		initCustomScrollbar();
 
