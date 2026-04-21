@@ -33,6 +33,18 @@ const initialText =
     __typewriterInstance?: TypewriterEffect;
   };
 
+  type TypewriterWindow = Window & {
+    __ngetehTypewriterBound?: boolean;
+    __ngetehTypewriterTimers?: Set<number>;
+    __ngetehTypewriterInit?: (options?: { resetText?: boolean }) => void;
+    __ngetehTypewriterCleanup?: (resetText?: boolean) => void;
+  };
+
+  const typewriterWindow = window as TypewriterWindow;
+  const trackedTimers =
+    typewriterWindow.__ngetehTypewriterTimers ||
+    (typewriterWindow.__ngetehTypewriterTimers = new Set<number>());
+
   class TypewriterEffect {
     private element: TypewriterElement;
     private texts: string[];
@@ -99,6 +111,21 @@ const initialText =
       return Array.from(text);
     }
 
+    private clearScheduledStep() {
+      if (this.timeoutId !== null) {
+        clearTimeout(this.timeoutId);
+        trackedTimers.delete(this.timeoutId);
+      }
+
+      this.timeoutId = null;
+    }
+
+    private scheduleNextStep(delay: number) {
+      this.clearScheduledStep();
+      this.timeoutId = window.setTimeout(() => this.type(), delay);
+      trackedTimers.add(this.timeoutId);
+    }
+
     private type() {
       const currentText = this.getCurrentText();
       const segments = this.segmentText(currentText);
@@ -107,28 +134,24 @@ const initialText =
         if (this.currentIndex > 0) {
           this.currentIndex--;
           this.element.textContent = segments.slice(0, this.currentIndex).join("");
-          this.timeoutId = window.setTimeout(() => this.type(), this.deleteSpeed);
+          this.scheduleNextStep(this.deleteSpeed);
         } else {
           this.isDeleting = false;
           this.currentTextIndex = (this.currentTextIndex + 1) % this.texts.length;
-          this.timeoutId = window.setTimeout(() => this.type(), this.speed);
+          this.scheduleNextStep(this.speed);
         }
       } else if (this.currentIndex < segments.length) {
         this.currentIndex++;
         this.element.textContent = segments.slice(0, this.currentIndex).join("");
-        this.timeoutId = window.setTimeout(() => this.type(), this.speed);
+        this.scheduleNextStep(this.speed);
       } else if (this.texts.length > 1) {
         this.isDeleting = true;
-        this.timeoutId = window.setTimeout(() => this.type(), this.pauseTime);
+        this.scheduleNextStep(this.pauseTime);
       }
     }
 
     public destroy(resetText: boolean = false) {
-      if (this.timeoutId) {
-        clearTimeout(this.timeoutId);
-      }
-
-      this.timeoutId = null;
+      this.clearScheduledStep();
 
       if (resetText) {
         this.element.textContent = "";
@@ -155,9 +178,32 @@ const initialText =
     return !isHidden;
   }
 
-  function initTypewriters() {
+  function clearTrackedTimeouts() {
+    trackedTimers.forEach((timerId) => {
+      clearTimeout(timerId);
+    });
+    trackedTimers.clear();
+  }
+
+  function destroyTypewriters(resetText: boolean = false) {
     const typewriterElements =
       document.querySelectorAll<TypewriterElement>(".typewriter");
+
+    typewriterElements.forEach((element) => {
+      element.__typewriterInstance?.destroy(resetText);
+      delete element.__typewriterInstance;
+    });
+
+    clearTrackedTimeouts();
+  }
+
+  function initTypewriters(options: { resetText?: boolean } = {}) {
+    const typewriterElements =
+      document.querySelectorAll<TypewriterElement>(".typewriter");
+
+    if (options.resetText) {
+      destroyTypewriters(true);
+    }
 
     typewriterElements.forEach((element) => {
       element.__typewriterInstance?.destroy(true);
@@ -171,14 +217,17 @@ const initialText =
     });
   }
 
-  function queueTypewriterInit() {
+  function queueTypewriterInit(options: { resetText?: boolean } = {}) {
     window.requestAnimationFrame(() => {
-      initTypewriters();
+      initTypewriters(options);
     });
   }
 
-  const typewriterWindow = window as Window & {
-    __ngetehTypewriterBound?: boolean;
+  typewriterWindow.__ngetehTypewriterInit = (options = {}) => {
+    queueTypewriterInit(options);
+  };
+  typewriterWindow.__ngetehTypewriterCleanup = (resetText = false) => {
+    destroyTypewriters(resetText);
   };
 
   if (!typewriterWindow.__ngetehTypewriterBound) {

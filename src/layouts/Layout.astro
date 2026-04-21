@@ -944,6 +944,100 @@ function syncShellRouteState(nextUrl: string, phase: string = 'manual') {
 	});
 }
 
+const homeHeroRestartWindow = window as Window & {
+	__ngetehRestartHomeHero?: () => void;
+	__ngetehHomeHeroRestartBound?: boolean;
+	__ngetehHomeHeroRestartRafA?: number | null;
+	__ngetehHomeHeroRestartRafB?: number | null;
+	__ngetehTypewriterInit?: (options?: { resetText?: boolean }) => void;
+};
+
+function runHomeHeroRestart() {
+	if (!pathsEqual(window.location.pathname, url('/'))) {
+		return;
+	}
+
+	const heroEngine = (window as any).__ngetehHeroEngine;
+	homeHeroRestartWindow.__ngetehTypewriterInit?.({ resetText: true });
+	heroEngine?.sync?.({
+		route: window.location.pathname,
+		phase: 'page:view',
+		isHomeRoute: true,
+		forceRestart: true,
+	});
+}
+
+function queueHomeHeroRestart() {
+	if (!pathsEqual(window.location.pathname, url('/'))) {
+		return;
+	}
+
+	if (homeHeroRestartWindow.__ngetehHomeHeroRestartRafA !== null && homeHeroRestartWindow.__ngetehHomeHeroRestartRafA !== undefined) {
+		cancelAnimationFrame(homeHeroRestartWindow.__ngetehHomeHeroRestartRafA);
+	}
+	if (homeHeroRestartWindow.__ngetehHomeHeroRestartRafB !== null && homeHeroRestartWindow.__ngetehHomeHeroRestartRafB !== undefined) {
+		cancelAnimationFrame(homeHeroRestartWindow.__ngetehHomeHeroRestartRafB);
+	}
+
+	homeHeroRestartWindow.__ngetehHomeHeroRestartRafA = requestAnimationFrame(() => {
+		homeHeroRestartWindow.__ngetehHomeHeroRestartRafA = null;
+		homeHeroRestartWindow.__ngetehHomeHeroRestartRafB = requestAnimationFrame(() => {
+			homeHeroRestartWindow.__ngetehHomeHeroRestartRafB = null;
+			runHomeHeroRestart();
+		});
+	});
+}
+
+function bindHomeHeroRestart() {
+	if (homeHeroRestartWindow.__ngetehHomeHeroRestartBound) {
+		return;
+	}
+
+	homeHeroRestartWindow.__ngetehHomeHeroRestartBound = true;
+	homeHeroRestartWindow.__ngetehRestartHomeHero = () => {
+		queueHomeHeroRestart();
+	};
+
+	document.addEventListener('swup:page:view', queueHomeHeroRestart);
+	document.addEventListener('swup:content:replace', queueHomeHeroRestart);
+	window.addEventListener('pageshow', () => {
+		queueHomeHeroRestart();
+	});
+	document.addEventListener(
+		'click',
+		(event) => {
+			const target = event.target;
+			if (!(target instanceof Element)) {
+				return;
+			}
+
+			const anchor = target.closest('a[href]');
+			if (!(anchor instanceof HTMLAnchorElement)) {
+				return;
+			}
+
+			if (anchor.target === '_blank' || anchor.hasAttribute('download')) {
+				return;
+			}
+
+			const href = anchor.getAttribute('href') || '';
+			if (!href || href.startsWith('#')) {
+				return;
+			}
+
+			const nextUrl = new URL(anchor.href, window.location.origin);
+			if (!pathsEqual(nextUrl.pathname, url('/'))) {
+				return;
+			}
+
+			queueHomeHeroRestart();
+		},
+		true,
+	);
+}
+
+bindHomeHeroRestart();
+
 const setup = () => {
 	// TODO: temp solution to change the height of the banner
 /*
@@ -1055,6 +1149,7 @@ const setup = () => {
 	});
 	window.swup.hooks.on('page:view', () => {
 		syncShellRouteState(window.location.pathname, 'page:view')
+		window.__ngetehRestartHomeHero?.()
 		// hide the temp high element when the transition is done
 		const heightExtend = document.getElementById('page-height-extend')
 		if (heightExtend) {
