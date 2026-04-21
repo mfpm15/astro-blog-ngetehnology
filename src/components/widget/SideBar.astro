@@ -23,8 +23,6 @@ const { class: className, headings, side = "left", isPostPage = false } = Astro.
 
 const topComponents = widgetManager.getComponentsByPosition("top", side, isPostPage);
 const stickyComponents = widgetManager.getComponentsByPosition("sticky", side, isPostPage);
-// Firefly parity: right rail should keep sticky utilities (stats/toc) above scrollable widgets (calendar).
-const renderStickyFirst = side === "right";
 
 const sidebarConfig = {
   breakpoints: widgetManager.getBreakpoints(),
@@ -59,6 +57,9 @@ type RenderData = {
 function renderComponent(component: WidgetComponentConfig, index: number): RenderData | null {
   const ComponentToRender = componentMap[component.type as keyof typeof componentMap];
   if (!ComponentToRender) return null;
+  if ((component.type === "toc" || component.type === "sidebarToc") && (!headings || headings.length === 0)) {
+    return null;
+  }
 
   const props: Record<string, unknown> = {
     class: widgetManager.getComponentClass(component, index),
@@ -77,38 +78,21 @@ function renderComponent(component: WidgetComponentConfig, index: number): Rende
     props,
   };
 }
+
+const renderedTopComponents = topComponents
+  .map((component, index) => renderComponent(component, index))
+  .filter(Boolean) as RenderData[];
+
+const renderedStickyComponents = stickyComponents
+  .map((component, index) => renderComponent(component, index))
+  .filter(Boolean) as RenderData[];
 ---
 
 <div id={`sidebar-${side}`} class:list={[className, "w-full"]}>
   {
-    renderStickyFirst &&
-      stickyComponents.length > 0 && (
-        <div
-          id={`sidebar-sticky-${side}`}
-          class:list={[
-            "sticky top-[var(--navbar-clearance)] flex w-full flex-col gap-4 transition-all duration-700",
-            topComponents.length > 0 && "mb-4",
-          ]}
-        >
-          {stickyComponents.map((component, index) => {
-            const renderData = renderComponent(component, index);
-            if (!renderData) return null;
-
-            const { Component, props } = renderData;
-            return <Component {...props} />;
-          })}
-        </div>
-      )
-  }
-
-  {
-    topComponents.length > 0 && (
+    renderedTopComponents.length > 0 && (
       <div class="mb-4 flex w-full flex-col gap-4">
-        {topComponents.map((component, index) => {
-          const renderData = renderComponent(component, index);
-          if (!renderData) return null;
-
-          const { Component, props } = renderData;
+        {renderedTopComponents.map(({ Component, props }) => {
           return <Component {...props} />;
         })}
       </div>
@@ -116,21 +100,16 @@ function renderComponent(component: WidgetComponentConfig, index: number): Rende
   }
 
   {
-    !renderStickyFirst &&
-      stickyComponents.length > 0 && (
-        <div
-          id={`sidebar-sticky-${side}`}
-          class="sticky top-[var(--navbar-clearance)] flex w-full flex-col gap-4 transition-all duration-700"
-        >
-          {stickyComponents.map((component, index) => {
-            const renderData = renderComponent(component, index);
-            if (!renderData) return null;
-
-            const { Component, props } = renderData;
-            return <Component {...props} />;
-          })}
-        </div>
-      )
+    renderedStickyComponents.length > 0 && (
+      <div
+        id={`sidebar-sticky-${side}`}
+        class="sticky top-[var(--navbar-clearance)] flex w-full flex-col gap-4 transition-all duration-700"
+      >
+        {renderedStickyComponents.map(({ Component, props }) => {
+          return <Component {...props} />;
+        })}
+      </div>
+    )
   }
 </div>
 
