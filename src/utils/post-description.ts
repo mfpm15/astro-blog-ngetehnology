@@ -42,7 +42,7 @@ function clampText(source: string, maxLength: number): string {
   const safeBreak = sliced.lastIndexOf(" ");
   const endIndex = safeBreak > Math.floor(maxLength * 0.6) ? safeBreak : maxLength;
 
-  return `${sliced.slice(0, endIndex).trim()}…`;
+  return `${sliced.slice(0, endIndex).trim()}...`;
 }
 
 export function getSafePostDescription(

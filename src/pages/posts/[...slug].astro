@@ -39,6 +39,7 @@ const safeSeoDescription = getSafePostDescription(
   excerptFallback,
   220
 );
+const safeLeadDescription = getSafePostDescription(entry.data.description, "", 320);
 
 dayjs.extend(utc);
 
@@ -188,6 +189,14 @@ const postMetaUpdatedText =
           )
         }
       </div>
+
+      {
+        safeLeadDescription && (
+          <p class="post-lead mb-6 max-w-3xl text-base leading-8 text-black/70 dark:text-white/70 onload-animation">
+            {safeLeadDescription}
+          </p>
+        )
+      }
 
       <!-- always show cover as long as it has one -->
 
