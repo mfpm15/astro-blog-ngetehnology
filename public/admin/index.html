@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="id">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -20,39 +20,39 @@
       <div class="admin-shell__backdrop"></div>
       <div class="admin-shell__panel">
         <div class="admin-shell__eyebrow">NgetehNology / Admin</div>
-        <h1>Kelola konten lebih rapi</h1>
+        <h1>Manage content with a cleaner flow</h1>
         <p>
-          Editor ini sudah dihubungkan ke Decap CMS, lengkap dengan dukungan wallpaper hero,
-          navigasi, sidebar widget, dan konten blog.
+          This editor is wired to Decap CMS with the Firefly content model, hero wallpaper
+          controls, sidebar widgets, and blog publishing tools ready to go.
         </p>
 
         <div class="admin-shell__status">
           <span class="admin-shell__badge" id="admin-local-status" data-state="checking">
-            Mengecek local backend...
+            Checking local backend...
           </span>
           <span class="admin-shell__status-text">
-            Saat mode lokal aktif, perubahan langsung pakai proxy `127.0.0.1:8081`.
+            When local mode is active, changes go through the `127.0.0.1:8081` proxy.
           </span>
         </div>
 
         <div class="admin-shell__grid">
           <div class="admin-shell__card">
-            <strong>Konten</strong>
-            <span>Tulis artikel, update halaman statis, dan atur metadata tanpa sentuh file manual.</span>
+            <strong>Content</strong>
+            <span>Write articles, update static pages, and manage metadata without touching files manually.</span>
           </div>
           <div class="admin-shell__card">
-            <strong>Tampilan</strong>
-            <span>Wallpaper, widget, tema, dan navigasi sekarang punya schema yang lebih lengkap.</span>
+            <strong>Presentation</strong>
+            <span>Wallpaper, widgets, theme settings, and navigation all follow the current Firefly schema.</span>
           </div>
           <div class="admin-shell__card">
             <strong>Local Backend</strong>
-            <span>Untuk mode lokal, jalankan backend di <code>127.0.0.1:8081</code>.</span>
+            <span>For local authoring, run the backend at <code>127.0.0.1:8081</code>.</span>
           </div>
         </div>
 
         <div class="admin-shell__actions">
-          <a href="/" target="_blank" rel="noopener noreferrer">Lihat situs</a>
-          <a href="https://decapcms.org/docs/intro/" target="_blank" rel="noopener noreferrer">Docs Decap CMS</a>
+          <a href="/" target="_blank" rel="noopener noreferrer">View site</a>
+          <a href="https://decapcms.org/docs/intro/" target="_blank" rel="noopener noreferrer">Decap CMS docs</a>
         </div>
       </div>
     </div>
@@ -99,6 +99,371 @@
             return Array.isArray(plain) ? plain : [];
           }
           return [];
+        }
+
+        const ADMIN_TIME_ZONE = "Asia/Jakarta";
+        const BLOG_COLLECTION_NAME = "blog";
+        const BLOG_EDITOR_FIELD_TEXT = {
+          published: {
+            label: "Publish Date",
+            lockedNote: "Publish Date is locked for existing posts. Keep the original published date and use Updated Date for later edits.",
+            editableNote: "Publish Date stays editable for draft or imported entries that do not have one yet.",
+          },
+          updated: {
+            label: "Updated Date",
+            autoNote: "Updated Date is managed automatically when you save an existing post.",
+          },
+        };
+        const blogEditorState = {
+          originalPublishedByKey: new Map(),
+          guardScheduled: false,
+          observer: null,
+          preSaveRegistered: false,
+          hashListenerBound: false,
+        };
+
+        function formatJakartaDate(date = new Date()) {
+          return new Intl.DateTimeFormat("en-CA", {
+            timeZone: ADMIN_TIME_ZONE,
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+          }).format(date);
+        }
+
+        function getHashRouteInfo() {
+          const rawHash = String(window.location.hash || "");
+
+          if (!rawHash) {
+            return {
+              collectionName: "",
+              isBlogEditor: false,
+              isNew: false,
+              entryKey: "",
+            };
+          }
+
+          const decodedHash = decodeURIComponent(rawHash);
+          let match = decodedHash.match(/^#\/collections\/([^/]+)\/new\/?$/i);
+
+          if (match) {
+            const collectionName = match[1] || "";
+            return {
+              collectionName,
+              isBlogEditor: collectionName === BLOG_COLLECTION_NAME,
+              isNew: true,
+              entryKey: `${collectionName}:new`,
+            };
+          }
+
+          match = decodedHash.match(/^#\/collections\/([^/]+)\/entries\/(.+)$/i);
+          if (match) {
+            const collectionName = match[1] || "";
+            return {
+              collectionName,
+              isBlogEditor: collectionName === BLOG_COLLECTION_NAME,
+              isNew: false,
+              entryKey: `${collectionName}:${match[2] || ""}`,
+            };
+          }
+
+          match = decodedHash.match(/^#\/edit\/([^/]+)\/(.+)$/i);
+          if (match) {
+            const collectionName = match[1] || "";
+            return {
+              collectionName,
+              isBlogEditor: collectionName === BLOG_COLLECTION_NAME,
+              isNew: false,
+              entryKey: `${collectionName}:${match[2] || ""}`,
+            };
+          }
+
+          return {
+            collectionName: "",
+            isBlogEditor: false,
+            isNew: false,
+            entryKey: "",
+          };
+        }
+
+        function getEntryCacheKey(entry) {
+          if (!entry || typeof entry.get !== "function") {
+            return getHashRouteInfo().entryKey;
+          }
+
+          const routeInfo = getHashRouteInfo();
+          const pathValue = String(entry.get("path") || "").trim();
+          const slugValue = String(entry.get("slug") || "").trim();
+          const frontmatterSlug = String(entry.getIn(["data", "slug"]) || "").trim();
+          const titleValue = String(entry.getIn(["data", "title"]) || "").trim();
+
+          return pathValue || slugValue || frontmatterSlug || routeInfo.entryKey || titleValue;
+        }
+
+        function rememberEntryPublishedSnapshot(entry) {
+          if (!entry || typeof entry.get !== "function" || entry.get("newRecord")) {
+            return;
+          }
+
+          const cacheKey = getEntryCacheKey(entry);
+          const publishedValue = String(entry.getIn(["data", "published"]) || "").trim();
+
+          if (!cacheKey || !publishedValue || blogEditorState.originalPublishedByKey.has(cacheKey)) {
+            return;
+          }
+
+          blogEditorState.originalPublishedByKey.set(cacheKey, publishedValue);
+        }
+
+        function getCachedPublishedValue(entry) {
+          const cacheKey = getEntryCacheKey(entry);
+          return cacheKey ? blogEditorState.originalPublishedByKey.get(cacheKey) || "" : "";
+        }
+
+        function getFieldContainers() {
+          return Array.from(document.querySelectorAll("label, fieldset, [class*='field'], [class*='Field']"));
+        }
+
+        function getFieldControl(fieldName, labelText) {
+          const normalizedFieldName = String(fieldName || "").toLowerCase();
+          const normalizedLabel = String(labelText || "").toLowerCase();
+          const containers = getFieldContainers();
+
+          for (const container of containers) {
+            const text = String(container.textContent || "").toLowerCase();
+            if (!text.includes(normalizedFieldName) && !text.includes(normalizedLabel)) {
+              continue;
+            }
+
+            const directControl = container.querySelector("input, textarea, select");
+            if (directControl) return directControl;
+
+            if (container.matches("input, textarea, select")) {
+              return container;
+            }
+          }
+
+          const controls = Array.from(document.querySelectorAll("input, textarea, select"));
+          return (
+            controls.find((control) => {
+              const haystack = [
+                control.name,
+                control.id,
+                control.getAttribute("aria-label"),
+                control.getAttribute("placeholder"),
+                control.closest("label")?.textContent,
+                control.closest("[class*='field']")?.textContent,
+                control.closest("[class*='Field']")?.textContent,
+              ]
+                .filter(Boolean)
+                .join(" ")
+                .toLowerCase();
+
+              return haystack.includes(normalizedFieldName) || haystack.includes(normalizedLabel);
+            }) || null
+          );
+        }
+
+        function getMutableControlSetter(control) {
+          if (control instanceof HTMLTextAreaElement) {
+            return Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, "value")?.set || null;
+          }
+
+          if (control instanceof HTMLSelectElement) {
+            return Object.getOwnPropertyDescriptor(window.HTMLSelectElement.prototype, "value")?.set || null;
+          }
+
+          return Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value")?.set || null;
+        }
+
+        function setNativeControlValue(control, value) {
+          if (!control) return;
+          const nextValue = value == null ? "" : String(value);
+          const setter = getMutableControlSetter(control);
+
+          if (setter) {
+            setter.call(control, nextValue);
+          } else {
+            control.value = nextValue;
+          }
+
+          control.dispatchEvent(new Event("input", { bubbles: true }));
+          control.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+
+        function getFieldHost(control) {
+          return (
+            control?.closest("[class*='field']") ||
+            control?.closest("[class*='Field']") ||
+            control?.closest("fieldset") ||
+            control?.closest("label") ||
+            control?.parentElement ||
+            null
+          );
+        }
+
+        function ensureFieldNote(control, fieldName, message) {
+          if (!control || !message) return;
+          const host = getFieldHost(control);
+          if (!host) return;
+
+          let note = host.querySelector(`[data-ngeteh-note='${fieldName}']`);
+          if (!note) {
+            note = document.createElement("div");
+            note.dataset.ngetehNote = fieldName;
+            note.style.marginTop = "8px";
+            note.style.fontSize = "12px";
+            note.style.lineHeight = "1.5";
+            note.style.color = "rgb(100 116 139)";
+            host.appendChild(note);
+          }
+
+          note.textContent = message;
+        }
+
+        function clearFieldNote(fieldName) {
+          document.querySelectorAll(`[data-ngeteh-note='${fieldName}']`).forEach((element) => {
+            element.remove();
+          });
+        }
+
+        function setLockedState(control, locked) {
+          if (!control) return;
+
+          control.readOnly = locked;
+          control.disabled = locked;
+
+          if (locked) {
+            control.dataset.ngetehLocked = "true";
+            control.setAttribute("aria-disabled", "true");
+          } else {
+            delete control.dataset.ngetehLocked;
+            control.removeAttribute("aria-disabled");
+          }
+        }
+
+        function applyBlogEditorGuards() {
+          const routeInfo = getHashRouteInfo();
+          const publishedControl = getFieldControl("published", BLOG_EDITOR_FIELD_TEXT.published.label);
+          const updatedControl = getFieldControl("updated", BLOG_EDITOR_FIELD_TEXT.updated.label);
+
+          if (!routeInfo.isBlogEditor) {
+            setLockedState(publishedControl, false);
+            setLockedState(updatedControl, false);
+            clearFieldNote("published");
+            clearFieldNote("updated");
+            return;
+          }
+
+          const today = formatJakartaDate();
+          const cachedPublished = blogEditorState.originalPublishedByKey.get(routeInfo.entryKey) || "";
+          const currentPublished = String(publishedControl?.value || "").trim();
+          const shouldLockPublished = !routeInfo.isNew && Boolean(cachedPublished || currentPublished);
+
+          if (publishedControl) {
+            if (routeInfo.isNew && !currentPublished) {
+              setNativeControlValue(publishedControl, today);
+            }
+
+            if (!routeInfo.isNew && currentPublished && !cachedPublished && routeInfo.entryKey) {
+              blogEditorState.originalPublishedByKey.set(routeInfo.entryKey, currentPublished);
+            }
+
+            setLockedState(publishedControl, shouldLockPublished);
+            ensureFieldNote(
+              publishedControl,
+              "published",
+              shouldLockPublished
+                ? BLOG_EDITOR_FIELD_TEXT.published.lockedNote
+                : BLOG_EDITOR_FIELD_TEXT.published.editableNote,
+            );
+          }
+
+          if (updatedControl) {
+            setLockedState(updatedControl, true);
+            if (routeInfo.isNew) {
+              setNativeControlValue(updatedControl, "");
+            }
+            ensureFieldNote(updatedControl, "updated", BLOG_EDITOR_FIELD_TEXT.updated.autoNote);
+          }
+        }
+
+        function scheduleBlogEditorGuards() {
+          if (blogEditorState.guardScheduled) return;
+
+          blogEditorState.guardScheduled = true;
+          window.requestAnimationFrame(function () {
+            blogEditorState.guardScheduled = false;
+            applyBlogEditorGuards();
+          });
+        }
+
+        function startBlogEditorGuards() {
+          if (!blogEditorState.hashListenerBound) {
+            window.addEventListener("hashchange", scheduleBlogEditorGuards);
+            blogEditorState.hashListenerBound = true;
+          }
+
+          if (!blogEditorState.observer) {
+            blogEditorState.observer = new MutationObserver(scheduleBlogEditorGuards);
+            blogEditorState.observer.observe(document.body, {
+              childList: true,
+              subtree: true,
+            });
+          }
+
+          scheduleBlogEditorGuards();
+        }
+
+        function registerPreSaveGuard() {
+          if (
+            blogEditorState.preSaveRegistered ||
+            !window.CMS ||
+            typeof window.CMS.registerEventListener !== "function"
+          ) {
+            return;
+          }
+
+          window.CMS.registerEventListener({
+            name: "preSave",
+            handler: ({ entry }) => {
+              if (!entry || typeof entry.get !== "function") {
+                return entry;
+              }
+
+              const routeInfo = getHashRouteInfo();
+              if (routeInfo.collectionName && routeInfo.collectionName !== BLOG_COLLECTION_NAME) {
+                return entry;
+              }
+
+              const data = entry.get("data");
+              if (!data || typeof data.get !== "function") {
+                return entry;
+              }
+
+              const isNewRecord = Boolean(entry.get("newRecord")) || routeInfo.isNew;
+              const cachedPublished = getCachedPublishedValue(entry);
+              const currentPublished = String(data.get("published") || "").trim();
+              const today = formatJakartaDate();
+              let nextData = data;
+
+              if (!isNewRecord && (cachedPublished || currentPublished)) {
+                if (cachedPublished) {
+                  nextData = nextData.set("published", cachedPublished);
+                }
+                nextData = nextData.set("updated", today);
+              } else {
+                if (!currentPublished) {
+                  nextData = nextData.set("published", today);
+                }
+                nextData = nextData.delete("updated");
+              }
+
+              return entry.set("data", nextData);
+            },
+          });
+
+          blogEditorState.preSaveRegistered = true;
         }
 
         function renderCodeBlock(tokenOrCode, infoString) {
@@ -168,7 +533,7 @@
         function renderMarkdownHtml(markdown, depth = 0) {
           const source = String(markdown || "").trim();
           if (!source) {
-            return '<p class="cms-entry-preview__empty">Mulai menulis. Konten body akan tampil live di preview ini.</p>';
+            return '<p class="cms-entry-preview__empty">Start writing. Your body content will render live in this preview.</p>';
           }
 
           const maxDepth = 3;
@@ -597,7 +962,7 @@
                     : hFn(
                         "article",
                         { className: "cms-entry-preview__body custom-md cms-entry-preview__body--widget" },
-                        this.props.bodyWidget || hFn("p", { className: "cms-entry-preview__empty" }, "Mulai menulis. Konten body akan tampil live di preview ini."),
+                        this.props.bodyWidget || hFn("p", { className: "cms-entry-preview__empty" }, "Start writing. Your body content will render live in this preview."),
                       ),
                 ].filter(Boolean),
               );
@@ -607,6 +972,7 @@
           const BlogPreview = createClassFn({
             render() {
               const entry = this.props.entry;
+              rememberEntryPublishedSnapshot(entry);
               const tags = toArray(entry.getIn(["data", "tags"]));
               const slug = String(entry.getIn(["data", "slug"]) || "").trim().toLowerCase();
               const bodyMarkdown = entry.getIn(["data", "body"]) || entry.get("body") || "";
@@ -661,13 +1027,13 @@
             });
 
             if (response.ok || response.status < 500) {
-              status.textContent = "Local backend aktif";
+              status.textContent = "Local backend online";
               status.dataset.state = "ready";
               return;
             }
           } catch {}
 
-          status.textContent = "Mode Git Gateway / produksi";
+          status.textContent = "Git Gateway / production mode";
           status.dataset.state = "idle";
         }
 
@@ -682,7 +1048,9 @@
           if (window.CMS && typeof window.CMS.registerPreviewStyle === "function") {
             window.CMS.registerPreviewStyle("/admin/preview.css");
             registerEditorEnhancements();
+            registerPreSaveGuard();
           }
+          startBlogEditorGuards();
           updateLocalStatus();
           setTimeout(markReady, 2500);
         });

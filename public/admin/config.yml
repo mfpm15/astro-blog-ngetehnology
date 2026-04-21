@@ -29,9 +29,9 @@ collections:
       preview: true
     fields:
       - { label: "Title", name: "title", widget: "string" }
-      - { label: "Slug", name: "slug", widget: "string", required: false, hint: "Opsional. Kalau diisi, URL post akan mengikuti slug ini, sesuai docs Firefly." }
-      - { label: "Publish Date", name: "published", widget: "datetime", format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false }
-      - { label: "Updated Date", name: "updated", widget: "datetime", required: false, format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false }
+      - { label: "Slug", name: "slug", widget: "string", required: false, hint: "Optional. If you fill this in, the post URL will follow this slug, matching the Firefly docs." }
+      - { label: "Publish Date", name: "published", widget: "datetime", format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false, hint: "New posts default to today. Existing posts keep their original publish date." }
+      - { label: "Updated Date", name: "updated", widget: "datetime", required: false, format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false, hint: "Set automatically when you save an existing post." }
       - { label: "Description", name: "description", widget: "text", required: false }
       - { label: "Cover Image", name: "image", widget: "image", required: false, allow_multiple: false }
       - { label: "Category", name: "category", widget: "string", required: false }
@@ -52,7 +52,7 @@ collections:
         name: "body"
         widget: "markdown"
         required: false
-        hint: "Ikuti Firefly writing docs: Markdown/MDX, ```mermaid, $...$/$$...$$, > [!NOTE], :::tip, :spoiler[], iframe YouTube/Bilibili, dan ::github{repo=\"owner/repo\"}."
+        hint: "Follow the Firefly writing docs: Markdown/MDX, ```mermaid, $...$/$$...$$, > [!NOTE], :::tip, :spoiler[], YouTube/Bilibili iframes, and ::github{repo=\"owner/repo\"}."
         modes: ["rich_text", "raw"]
         buttons:
           - heading-one
@@ -83,7 +83,7 @@ collections:
             name: "body"
             widget: "markdown"
             required: false
-            hint: "Preview mengikuti syntax Firefly: markdown, callout, Mermaid, KaTeX, spoiler, iframe, dan GitHub card."
+            hint: "Preview follows Firefly syntax: markdown, callouts, Mermaid, KaTeX, spoilers, iframes, and GitHub cards."
             modes: ["rich_text", "raw"]
             buttons:
               - heading-one
@@ -108,7 +108,7 @@ collections:
             name: "body"
             widget: "markdown"
             required: false
-            hint: "Preview mengikuti syntax Firefly: markdown, callout, Mermaid, KaTeX, spoiler, iframe, dan GitHub card."
+            hint: "Preview follows Firefly syntax: markdown, callouts, Mermaid, KaTeX, spoilers, iframes, and GitHub cards."
             modes: ["rich_text", "raw"]
             buttons:
               - heading-one
