@@ -39,7 +39,7 @@ const currentPostCategory = Astro.props.currentPostCategory ?? "";
         href={homePath}
         class="category-pill flex shrink-0 items-center justify-center rounded-lg px-2 py-1 text-sm transition-colors duration-150 ease-out"
         data-category-name=""
-        aria-label="Beranda"
+        aria-label="Home"
       >
         <Icon name="material-symbols:home" class="text-lg" />
       </a>
@@ -49,7 +49,7 @@ const currentPostCategory = Astro.props.currentPostCategory ?? "";
         class="category-pill flex shrink-0 items-center justify-center rounded-lg px-3 py-1 text-sm whitespace-nowrap transition-colors duration-150 ease-out"
         data-category-name="__archive__"
       >
-        Arsip
+        Archive
         <span class="ml-1 text-xs opacity-60">{archiveCount}</span>
       </a>
 

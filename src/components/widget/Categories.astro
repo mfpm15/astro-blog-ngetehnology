@@ -39,12 +39,21 @@ const moreCategories = displayCategories.slice(4);
 
     {
       moreCategories.length > 0 && (
-        <details class="category-more mt-1">
-          <summary class="btn-plain scale-animation rounded-lg w-full h-9 flex items-center justify-center gap-2 active:scale-95">
+        <div class="category-more mt-1">
+          <input
+            id="categories-more-toggle"
+            type="checkbox"
+            class="peer sr-only"
+            aria-label="Show more categories"
+          />
+          <label
+            for="categories-more-toggle"
+            class="btn-plain scale-animation rounded-lg w-full h-9 flex items-center justify-center gap-2 active:scale-95 peer-checked:hidden cursor-pointer"
+          >
             {i18n(I18nKey.more)}
             <span class="text-xs opacity-60">({moreCategories.length})</span>
-          </summary>
-          <div class="mt-1 flex flex-col gap-1">
+          </label>
+          <div class="mt-1 hidden peer-checked:flex flex-col gap-1">
             {moreCategories.map((c) => (
               <ButtonLink
                 url={c.url}
@@ -55,19 +64,8 @@ const moreCategories = displayCategories.slice(4);
               </ButtonLink>
             ))}
           </div>
-        </details>
+        </div>
       )
     }
   </div>
 </WidgetLayout>
-
-<style>
-  .category-more summary {
-    list-style: none;
-  }
-
-  .category-more summary::-webkit-details-marker {
-    display: none;
-  }
-</style>
-

@@ -44,17 +44,14 @@ const isHomePage = pathsEqual(Astro.url.pathname, url("/"));
 // why doing this in Layout instead of GlobalStyles: https://github.com/withastro/astro/issues/6728#issuecomment-1502203757
 const configHue = siteConfig.themeColor.hue;
 
-// 获取导航栏透明模式配置
-// 判断是否应该显示顶部高光效果（只在full和semifull模式下显示）
-
-// 获取默认背景图片的辅助函数
+// Default wallpaper fallback used when a page does not provide a banner image.
 const getDefaultBackground = (): string => {
 	const src = siteConfig.backgroundWallpaper.src;
 	if (typeof src === "string") {
 		return src;
 	}
 	if (src && typeof src === "object" && !Array.isArray(src)) {
-		// 优先使用desktop，如果没有则使用mobile
+		// Prefer desktop, fall back to mobile.
 		const desktopSrc = src.desktop;
 		const mobileSrc = src.mobile;
 		if (typeof desktopSrc === "string") {
@@ -234,8 +231,8 @@ const enableSakuraEffect = false;
 			const expressiveTheme = isDark ? "github-dark" : "github-light";
 			document.documentElement.setAttribute("data-theme", expressiveTheme);
 			
-			// 确保主题正确应用 - 解决代码块渲染问题
-			// 使用 requestAnimationFrame 确保在下一帧检查主题状态
+			// Ensure the Expressive Code theme is applied before code blocks render.
+			// Use requestAnimationFrame to re-check on the next frame.
 			requestAnimationFrame(() => {
 				const currentTheme = document.documentElement.getAttribute('data-theme');
 				if (currentTheme !== expressiveTheme) {
@@ -286,7 +283,7 @@ const enableSakuraEffect = false;
 		}
 		<ProgressBar />
 		
-		<!-- 页面顶部渐变高光效果 - 只在full和semifull模式下显示 -->
+		<!-- Top gradient highlight (full/semi modes only) -->
 		<ConfigCarrier></ConfigCarrier>
 		<slot />
 		
@@ -299,7 +296,6 @@ const enableSakuraEffect = false;
 		<!-- Sakura Effect -->
 		{enableSakuraEffect && sakuraConfig?.enable && (
 			<script define:vars={{ sakuraConfig }}>
-				// 樱花对象类
 				class Sakura {
 					constructor(x, y, s, r, a, fn, idx, img, limitArray, config) {
 						this.x = x;
@@ -328,7 +324,6 @@ const enableSakuraEffect = false;
 						this.y = this.fn.y(this.y, this.y);
 						this.r = this.fn.r(this.r);
 						this.a = this.fn.a(this.a);
-						// 如果樱花越界，重新调整位置
 						if (
 							this.x > window.innerWidth ||
 							this.x < 0 ||
@@ -336,11 +331,9 @@ const enableSakuraEffect = false;
 							this.y < 0 ||
 							this.a <= 0
 						) {
-							// 如果樱花不做限制
 							if (this.limitArray[this.idx] === -1) {
 								this.resetPosition();
 							}
-							// 否则樱花有限制
 							else {
 								if (this.limitArray[this.idx] > 0) {
 									this.resetPosition();
@@ -368,7 +361,6 @@ const enableSakuraEffect = false;
 					}
 				}
 
-				// 樱花列表类
 				class SakuraList {
 					constructor() {
 						this.list = [];
@@ -399,7 +391,6 @@ const enableSakuraEffect = false;
 					}
 				}
 
-				// 获取随机值的函数
 				function getRandom(option, config) {
 					let ret;
 					let random;
@@ -446,7 +437,6 @@ const enableSakuraEffect = false;
 					return ret;
 				}
 
-				// 樱花管理器类
 				class SakuraManager {
 					constructor(config) {
 						this.config = config;
@@ -458,17 +448,14 @@ const enableSakuraEffect = false;
 						this.isRunning = false;
 					}
 
-					// 初始化樱花特效
 					async init() {
 						if (!this.config.enable || this.isRunning) {
 							return;
 						}
 
-						// 创建图片对象
 						this.img = new Image();
-						this.img.src = '/assets/images/sakura.png'; // 使用樱花图片
+						this.img.src = '/assets/images/sakura.png';
 
-						// 等待图片加载完成
 						await new Promise((resolve, reject) => {
 							if (this.img) {
 								this.img.onload = () => resolve();
@@ -482,7 +469,6 @@ const enableSakuraEffect = false;
 						this.isRunning = true;
 					}
 
-					// 创建画布
 					createCanvas() {
 						this.canvas = document.createElement('canvas');
 						this.canvas.height = window.innerHeight;
@@ -492,11 +478,9 @@ const enableSakuraEffect = false;
 						document.body.appendChild(this.canvas);
 						this.ctx = this.canvas.getContext('2d');
 
-						// 监听窗口大小变化
 						window.addEventListener('resize', this.handleResize.bind(this));
 					}
 
-					// 创建樱花列表
 					createSakuraList() {
 						if (!this.img || !this.ctx) return;
 
@@ -537,7 +521,6 @@ const enableSakuraEffect = false;
 						}
 					}
 
-					// 开始动画
 					startAnimation() {
 						if (!this.ctx || !this.canvas || !this.sakuraList) return;
 
@@ -553,7 +536,6 @@ const enableSakuraEffect = false;
 						this.animationId = requestAnimationFrame(animate);
 					}
 
-					// 处理窗口大小变化
 					handleResize() {
 						if (this.canvas) {
 							this.canvas.width = window.innerWidth;
@@ -561,7 +543,6 @@ const enableSakuraEffect = false;
 						}
 					}
 
-					// 停止樱花特效
 					stop() {
 						if (this.animationId) {
 							cancelAnimationFrame(this.animationId);
@@ -577,7 +558,6 @@ const enableSakuraEffect = false;
 						this.isRunning = false;
 					}
 
-					// 切换樱花特效
 					toggle() {
 						if (this.isRunning) {
 							this.stop();
@@ -586,7 +566,6 @@ const enableSakuraEffect = false;
 						}
 					}
 
-					// 更新配置
 					updateConfig(newConfig) {
 						const wasRunning = this.isRunning;
 						if (wasRunning) {
@@ -598,16 +577,13 @@ const enableSakuraEffect = false;
 						}
 					}
 
-					// 获取运行状态
 					getIsRunning() {
 						return this.isRunning;
 					}
 				}
 
-				// 创建全局樱花管理器实例
 				let globalSakuraManager = null;
 
-				// 初始化樱花特效
 				function initSakura(config) {
 					if (globalSakuraManager) {
 						globalSakuraManager.updateConfig(config);
@@ -619,14 +595,11 @@ const enableSakuraEffect = false;
 					}
 				}
 
-				// 樱花特效初始化
 				(function() {
-					// 全局标记，确保樱花特效只初始化一次
 					if (window.sakuraInitialized) {
 						return;
 					}
 					
-					// 初始化樱花特效的函数
 					const setupSakura = () => {
 						if (sakuraConfig.enable && !window.sakuraInitialized) {
 							initSakura(sakuraConfig);
@@ -634,7 +607,6 @@ const enableSakuraEffect = false;
 						}
 					};
 					
-					// 页面加载完成后初始化樱花特效
 					if (document.readyState === 'loading') {
 						document.addEventListener('DOMContentLoaded', setupSakura);
 					} else {
@@ -694,7 +666,7 @@ const enableSakuraEffect = false;
 		}
 	}
 
-	/* 使用浏览器原生滚动条，无自定义样式 */
+	/* Use the native browser scrollbar. */
 }
 </style>
 
@@ -782,7 +754,7 @@ function loadHue() {
 }
 
 function initCustomScrollbar() {
-	// 只处理katex元素的滚动条，使用浏览器原生滚动条
+	// KaTeX: wrap display blocks so they use the native horizontal scrollbar.
 	const katexElements = document.querySelectorAll('.katex-display:not([data-scrollbar-initialized])') as NodeListOf<HTMLElement>;
 	katexElements.forEach(element => {
 		if (!element.parentNode) return;
@@ -792,7 +764,7 @@ function initCustomScrollbar() {
 		element.parentNode.insertBefore(container, element);
 		container.appendChild(element);
 
-		// 使用浏览器原生滚动条，无自定义样式
+		// Native scrollbar (no custom overlay).
 		container.style.cssText = `
 			overflow-x: auto;
 		`;
@@ -806,7 +778,7 @@ function showBanner() {
 	if (!siteConfig.backgroundWallpaper.enable || !isBannerMode) return;
 	const heroEngine = (window as any).__ngetehHeroEngine;
 
-	// 使用requestAnimationFrame优化DOM操作
+	// Batch DOM updates into rAF.
 	requestAnimationFrame(() => {
 		// Handle single image banner (desktop)
 		const banner = document.getElementById('banner');
@@ -814,10 +786,9 @@ function showBanner() {
 			banner.classList.remove('opacity-0', 'scale-105');
 		}
 
-		// Handle mobile single image banner - 使用与电脑端相同的逻辑
+		// Handle single image banner (mobile)
 		const mobileBanner = document.getElementById('banner-mobile');
 		if (mobileBanner) {
-			// 移动端使用与电脑端相同的初始化逻辑
 			mobileBanner.classList.remove('opacity-0', 'scale-105');
 			mobileBanner.classList.add('opacity-100');
 		}
@@ -831,7 +802,7 @@ function showBanner() {
 	});
 }
 
-// 轮播功能已移除
+// Carousel has been removed.
 
 
 
@@ -992,40 +963,40 @@ const setup = () => {
 
 	})
 	window.swup.hooks.on('content:replace', () => {
-		// 只处理katex元素的容器，使用浏览器原生滚动条
+		// Re-init KaTeX containers to use the native scrollbar.
 		initCustomScrollbar();
-		
-		// 检查当前页面是否为文章页面（有TOC元素）
-		const tocWrapper = document.getElementById('toc-wrapper');
-		const isArticlePage = tocWrapper !== null;
-		
-		// 只在文章页面重新初始化桌面端 TOC 组件
-		if (isArticlePage) {
-			const tocElement = document.querySelector('table-of-contents');
-			if (tocElement && typeof (tocElement as any).init === 'function') {
-				setTimeout(() => {
-					(tocElement as any).init();
-				}, 100);
-			}
+
+		const tocElement = document.querySelector('table-of-contents');
+		if (tocElement && typeof (tocElement as any).init === 'function') {
+			setTimeout(() => {
+				(tocElement as any).init();
+			}, 100);
 		}
 		
-		// 移动端 TOC 组件需要在所有页面都重新初始化
-		// 因为它在首页显示文章列表，在其他页面显示目录
+		// Mobile TOC needs to re-init on all pages:
+		// Home shows a post list, inner pages show headings.
 		if (typeof (window as any).mobileTOCInit === 'function') {
 			setTimeout(() => {
 				(window as any).mobileTOCInit();
 			}, 100);
 		}
+
+		// Calendar: destroy/re-init to avoid stale Swup-cached nodes.
+		if (typeof (window as any).__ngetehInitCalendar === 'function') {
+			setTimeout(() => {
+				(window as any).__ngetehInitCalendar({ force: true });
+			}, 100);
+		}
 		
 		
 		
-		// 重新初始化semifull模式的滚动检测
+		// Re-init scroll detection for the semi-transparent navbar mode.
 		const navbar = document.getElementById('navbar')
 		if (navbar) {
 		const transparentMode = null
 			
 			if (transparentMode === 'semifull') {
-				// 重新调用初始化函数来重新绑定滚动事件
+				// Rebind scroll listeners.
 				if (typeof (window as any).initSemifullScrollDetection === 'function') {
 					(window as any).initSemifullScrollDetection()
 				}
@@ -1061,36 +1032,11 @@ const setup = () => {
 		if (navbar) {
 			navbar.setAttribute('data-is-home', isHomePage.toString())
 			
-			// 重新初始化semifull模式的滚动检测
 			const transparentMode = null
 			if (transparentMode === 'semifull') {
-				// 重新调用初始化函数来重新绑定滚动事件
 				if (typeof window.initSemifullScrollDetection === 'function') {
 					window.initSemifullScrollDetection()
 				}
-			}
-		}
-
-		// Control mobile banner visibility based on page with improved staging animation
-		const bannerWrapper = document.getElementById('banner-wrapper')
-		const mainContentWrapper = null
-		
-		if (bannerWrapper && mainContentWrapper) {
-			if (isHomePage) {
-				// 首页：延迟移除隐藏类，让banner和内容优雅地出现
-				setTimeout(() => {
-					bannerWrapper.classList.remove('mobile-hide-banner')
-				}, 100)
-				setTimeout(() => {
-					mainContentWrapper.classList.remove('mobile-main-no-banner')
-				}, 150)
-			} else {
-				// 非首页：分阶段隐藏，先隐藏banner，再移动内容
-				bannerWrapper.classList.add('mobile-hide-banner')
-				// 延迟移动内容，让banner先完全消失
-				setTimeout(() => {
-					mainContentWrapper.classList.add('mobile-main-no-banner')
-				}, 100)
 			}
 		}
 
@@ -1100,11 +1046,12 @@ const setup = () => {
 			heightExtend.classList.remove('hidden')
 		}
 
-		// Hide the TOC while scrolling back to top
-		let toc = document.getElementById('toc-wrapper');
-		if (toc) {
-			toc.classList.add('toc-not-ready')
-		}
+		// Hide the TOC briefly during transitions to avoid a flash while scrolling to top.
+		const tocShell =
+			document.querySelector('widget-layout[data-id="toc-widget"]') ||
+			document.getElementById('toc-widget') ||
+			document.querySelector('table-of-contents');
+		if (tocShell) tocShell.classList.add('toc-not-ready');
 	});
 	window.swup.hooks.on('page:view', () => {
 		syncShellRouteState(window.location.pathname, 'page:view')
@@ -1114,13 +1061,13 @@ const setup = () => {
 			heightExtend.classList.remove('hidden')
 		}
 		
-		// 确保页面滚动到顶部，特别是移动端banner关闭时
+		// Ensure the page scrolls to top (especially after closing the mobile banner).
 		window.scrollTo({
 			top: 0,
-			behavior: 'instant'
+			behavior: 'auto'
 		});
 		
-		// 同步主题状态 - 解决从首页进入文章页面时代码块渲染问题
+		// Sync theme state to avoid code block rendering issues across transitions.
 		const storedTheme = getStoredTheme();
 		const isDark = storedTheme === 'dark' || (
 			storedTheme === 'system' &&
@@ -1129,19 +1076,26 @@ const setup = () => {
 		const expectedTheme = isDark ? 'github-dark' : 'github-light';
 		const currentTheme = document.documentElement.getAttribute('data-theme');
 		
-		// 如果主题不匹配，强制重新应用
+		// If the theme does not match, force-apply it.
 		if (currentTheme !== expectedTheme) {
 			document.documentElement.setAttribute('data-theme', expectedTheme);
-			// 触发代码块重新渲染
+			// Trigger code block re-render.
 			setTimeout(() => {
 				window.dispatchEvent(new CustomEvent('theme-change'));
 			}, 50);
 		}
+
+		// Calendar: force a clean re-init after navigation (Swup cache safety).
+		if (typeof (window as any).__ngetehInitCalendar === 'function') {
+			setTimeout(() => {
+				(window as any).__ngetehInitCalendar({ force: true });
+			}, 100);
+		}
 		
-		// 检查当前页面是否为文章页面，如果是则触发自定义事件用于初始化评论系统
+		// If this page has a comment container, notify the comment system that the page is ready.
 		setTimeout(() => {
 			if (document.getElementById('tcomment')) {
-				// 触发自定义事件，通知评论系统页面已完全加载
+				// Dispatch a custom event to signal the page is fully loaded.
 				const pageLoadedEvent = new CustomEvent('firefly:page:loaded', {
 					detail: {
 						path: window.location.pathname,
@@ -1149,7 +1103,6 @@ const setup = () => {
 					}
 				});
 				document.dispatchEvent(pageLoadedEvent);
-				console.log('Layout: 触发 firefly:page:loaded 事件，路径:', window.location.pathname);
 			}
 		}, 300);
 	});
@@ -1160,11 +1113,11 @@ const setup = () => {
 				heightExtend.classList.add('hidden')
 			}
 
-            // Just make the transition looks better
-            const toc = document.getElementById('toc-wrapper');
-            if (toc) {
-                toc.classList.remove('toc-not-ready')
-            }
+			const tocShell =
+				document.querySelector('widget-layout[data-id="toc-widget"]') ||
+				document.getElementById('toc-widget') ||
+				document.querySelector('table-of-contents');
+			if (tocShell) tocShell.classList.remove('toc-not-ready');
         }, 200)
 	});
 }
@@ -1174,11 +1127,27 @@ if (window?.swup?.hooks) {
 	document.addEventListener('swup:enable', setup)
 }
 
+// BFCache / back-forward navigation: force a fresh calendar bind.
+window.addEventListener('pageshow', (event) => {
+	if (!event.persisted) return;
+	if (typeof (window as any).__ngetehInitCalendar === 'function') {
+		(window as any).__ngetehInitCalendar({ force: true });
+	}
+});
+
 let backToTopBtn = document.getElementById('back-to-top-btn');
-let toc = document.getElementById('toc-wrapper');
+let tocShell: HTMLElement | null = null;
 let navbar = document.getElementById('navbar-wrapper')
 
-// 节流函数
+function resolveTocShell(): HTMLElement | null {
+	const el =
+		document.querySelector('widget-layout[data-id="toc-widget"]') ||
+		document.getElementById('toc-widget') ||
+		document.querySelector('table-of-contents');
+	return el instanceof HTMLElement ? el : null;
+}
+
+// Throttle helper.
 function throttle(func: Function, limit: number) {
 	let inThrottle: boolean;
 	return function(this: any) {
@@ -1198,7 +1167,7 @@ function scrollFunction() {
 	const hasBanner = !!bannerWrapper;
 	const bannerHeight = bannerWrapper?.offsetHeight || window.innerHeight * (BANNER_HEIGHT / 100);
 
-	// 批量处理DOM操作
+	// Batch DOM updates into rAF to reduce layout thrash.
 	requestAnimationFrame(() => {
 		const navElement = document.getElementById('navbar');
 		navElement?.classList.toggle('scrolled', scrollTop > 20);
@@ -1211,19 +1180,24 @@ function scrollFunction() {
 			}
 		}
 
-		if (hasBanner && toc) {
-			if (scrollTop > bannerHeight) {
-				toc.classList.remove('toc-hide')
-			} else {
-				toc.classList.add('toc-hide')
+		if (hasBanner) {
+			if (!tocShell || !document.contains(tocShell)) {
+				tocShell = resolveTocShell();
+			}
+			if (tocShell) {
+				if (scrollTop > bannerHeight) {
+					tocShell.classList.remove('toc-hide')
+				} else {
+					tocShell.classList.add('toc-hide')
+				}
 			}
 		}
 
 	});
 }
 
-// 使用节流优化滚动性能
-window.onscroll = throttle(scrollFunction, 16); // 约60fps
+// Use throttle to keep scroll work cheap (~60fps target).
+window.onscroll = throttle(scrollFunction, 16);
 scrollFunction();
 
 window.onresize = () => {
@@ -1233,7 +1207,7 @@ window.onresize = () => {
 	document.documentElement.style.setProperty('--banner-height-extend', `${offset}px`);
 }
 
-// 页面加载完成后初始化banner和katex容器
+// Init banner and KaTeX containers on load.
 if (document.readyState === 'loading') {
 	document.addEventListener('DOMContentLoaded', () => {
 		syncShellRouteState(window.location.pathname, 'initial');
@@ -1254,17 +1228,14 @@ import { Fancybox } from "@fancyapps/ui";
 import "@fancyapps/ui/dist/fancybox/fancybox.css";
 
 function initFancybox() {
-  // 销毁现有的 Fancybox 实例（如果存在）
   Fancybox.close();
   
-  // 为相册图片添加 Fancybox 支持
   Fancybox.bind(".custom-md img, #post-cover img, .moment-images img", {
     groupAll: true,
     Thumbs: {
       autoStart: true,
       showOnStart: "yes",
     },
-    // 添加自定义按钮
     Toolbar: {
       display: {
         left: ["infobar"],
@@ -1280,11 +1251,8 @@ function initFancybox() {
         right: ["slideshow", "thumbs", "close"],
       },
     },
-    // 动画效果
     animated: true,
-    // 是否支持拖拽
     dragToClose: true,
-    // 是否支持键盘导航
     keyboard: {
       Escape: "close",
       Delete: "close",
@@ -1296,33 +1264,25 @@ function initFancybox() {
       ArrowRight: "next",
       ArrowLeft: "prev",
     },
-    // 自适应图片大小
     fitToView: true,
-    // 图片预加载
     preload: 3,
-    // 循环浏览
     infinite: true,
-    // 智能图片适配
     Panzoom: {
       maxScale: 3,
       minScale: 1,
     },
-    // 幻灯片设置
     Carousel: {
       transition: "slide",
       preload: 2,
     },
-    // 禁用标题显示
     caption: false
   });
   
-  // 为相册中的链接添加 Fancybox 支持
   Fancybox.bind(".moment-images a[data-fancybox]", {
     Thumbs: {
       autoStart: true,
       showOnStart: "yes",
     },
-    // 工具栏配置
     Toolbar: {
       display: {
         left: ["infobar"],
@@ -1338,11 +1298,8 @@ function initFancybox() {
         right: ["slideshow", "thumbs", "close"],
       },
     },
-    // 动画效果
     animated: true,
-    // 是否支持拖拽
     dragToClose: true,
-    // 是否支持键盘导航
     keyboard: {
       Escape: "close",
       Delete: "close",
@@ -1354,33 +1311,24 @@ function initFancybox() {
       ArrowRight: "next",
       ArrowLeft: "prev",
     },
-    // 自适应图片大小
     fitToView: true,
-    // 图片预加载
     preload: 3,
-    // 循环浏览
     infinite: true,
-    // 智能图片适配
     Panzoom: {
       maxScale: 3,
       minScale: 1,
     },
-    // 自定义源获取
     source: (el) => {
       return el.getAttribute("data-src") || el.getAttribute("href");
     },
-    // 禁用标题显示
     caption: false
   });
   
-  // 为单独的 fancybox 图片添加支持
   Fancybox.bind("[data-fancybox]:not(.moment-images a)", {
-    // 自定义选项
     Thumbs: {
       autoStart: true,
       showOnStart: "yes",
     },
-    // 工具栏配置
     Toolbar: {
       display: {
         left: ["infobar"],
@@ -1396,11 +1344,8 @@ function initFancybox() {
         right: ["slideshow", "thumbs", "close"],
       },
     },
-    // 动画效果
     animated: true,
-    // 是否支持拖拽
     dragToClose: true,
-    // 是否支持键盘导航
     keyboard: {
       Escape: "close",
       Delete: "close",
@@ -1412,29 +1357,21 @@ function initFancybox() {
       ArrowRight: "next",
       ArrowLeft: "prev",
     },
-    // 自适应图片大小
     fitToView: true,
-    // 图片预加载
     preload: 3,
-    // 循环浏览
     infinite: true,
-    // 智能图片适配
     Panzoom: {
       maxScale: 3,
       minScale: 1,
     },
-    // 禁用标题显示
     caption: false
   });
 }
 
 const setup = () => {
-  // 初始化 Fancybox
   initFancybox();
   
-  // 在页面视图更改时重新初始化
   window.swup.hooks.on("page:view", () => {
-    // 等待 DOM 更新后初始化
     setTimeout(() => {
       initFancybox();
     }, 100);
@@ -1446,8 +1383,7 @@ if (window.swup) {
 } else {
   document.addEventListener("swup:enable", setup)
   
-  // 如果 swup 尚未初始化，则直接初始化
-if (document.readyState === "loading") {
+ if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initFancybox);
   } else {
     initFancybox();

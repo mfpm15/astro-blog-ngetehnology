@@ -10,7 +10,6 @@ const { page } = Astro.props;
 let delay = 0;
 const interval = 50;
 
-// 类型别名避免Fragment语法问题
 type PostEntry = CollectionEntry<"posts">;
 ---
 
@@ -42,27 +41,22 @@ type PostEntry = CollectionEntry<"posts">;
 </div>
 
 <script>
-  // 动态布局切换脚本
   function initLayout() {
     const postListContainer = document.getElementById("post-list-container");
     if (!postListContainer) return;
 
-    // 检查屏幕宽度
     const screenWidth = window.innerWidth;
     const isSmallScreen = screenWidth < 1200;
 
-    // 从localStorage读取用户偏好
     const savedLayout = localStorage.getItem("postListLayout");
     const defaultLayout =
       postListContainer.getAttribute("data-default-layout") || "list";
     let currentLayout = savedLayout || defaultLayout;
 
-    // 如果屏幕宽度小于1200px，强制使用列表模式
     if (isSmallScreen) {
       currentLayout = "list";
     }
 
-    // 应用布局
     updatePostListLayout(currentLayout);
   }
 
@@ -71,36 +65,28 @@ type PostEntry = CollectionEntry<"posts">;
     if (!postListContainer) return;
 
     if (layout === "grid") {
-      // 切换到网格模式
       postListContainer.className =
         "transition grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 grid-mode";
     } else {
-      // 切换到列表模式
       postListContainer.className =
         "transition flex flex-col gap-4 mb-4";
     }
 
-    // 布局应用后显示容器
     postListContainer.style.opacity = "1";
   }
 
-  // 页面加载时初始化布局
   document.addEventListener("DOMContentLoaded", function () {
-    // 延迟一点确保DOM完全加载
     setTimeout(initLayout, 50);
   });
 
-  // 页面显示时也初始化布局（处理页面切换）
   document.addEventListener("visibilitychange", function () {
     if (!document.hidden) {
       setTimeout(initLayout, 100);
     }
   });
 
-  // 监听布局变化事件
   window.addEventListener("layoutChange", function (event: CustomEvent) {
     const newLayout = event.detail.layout;
-    // 检查屏幕宽度，如果小于1200px则强制使用列表模式
     const screenWidth = window.innerWidth;
     const isSmallScreen = screenWidth < 1200;
 
@@ -111,7 +97,6 @@ type PostEntry = CollectionEntry<"posts">;
     }
   });
 
-  // 监听窗口大小变化
   let resizeTimeout;
   window.addEventListener("resize", function () {
     clearTimeout(resizeTimeout);
@@ -120,7 +105,6 @@ type PostEntry = CollectionEntry<"posts">;
     }, 250);
   });
 
-  // 监听页面导航事件（Astro的客户端路由）
   document.addEventListener("astro:page-load", function () {
     setTimeout(initLayout, 50);
   });
@@ -128,6 +112,5 @@ type PostEntry = CollectionEntry<"posts">;
     setTimeout(initLayout, 50);
   });
 
-  // 立即执行一次（处理页面刷新）
   setTimeout(initLayout, 0);
 </script>

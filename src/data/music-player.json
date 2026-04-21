@@ -17,10 +17,10 @@
     "playlist": [
       {
         "id": 1,
-        "title": "Contoh Lagu",
-        "artist": "Artis Tidak Dikenal",
+        "title": "Sample Track",
+        "artist": "Unknown Artist",
         "cover": "/assets/music/cover/109951169585655912.jpg",
-        "url": "/assets/music/使一颗心免于哀伤-哼唱.wav",
+        "url": "/assets/music/sample-humming.wav",
         "duration": 240
       }
     ]

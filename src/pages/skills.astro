@@ -14,22 +14,18 @@ import IconifyLoader from "../components/misc/IconifyLoader.astro";
 import Icon from "../components/misc/Icon.astro";
 import { siteConfig } from "../config";
 
-// 检查页面是否启用
 if (!siteConfig.pages.skills) {
   return Astro.redirect("/404/");
 }
 
 const { lang } = Astro.props;
 
-// 获取技能统计信息
 const stats = getSkillStats();
 const advancedSkills = getAdvancedSkills();
 const totalExperience = getTotalExperience();
 
-// 获取所有分类
 const categories = [...new Set(skillsData.map((skill) => skill.category))];
 
-// 按分类获取技能
 const skillsByCategory = categories.reduce(
   (acc, category) => {
     acc[category] = getSkillsByCategory(category);
@@ -38,7 +34,6 @@ const skillsByCategory = categories.reduce(
   {} as Record<string, typeof skillsData>
 );
 
-// 技能等级颜色映射
 const getLevelColor = (level: string) => {
   switch (level) {
     case "expert":
@@ -54,7 +49,6 @@ const getLevelColor = (level: string) => {
   }
 };
 
-// 技能等级进度条宽度
 const getLevelWidth = (level: string) => {
   switch (level) {
     case "expert":
@@ -70,7 +64,6 @@ const getLevelWidth = (level: string) => {
   }
 };
 
-// 获取分类的翻译文本
 const getCategoryText = (category: string) => {
   switch (category) {
     case "frontend":
@@ -93,18 +86,15 @@ const getCategoryText = (category: string) => {
 const title = i18n(I18nKey.skills);
 const subtitle = i18n(I18nKey.skillsSubtitle);
 
-// 收集所有技能图标用于预加载
 const allIcons = skillsData.map((skill) => skill.icon).filter(Boolean);
 ---
 
 <MainGridLayout title={title} description={subtitle}>
-  <!-- 图标加载器，预加载所有技能图标 -->
   <IconifyLoader preloadIcons={allIcons} />
   <div
     class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32"
   >
     <div class="card-base z-10 px-9 py-6 relative w-full">
-      <!-- 页面标题 -->
       <div class="flex flex-col items-start justify-center mb-8">
         <h1 class="text-4xl font-bold text-black/90 dark:text-white/90 mb-2">
           {i18n(I18nKey.skills)}
@@ -114,7 +104,6 @@ const allIcons = skillsData.map((skill) => skill.icon).filter(Boolean);
         </p>
       </div>
 
-      <!-- 统计信息 -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <div
           class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg p-4"
@@ -159,8 +148,6 @@ const allIcons = skillsData.map((skill) => skill.icon).filter(Boolean);
           </div>
         </div>
       </div>
-
-      <!-- 专业技能 -->
       {
         advancedSkills.length > 0 && (
           <div class="mb-8">
@@ -245,8 +232,6 @@ const allIcons = skillsData.map((skill) => skill.icon).filter(Boolean);
           </div>
         )
       }
-
-      <!-- 按分类展示技能 -->
       <div class="space-y-8">
         {
           categories.map((category) => {
@@ -337,14 +322,11 @@ const allIcons = skillsData.map((skill) => skill.icon).filter(Boolean);
           })
         }
       </div>
-
-      <!-- 技能分布图表 -->
       <div class="mt-12 pt-8 border-t border-black/10 dark:border-white/10">
         <h2 class="text-2xl font-bold text-black/90 dark:text-white/90 mb-6">
           {i18n(I18nKey.skillsDistribution)}
         </h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <!-- 按等级分布 -->
           <div>
             <h3
               class="text-lg font-semibold text-black/80 dark:text-white/80 mb-4"
@@ -392,7 +374,6 @@ const allIcons = skillsData.map((skill) => skill.icon).filter(Boolean);
             </div>
           </div>
 
-          <!-- 按分类分布 -->
           <div>
             <h3
               class="text-lg font-semibold text-black/80 dark:text-white/80 mb-4"
@@ -439,14 +420,11 @@ const allIcons = skillsData.map((skill) => skill.icon).filter(Boolean);
 </style>
 
 <script>
-  // 确保图标库已加载，并处理页面导航
   document.addEventListener("DOMContentLoaded", () => {
-    // 如果图标加载器存在，确保图标已加载
     if (window.__iconifyLoader) {
       window.__iconifyLoader
         .load()
         .then(() => {
-          // 图标加载完成后，触发技能卡片的重新渲染
           const skillCards = document.querySelectorAll(".skill-card");
           skillCards.forEach((card) => {
             card.dispatchEvent(new CustomEvent("iconify-ready"));
@@ -458,12 +436,9 @@ const allIcons = skillsData.map((skill) => skill.icon).filter(Boolean);
     }
   });
 
-  // 处理页面导航时的图标重新加载
   if (typeof window !== "undefined") {
-    // 监听页面显示事件（包括前进/后退导航）
     window.addEventListener("pageshow", (event) => {
       if (event.persisted && window.__iconifyLoader) {
-        // 页面从缓存恢复，重新检查图标状态
         setTimeout(() => {
           window.__iconifyLoader.load().catch(console.error);
         }, 100);

@@ -7,7 +7,6 @@ import { url } from "../utils/url-utils";
 
 const currentYear = new Date().getFullYear();
 
-// 读取FooterConfig.html文件内容
 let customFooterHtml = "";
 if (footerConfig.enable) {
   try {
@@ -18,10 +17,9 @@ if (footerConfig.enable) {
       "FooterConfig.html"
     );
     customFooterHtml = fs.readFileSync(footerConfigPath, "utf-8");
-    // 移除HTML注释
     customFooterHtml = customFooterHtml.replace(/<!--[\s\S]*?-->/g, "").trim();
   } catch (error) {
-    console.warn("FooterConfig.html文件读取失败:", error.message);
+    console.warn("Failed to read FooterConfig.html:", error.message);
   }
 }
 ---

@@ -1,6 +1,6 @@
-/* 导入追番页面样式 */
+﻿
 @import './anime.css';
-/* 导入动画样式 */
+
 @import './transition.css';
 @import './animation-enhancements.css';
 
@@ -9,12 +9,12 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 确保平滑滚动 */
+
 html {
     scroll-behavior: smooth;
 }
 
-/* 页面顶部渐变高光效果 */
+
 .top-gradient-highlight {
     position: fixed;
     top: 0;
@@ -27,28 +27,28 @@ html {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 暗色主题下的渐变高光效果 */
+
 :root.dark .top-gradient-highlight {
     background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.3) 30%, rgba(0, 0, 0, 0.15) 60%, rgba(0, 0, 0, 0.05) 80%, transparent 100%);
 }
 
 @layer components {
-    /* 主题过渡保护类 - 临时禁用所有过渡动画 */
+    
     .is-theme-transitioning *,
     .is-theme-transitioning *::before,
     .is-theme-transitioning *::after {
         transition: none !important;
     }
     
-    /* 波浪效果精确同步处理 */
+    
     .is-theme-transitioning svg use {
-        /* 禁用过渡但保持动画 */
+        
         transition: none;
-        /* 强制立即继承页面背景色 */
+        
         fill: currentColor;
     }
     
-    /* 导航栏主题切换保护 - 完全禁用过渡以确保性能 */
+    
     .is-theme-transitioning #navbar > div,
     .is-theme-transitioning #navbar[data-transparent-mode] > div,
     .is-theme-transitioning #navbar[data-transparent-mode].scrolled > div,
@@ -63,7 +63,7 @@ html {
         backdrop-filter: none !important;
     }
     
-    /* 导航栏相关浮动面板的过渡禁用 */
+    
     .is-theme-transitioning .dropdown-content,
     .is-theme-transitioning .float-panel,
     .is-theme-transitioning #display-setting,
@@ -75,24 +75,24 @@ html {
         backdrop-filter: none !important;
     }
     
-    /* 波浪容器的颜色传递 */
+    
     .is-theme-transitioning #header-waves {
-        /* 设置当前颜色为页面背景色，供SVG继承 */
+        
         color: var(--page-bg);
-        /* 确保与页面在同一合成层 */
+        
         isolation: isolate;
-        /* 优化渲染性能 */
+        
         contain: layout style paint;
-        /* GPU层合成 */
+        
         transform: translateZ(0);
-        /* 确保没有背景色 */
+        
         background: transparent;
     }
     
     .is-theme-transitioning #header-waves use {
-        /* 保持动画连续性 */
+        
         will-change: transform;
-        /* GPU优化 */
+        
         transform: translateZ(0);
     }
     
@@ -103,7 +103,7 @@ html {
         @apply rounded-[var(--radius-large)] overflow-hidden bg-[var(--card-bg-transparent)] backdrop-blur-sm transition-colors duration-150;
     }
     
-    /* 全屏壁纸模式下的半透明效果 */
+    
     .wallpaper-transparent .card-base {
         @apply bg-[var(--card-bg-transparent)] backdrop-blur-sm;
     }
@@ -206,9 +206,7 @@ html {
         @apply opacity-0 pointer-events-none
     }
 
-    /* #toc-inner-wrapper {
-        mask-image: linear-gradient(to bottom, transparent 0%, black 2rem, black calc(100% - 2rem), transparent 100%);
-    } */
+    
 
     .hide-scrollbar {
         scrollbar-width: none;
@@ -234,7 +232,7 @@ html {
         @apply text-black/25 dark:text-white/25
     }
 
-    /* 下拉菜单样式 */
+    
     .dropdown-container {
         @apply relative;
     }
@@ -269,7 +267,7 @@ html {
         @apply rounded-b-[calc(var(--radius-large)-0.5rem)];
     }
 
-    /* 移动端菜单样式 */
+    
     .mobile-submenu {
         @apply max-h-0 overflow-hidden transition-all duration-300 ease-in-out;
     }
@@ -282,14 +280,14 @@ html {
         @apply rotate-180;
     }
 
-    /* 响应式隐藏 */
+    
     @media (max-width: 768px) {
         .dropdown-container {
             @apply hidden;
         }
     }
 
-    /* 无障碍支持 */
+    
     .dropdown-container:focus-within .dropdown-menu {
         @apply opacity-100 visible pointer-events-auto translate-y-0;
     }
@@ -346,7 +344,7 @@ html {
 }
 
 
-/*剧透效果*/
+
 .custom-md spoiler {
   --_spoiler-mask: var(--primary);
   @apply hover:bg-transparent px-1 py-0.5 overflow-hidden rounded-md transition-all duration-150;
@@ -360,12 +358,12 @@ html {
   }
 }
 
-/* 浅色模式：使用更浅的主题色且完全不透明 */
+
 :root:not(.dark) .custom-md spoiler {
   --_spoiler-mask: color-mix(in oklch, var(--primary) 55%, white 45%);
 }
 
-/* 文章列表布局切换样式 */
+
 .post-list-layout-switch {
   @apply flex items-center gap-2 mb-6 p-3 bg-[var(--card-bg)] rounded-lg border border-[var(--line-divider)];
 }
@@ -390,7 +388,7 @@ html {
   @apply bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)];
 }
 
-/* 网格模式下的文章卡片样式调整 */
+
 .post-list-container.grid-mode .post-card-item {
   @apply w-full;
 }
@@ -403,7 +401,7 @@ html {
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: 1.4;
-  max-height: 2.8em; /* 2行的高度 */
+  max-height: 2.8em; 
 }
 
 .post-list-container.grid-mode .post-card-item a[aria-label] {
@@ -418,27 +416,27 @@ html {
   @apply line-clamp-2;
 }
 
-/* 网格模式下的卡片内容区域调整 */
+
 .post-list-container.grid-mode .post-card-item > div {
   @apply p-4;
 }
 
-/* 网格模式下的元数据样式调整 */
+
 .post-list-container.grid-mode .post-card-item .post-meta {
   @apply mb-2;
 }
 
-/* 网格模式下的描述文本调整 */
+
 .post-list-container.grid-mode .post-card-item .description {
   @apply text-sm mb-2 line-clamp-2;
 }
 
-/* 网格模式下的统计信息调整 */
+
 .post-list-container.grid-mode .post-card-item .stats {
   @apply text-xs;
 }
 
-/* 响应式分页样式 */
+
 .device-mobile .pagination-info {
   @apply text-xs;
 }
@@ -451,7 +449,8 @@ html {
   @apply text-base;
 }
 
-/* 分页信息样式 */
+
 .pagination-info {
   @apply text-sm text-[var(--text-secondary)] text-center mb-2;
 }
+

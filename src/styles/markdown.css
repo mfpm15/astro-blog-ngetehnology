@@ -1,9 +1,11 @@
-.custom-md {
+﻿.custom-md {
     h1 {
         @apply text-3xl;
     }
 
     h1, h2, h3, h4, h5, h6 {
+        scroll-margin-top: calc(var(--navbar-clearance) + 0.5rem);
+
         .anchor {
             @apply transition -m-0.5 ml-[0.2ch] p-0.5 select-none opacity-0 no-underline !important;
 
@@ -104,7 +106,7 @@
             @apply content-[''] absolute -left-1 block transition bg-[var(--btn-regular-bg)] h-full w-1 rounded-full;
         }
 
-        /* Remove the double quotes from default styles */
+        
         p:before, p:after {
             @apply content-none;
         }
@@ -119,8 +121,9 @@
     
 }
 
-/* 修复代码块内列表项标记颜色问题 */
+
 .custom-md .expressive-code ul li::marker,
 .custom-md .expressive-code ol li::marker {
     @apply text-inherit;
 }
+

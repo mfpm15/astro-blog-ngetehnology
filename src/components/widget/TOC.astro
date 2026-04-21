@@ -37,136 +37,189 @@ const maxLevel = siteConfig.toc.depth;
   class TableOfContents extends HTMLElement {
     tocEl = null;
     visibleClass = "visible";
-    observer;
+    observer = null;
     anchorNavTarget = null;
+
     headingIdxMap = new Map();
     headings = [];
-    sections = [];
     tocEntries = [];
-    active = [];
     activeIndicator = null;
+    activeIndex = -1;
+
+    scheduled = false;
 
     constructor() {
       super();
-      this.observer = new IntersectionObserver(this.markVisibleSection, {
-        threshold: 0,
-      });
     }
 
-    markVisibleSection = (entries) => {
-      entries.forEach((entry) => {
-        const id = entry.target.children[0]?.getAttribute("id");
-        const idx = id ? this.headingIdxMap.get(id) : undefined;
-        if (idx != undefined) this.active[idx] = entry.isIntersecting;
+    getContentRoot = () => {
+      return (
+        document.querySelector(".custom-md") ||
+        document.querySelector(".markdown-content") ||
+        document.querySelector(".prose")
+      );
+    };
 
-        if (
-          entry.isIntersecting &&
-          this.anchorNavTarget == entry.target.firstChild
-        ) {
-          this.anchorNavTarget = null;
+    getReadingLineOffset = () => {
+      const navbar = document.getElementById("navbar");
+      const navHeight = navbar ? navbar.getBoundingClientRect().height : 80;
+      return Math.round(navHeight + 16);
+    };
+
+    scheduleUpdate = () => {
+      if (this.scheduled) return;
+      this.scheduled = true;
+      requestAnimationFrame(() => {
+        this.scheduled = false;
+        this.updateActiveState();
+      });
+    };
+
+    onIntersect = (entries) => {
+      if (this.anchorNavTarget) {
+        for (const entry of entries) {
+          if (entry.isIntersecting && entry.target === this.anchorNavTarget) {
+            this.anchorNavTarget = null;
+            break;
+          }
         }
+      }
+      this.scheduleUpdate();
+    };
+
+    handleScroll = () => {
+      this.scheduleUpdate();
+    };
+
+    handleResize = () => {
+      // Recreate observer so the rootMargin stays aligned with navbar height.
+      this.createObserver();
+      this.scheduleUpdate();
+    };
+
+    cleanup = () => {
+      if (this.observer) {
+        this.observer.disconnect();
+        this.observer = null;
+      }
+
+      if (this.tocEl) {
+        this.tocEl.removeEventListener("click", this.handleAnchorClick, true);
+      }
+
+      window.removeEventListener("scroll", this.handleScroll);
+      window.removeEventListener("resize", this.handleResize);
+
+      this.headingIdxMap.clear();
+      this.headings = [];
+      this.tocEntries = [];
+      this.activeIndicator = null;
+      this.activeIndex = -1;
+      this.anchorNavTarget = null;
+      this.tocEl = null;
+      this.scheduled = false;
+    };
+
+    createObserver = () => {
+      if (this.observer) {
+        this.observer.disconnect();
+        this.observer = null;
+      }
+      if (!this.headings.length) return;
+
+      const offsetTop = this.getReadingLineOffset();
+      this.observer = new IntersectionObserver(this.onIntersect, {
+        threshold: 0,
+        rootMargin: `${-offsetTop}px 0px -70% 0px`,
       });
 
-      if (!this.active.includes(true)) this.fallback();
-      this.update();
+      this.headings.forEach((heading) => {
+        if (heading instanceof HTMLElement) {
+          this.observer.observe(heading);
+        }
+      });
+    };
+
+    resolveActiveIndex = () => {
+      if (!this.headings.length) return -1;
+      const readLine = this.getReadingLineOffset();
+      let active = 0;
+
+      for (let i = 0; i < this.headings.length; i += 1) {
+        const heading = this.headings[i];
+        if (!(heading instanceof HTMLElement)) continue;
+
+        const rect = heading.getBoundingClientRect();
+        if (rect.top <= readLine) {
+          active = i;
+        } else {
+          break;
+        }
+      }
+
+      return active;
+    };
+
+    updateIndicator = () => {
+      if (!this.tocEl || !this.activeIndicator) return;
+      if (this.activeIndex < 0 || this.activeIndex >= this.tocEntries.length) {
+        this.activeIndicator.setAttribute("style", "opacity: 0");
+        return;
+      }
+
+      const parentOffset = this.tocEl.getBoundingClientRect().top;
+      const scrollOffset = this.tocEl.scrollTop;
+      const entryRect = this.tocEntries[this.activeIndex].getBoundingClientRect();
+      const top = entryRect.top - parentOffset + scrollOffset;
+      const bottom = entryRect.bottom - parentOffset + scrollOffset;
+
+      this.activeIndicator.setAttribute(
+        "style",
+        `top: ${top}px; height: ${bottom - top}px; opacity: 1`,
+      );
     };
 
     toggleActiveHeading = () => {
-      let i = this.active.length - 1;
-      let min = this.active.length - 1;
-      let max = -1;
+      this.tocEntries.forEach((entry, idx) => {
+        entry.classList.toggle(this.visibleClass, idx === this.activeIndex);
+      });
 
-      while (i >= 0 && !this.active[i]) {
-        this.tocEntries[i].classList.remove(this.visibleClass);
-        i--;
-      }
-      while (i >= 0 && this.active[i]) {
-        this.tocEntries[i].classList.add(this.visibleClass);
-        min = Math.min(min, i);
-        max = Math.max(max, i);
-        i--;
-      }
-      while (i >= 0) {
-        this.tocEntries[i].classList.remove(this.visibleClass);
-        i--;
-      }
-
-      if (min > max) {
-        this.activeIndicator?.setAttribute("style", "opacity: 0");
-      } else if (this.tocEl) {
-        const parentOffset = this.tocEl.getBoundingClientRect().top;
-        const scrollOffset = this.tocEl.scrollTop;
-        const top =
-          this.tocEntries[min].getBoundingClientRect().top -
-          parentOffset +
-          scrollOffset;
-        const bottom =
-          this.tocEntries[max].getBoundingClientRect().bottom -
-          parentOffset +
-          scrollOffset;
-
-        this.activeIndicator?.setAttribute(
-          "style",
-          `top: ${top}px; height: ${bottom - top}px; opacity: 1`,
-        );
-      }
+      this.updateIndicator();
     };
 
     scrollToActiveHeading = () => {
       if (this.anchorNavTarget || !this.tocEl) return;
-      const activeHeading = this.querySelectorAll(`.${this.visibleClass}`);
-      if (!activeHeading.length) return;
+      if (this.activeIndex < 0 || this.activeIndex >= this.tocEntries.length) return;
 
-      const topmost = activeHeading[0];
-      const bottommost = activeHeading[activeHeading.length - 1];
+      const activeEntry = this.tocEntries[this.activeIndex];
       const tocHeight = this.tocEl.clientHeight;
+      const margin = 24;
 
-      let top;
-      if (
-        bottommost.getBoundingClientRect().bottom -
-          topmost.getBoundingClientRect().top <
-        0.9 * tocHeight
-      ) {
-        top = topmost.offsetTop - 24;
-      } else {
-        top = bottommost.offsetTop - tocHeight * 0.78;
-      }
+      const entryTop = activeEntry.offsetTop;
+      const entryBottom = entryTop + activeEntry.offsetHeight;
+      const viewTop = this.tocEl.scrollTop;
+      const viewBottom = viewTop + tocHeight;
 
-      this.tocEl.scrollTo({
-        top,
-        left: 0,
-        behavior: "smooth",
-      });
-    };
-
-    update = () => {
-      requestAnimationFrame(() => {
-        this.toggleActiveHeading();
-        this.scrollToActiveHeading();
-      });
-    };
-
-    fallback = () => {
-      if (!this.sections.length) return;
-
-      for (let i = 0; i < this.sections.length; i++) {
-        const offsetTop = this.sections[i].getBoundingClientRect().top;
-        const offsetBottom = this.sections[i].getBoundingClientRect().bottom;
-
-        if (
-          this.isInRange(offsetTop, 0, window.innerHeight) ||
-          this.isInRange(offsetBottom, 0, window.innerHeight) ||
-          (offsetTop < 0 && offsetBottom > window.innerHeight)
-        ) {
-          this.markActiveHeading(i);
-        } else if (offsetTop > window.innerHeight) {
-          break;
-        }
+      if (entryTop < viewTop + margin) {
+        this.tocEl.scrollTo({
+          top: Math.max(0, entryTop - margin),
+          left: 0,
+          behavior: "smooth",
+        });
+      } else if (entryBottom > viewBottom - margin) {
+        this.tocEl.scrollTo({
+          top: Math.max(0, entryBottom - tocHeight + margin),
+          left: 0,
+          behavior: "smooth",
+        });
       }
     };
 
-    markActiveHeading = (idx) => {
-      this.active[idx] = true;
+    updateActiveState = () => {
+      if (!this.tocEntries.length || !this.headings.length) return;
+      this.activeIndex = this.resolveActiveIndex();
+      this.toggleActiveHeading();
+      this.scrollToActiveHeading();
     };
 
     handleAnchorClick = (event) => {
@@ -181,26 +234,19 @@ const maxLevel = siteConfig.toc.depth;
         const targetElement = document.getElementById(id);
 
         if (targetElement) {
-          const navbarHeight = 80;
-          const targetTop =
-            targetElement.getBoundingClientRect().top +
-            window.pageYOffset -
-            navbarHeight;
-
-          window.scrollTo({
-            top: targetTop,
-            behavior: "smooth",
-          });
+          this.anchorNavTarget =
+            targetElement instanceof HTMLElement ? targetElement : null;
+          targetElement.scrollIntoView({ behavior: "smooth", block: "start" });
+          history.replaceState(null, "", anchor.hash);
         }
 
         const idx = this.headingIdxMap.get(id);
-        this.anchorNavTarget = idx !== undefined ? this.headings[idx] : null;
+        if (typeof idx === "number") {
+          this.activeIndex = idx;
+          this.toggleActiveHeading();
+        }
       }
     };
-
-    isInRange(value, min, max) {
-      return min < value && value < max;
-    }
 
     connectedCallback() {
       const element =
@@ -225,12 +271,11 @@ const maxLevel = siteConfig.toc.depth;
     }
 
     init() {
+      this.cleanup();
       this.regenerateTOC();
 
       this.tocEl = this;
-      this.tocEl.addEventListener("click", this.handleAnchorClick, {
-        capture: true,
-      });
+      this.tocEl.addEventListener("click", this.handleAnchorClick, true);
 
       this.activeIndicator = this.querySelector("#active-indicator");
       this.tocEntries = Array.from(
@@ -239,36 +284,51 @@ const maxLevel = siteConfig.toc.depth;
 
       if (this.tocEntries.length === 0) return;
 
-      this.sections = new Array(this.tocEntries.length);
-      this.headings = new Array(this.tocEntries.length);
-      for (let i = 0; i < this.tocEntries.length; i++) {
-        const id = decodeURIComponent(this.tocEntries[i].hash?.substring(1));
-        const heading = document.getElementById(id);
-        const section = heading?.parentElement;
-        if (heading instanceof HTMLElement && section instanceof HTMLElement) {
-          this.headings[i] = heading;
-          this.sections[i] = section;
-          this.headingIdxMap.set(id, i);
-        }
-      }
-      this.active = new Array(this.tocEntries.length).fill(false);
+      const contentRoot = this.getContentRoot();
+      const filteredEntries = [];
+      const filteredHeadings = [];
 
-      this.sections.forEach((section) => this.observer.observe(section));
-      this.fallback();
-      this.update();
+      this.headingIdxMap.clear();
+      this.tocEntries.forEach((entry) => {
+        const id = decodeURIComponent(entry.hash?.substring(1));
+        const heading = document.getElementById(id);
+        if (
+          heading instanceof HTMLElement &&
+          (!contentRoot || contentRoot.contains(heading))
+        ) {
+          const idx = filteredHeadings.length;
+          filteredEntries.push(entry);
+          filteredHeadings.push(heading);
+          this.headingIdxMap.set(id, idx);
+        } else {
+          entry.remove();
+        }
+      });
+
+      this.tocEntries = filteredEntries;
+      this.headings = filteredHeadings;
+      this.activeIndex = -1;
+
+      window.addEventListener("scroll", this.handleScroll, { passive: true });
+      window.addEventListener("resize", this.handleResize);
+
+      this.createObserver();
+      this.scheduleUpdate();
     }
 
     regenerateTOC(retryCount = 0) {
       const isPostPage =
         window.location.pathname.includes("/posts/") ||
-        document.querySelector(".custom-md, .markdown-content") !== null;
+        document.querySelector(".custom-md, .markdown-content, .prose") !== null;
       if (!isPostPage) {
         this.innerHTML = "";
         return;
       }
 
+      const contentRoot = this.getContentRoot();
+      const headingSource = contentRoot || document;
       const headings = Array.from(
-        document.querySelectorAll("h1, h2, h3, h4, h5, h6"),
+        headingSource.querySelectorAll("h1, h2, h3, h4, h5, h6"),
       )
         .filter((heading) => heading.id)
         .map((heading) => ({
@@ -322,9 +382,7 @@ const maxLevel = siteConfig.toc.depth;
     }
 
     disconnectedCallback() {
-      this.sections.forEach((section) => this.observer.unobserve(section));
-      this.observer.disconnect();
-      this.tocEl?.removeEventListener("click", this.handleAnchorClick);
+      this.cleanup();
     }
   }
 

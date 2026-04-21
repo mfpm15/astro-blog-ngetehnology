@@ -70,12 +70,16 @@ const getTagTier = (count: number) => {
 
   {
     moreTags.length > 0 && (
-      <details class="tag-cloud-more mt-2">
-        <summary class="btn-plain scale-animation rounded-lg w-full h-9 flex items-center justify-center gap-2 active:scale-95">
+      <div class="mt-2">
+        <input id="tags-more-toggle" type="checkbox" class="peer sr-only" aria-label="Show more tags" />
+        <label
+          for="tags-more-toggle"
+          class="btn-plain scale-animation rounded-lg w-full h-9 flex items-center justify-center gap-2 active:scale-95 peer-checked:hidden cursor-pointer"
+        >
           {i18n(I18nKey.more)}
           <span class="text-xs opacity-60">({moreTags.length})</span>
-        </summary>
-        <div class="tag-cloud mt-2 flex gap-2 flex-wrap">
+        </label>
+        <div class="tag-cloud mt-2 hidden peer-checked:flex gap-2 flex-wrap">
           {moreTags.map((t) => (
             <ButtonTag
               href={getTagUrl(t.name)}
@@ -90,7 +94,7 @@ const getTagTier = (count: number) => {
             </ButtonTag>
           ))}
         </div>
-      </details>
+      </div>
     )
   }
 </WidgetLayout>
@@ -98,14 +102,6 @@ const getTagTier = (count: number) => {
 <style>
   .tag-cloud {
     align-items: flex-start;
-  }
-
-  .tag-cloud-more summary {
-    list-style: none;
-  }
-
-  .tag-cloud-more summary::-webkit-details-marker {
-    display: none;
   }
 
   .tag-cloud :global(.tag-chip) {
@@ -234,4 +230,3 @@ const getTagTier = (count: number) => {
     background: color-mix(in srgb, var(--primary) 60%, white 10%);
   }
 </style>
-

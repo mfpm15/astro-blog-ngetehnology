@@ -30,7 +30,6 @@ const {
 	maxTechStack = 4,
 } = Astro.props;
 
-// 状态样式映射
 const getStatusStyle = (status: string) => {
 	switch (status) {
 		case "completed":
@@ -44,7 +43,6 @@ const getStatusStyle = (status: string) => {
 	}
 };
 
-// 状态文本映射
 const getStatusText = (status: string) => {
 	switch (status) {
 		case "completed":
@@ -58,7 +56,6 @@ const getStatusText = (status: string) => {
 	}
 };
 
-// 尺寸样式映射
 const getSizeClasses = (size: string) => {
 	switch (size) {
 		case "small":
@@ -92,7 +89,6 @@ const sizeClasses = getSizeClasses(size);
 ---
 
 <div class="bg-white dark:bg-gray-800 rounded-lg border border-black/10 dark:border-white/10 overflow-hidden hover:shadow-lg transition-all duration-300 group">
-  <!-- 项目图片 -->
   {showImage && project.image && (
     <div class={`overflow-hidden ${size === 'large' ? 'aspect-video' : 'aspect-[4/3]'}`}>
       <img 
@@ -104,9 +100,7 @@ const sizeClasses = getSizeClasses(size);
     </div>
   )}
   
-  <!-- 项目内容 -->
   <div class={sizeClasses.container}>
-    <!-- 标题和状态 -->
     <div class="flex items-start justify-between mb-3">
       <h3 class={`font-semibold text-black/90 dark:text-white/90 ${sizeClasses.title} ${size === 'small' ? 'line-clamp-1' : ''}`}>
         {project.title}
@@ -116,7 +110,6 @@ const sizeClasses = getSizeClasses(size);
       </span>
     </div>
     
-    <!-- 分类标签 -->
     {project.category && (
       <div class="mb-2">
         <span class="px-2 py-1 text-xs bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 rounded">
@@ -125,12 +118,10 @@ const sizeClasses = getSizeClasses(size);
       </div>
     )}
     
-    <!-- 项目描述 -->
     <p class={`text-black/60 dark:text-white/60 mb-4 ${sizeClasses.description}`}>
       {project.description}
     </p>
     
-    <!-- 技术栈 -->
     {project.techStack && project.techStack.length > 0 && (
       <div class="flex flex-wrap gap-1 mb-4">
         {project.techStack.slice(0, maxTechStack).map((tech) => (
@@ -146,7 +137,6 @@ const sizeClasses = getSizeClasses(size);
       </div>
     )}
     
-    <!-- 标签 -->
     {project.tags && project.tags.length > 0 && (
       <div class="flex flex-wrap gap-1 mb-4">
         {project.tags.map((tag) => (
@@ -157,7 +147,6 @@ const sizeClasses = getSizeClasses(size);
       </div>
     )}
     
-    <!-- 链接 -->
     <div class="flex gap-3">
       {project.demoUrl && (
         <a 
@@ -181,7 +170,6 @@ const sizeClasses = getSizeClasses(size);
       )}
     </div>
     
-    <!-- 特色项目标识 -->
     {project.featured && (
       <div class="absolute top-3 left-3">
         <span class="px-2 py-1 text-xs bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 rounded-full flex items-center gap-1">

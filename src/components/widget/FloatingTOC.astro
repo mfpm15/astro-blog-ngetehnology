@@ -1,1009 +1,596 @@
 ---
 import { Icon } from "astro-icon/components";
 import type { MarkdownHeading } from "astro";
-import { i18n } from "../../i18n/translation";
+import { siteConfig } from "../../config/siteConfig";
 import I18nKey from "../../i18n/i18nKey";
+import { i18n } from "../../i18n/translation";
 
 interface Props {
   headings: MarkdownHeading[];
 }
 
-let { headings = [] } = Astro.props;
+const { headings = [] } = Astro.props;
+const maxLevel = siteConfig.toc.depth;
+const minDepth = headings.reduce((min, heading) => Math.min(min, heading.depth), 10);
 
-let minDepth = 10;
-for (const heading of headings) {
-  minDepth = Math.min(minDepth, heading.depth);
-}
+let rootHeadingCount = 1;
+const tocHeadings = headings
+  .filter((heading) => heading.depth < minDepth + maxLevel)
+  .map((heading) => {
+    const levelOffset = Math.min(Math.max(heading.depth - minDepth, 0), 2);
+    const rootNumber = levelOffset === 0 ? rootHeadingCount++ : null;
+    return {
+      id: heading.slug,
+      text: heading.text,
+      levelOffset,
+      rootNumber,
+    };
+  });
 ---
 
-<!-- Tombol TOC melayang -->
-<div class="floating-toc-wrapper hidden lg:block">
-  <div
-    id="floating-toc-btn"
-    class="floating-toc-btn hide flex items-center rounded-2xl overflow-hidden transition"
-    onclick="toggleFloatingTOC()"
-  >
-    <button
-      aria-label="Table of Contents"
-      class="h-[3.75rem] w-[3.75rem] rounded-2xl"
-    >
-      <Icon name="material-symbols:format-list-bulleted" class="mx-auto" />
-    </button>
-  </div>
-</div>
+{
+  tocHeadings.length > 0 && (
+    <div class="floating-toc-mount" style="display: contents">
+      <div class="floating-toc-wrapper hidden lg:block">
+        <button
+          id="floating-toc-btn"
+          type="button"
+          class="floating-toc-btn hide flex items-center rounded-2xl overflow-hidden transition"
+          aria-label="Open table of contents"
+        >
+          <span class="flex h-[3.75rem] w-[3.75rem] items-center justify-center rounded-2xl">
+            <Icon name="material-symbols:format-list-bulleted" class="mx-auto" />
+          </span>
+        </button>
+      </div>
 
-<!-- Panel TOC melayang -->
-<div
-  id="floating-toc-panel"
-  class="floating-toc-panel hide fixed w-80 max-h-[24rem] overflow-hidden rounded-2xl shadow-2xl backdrop-blur-lg border border-white/20 bg-white/60 dark:bg-black/60 dark:border-white/10 z-50"
-  style="background-color: rgba(var(--card-bg-rgb, 255, 255, 255), 0.6); bottom: calc(13rem + 6rem); right: 2rem;"
->
-  <div
-    class="p-4 border-b border-gray-200 dark:border-gray-700 sticky top-0 backdrop-blur-sm z-10"
-    style="background-color: rgba(var(--card-bg-rgb, 255, 255, 255), 0.6);"
-  >
-    <div class="flex items-center justify-between">
-      <h3
-        class="text-lg font-bold text-[var(--primary)] flex items-center gap-2"
+      <div
+        id="floating-toc-panel"
+        class="floating-toc-panel hide fixed w-80 max-h-[24rem] overflow-hidden rounded-2xl shadow-2xl backdrop-blur-lg border border-white/20 bg-white/60 dark:bg-black/60 dark:border-white/10 z-50"
+        style="background-color: rgba(var(--card-bg-rgb, 255, 255, 255), 0.6); bottom: calc(13rem + 6rem); right: 2rem;"
+        aria-label="Table of contents panel"
       >
-        {i18n(I18nKey.tableOfContents)}
-      </h3>
-      <button
-        onclick="toggleFloatingTOC()"
-        aria-label="Close TOC"
-        class="btn-plain rounded-lg h-8 w-8 active:scale-90"
-      >
-        <Icon name="material-symbols:close" class="text-lg" />
-      </button>
+        <div
+          class="p-4 border-b border-gray-200 dark:border-gray-700 sticky top-0 backdrop-blur-sm z-10"
+          style="background-color: rgba(var(--card-bg-rgb, 255, 255, 255), 0.6);"
+        >
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-bold text-[var(--primary)] flex items-center gap-2">
+              {i18n(I18nKey.tableOfContents)}
+            </h3>
+            <button
+              id="floating-toc-close"
+              type="button"
+              aria-label="Close table of contents"
+              class="btn-plain rounded-lg h-8 w-8 active:scale-90"
+            >
+              <Icon name="material-symbols:close" class="text-lg" />
+            </button>
+          </div>
+        </div>
+
+        <div class="p-4" data-floating-toc-scroll style="overflow-y: auto; max-height: calc(24rem - 5rem);">
+          <div class="toc-content" id="floating-toc-content" style="width: 100%; max-width: 100%;">
+            {
+              tocHeadings.map((heading) => (
+                <a
+                  href={`#${heading.id}`}
+                  class={`toc-entry toc-depth-${heading.levelOffset}`}
+                  data-heading-id={heading.id}
+                  aria-label={`Go to ${heading.text}`}
+                >
+                  <span class={`toc-marker-slot toc-shift-${heading.levelOffset}`}>
+                    {heading.levelOffset === 0 ? (
+                      <span class="toc-marker toc-marker-root">{heading.rootNumber}</span>
+                    ) : heading.levelOffset === 1 ? (
+                      <span class="toc-marker toc-marker-mid"></span>
+                    ) : (
+                      <span class="toc-marker toc-marker-leaf"></span>
+                    )}
+                  </span>
+                  <span
+                    class={`toc-entry-text ${
+                      heading.levelOffset === 0
+                        ? "toc-entry-text-root"
+                        : heading.levelOffset === 1
+                          ? "toc-entry-text-mid"
+                          : "toc-entry-text-leaf"
+                    }`}
+                  >
+                    {heading.text}
+                  </span>
+                </a>
+              ))
+            }
+
+            <div id="floating-active-indicator" style="opacity: 0" class="floating-active-indicator"></div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
+  )
+}
 
-  <div class="p-4" style="overflow-y: auto; max-height: calc(24rem - 5rem);">
-    <div
-      class="toc-content"
-      id="floating-toc-content"
-      style="width: 100%; max-width: 100%;"
-    >
-      <!-- Isi TOC dirender dinamis lewat JavaScript -->
-    </div>
-  </div>
-</div>
+<style>
+  .floating-toc-wrapper {
+    width: 3.75rem;
+    height: 3.75rem;
+    position: absolute;
+    right: 0;
+    top: 0;
+    pointer-events: none;
+  }
 
-<style lang="stylus">
-.floating-toc-wrapper
-	width: 3.75rem
-	height: 3.75rem
-	position: absolute
-	right: 0
-	top: 0
-	pointer-events: none
+  .floating-toc-btn {
+    color: var(--primary);
+    font-size: 2.25rem;
+    font-weight: bold;
+    border: none;
+    position: fixed;
+    bottom: 13rem;
+    right: 2rem;
+    opacity: 1;
+    cursor: pointer;
+    pointer-events: auto;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    border-radius: 1rem;
+    backdrop-filter: blur(12px);
+    background-color: var(--card-bg);
+    border: 1px solid rgb(0 0 0 / 0.1);
+  }
 
-.floating-toc-btn
-	color: var(--primary)
-	font-size: 2.25rem
-	font-weight: bold
-	border: none
-	position: fixed
-	bottom: 13rem
-	right: 2rem
-	opacity: 1
-	cursor: pointer
-	pointer-events: auto
-	z-index: 1000
-	transition: all 0.3s ease
-	border-radius: 1rem
-	backdrop-filter: blur(12px)
-	background-color: var(--card-bg)
-	border: 1px solid rgba(0, 0, 0, 0.1)
-	
-	&.hide
-		transform: scale(0.9)
-		opacity: 0
-		pointer-events: none
-		
-	&:active
-		transform: scale(0.9)
-		
-	&:hover
-		transform: scale(1.05)
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15)
-		background-color: rgba(255, 255, 255, 0.95)
-		border-color: rgba(0, 0, 0, 0.2)
+  .floating-toc-btn.hide {
+    transform: scale(0.9);
+    opacity: 0;
+    pointer-events: none;
+  }
 
-/* Gaya tema gelap */
-:global(.dark) .floating-toc-btn
-	background-color: var(--card-bg)
-	border: 1px solid rgba(255, 255, 255, 0.15)
-	color: var(--primary, #60a5fa)
-	
-	&:hover
-		background-color: var(--card-bg)
-		border-color: rgba(255, 255, 255, 0.3)
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3)
+  .floating-toc-btn:active {
+    transform: scale(0.9);
+  }
 
-.floating-toc-panel
-	transition: all 0.3s ease
-	transform: translateY(20px)
-	opacity: 0
-	pointer-events: none
-	overflow: hidden
-	box-sizing: border-box
-	backdrop-filter: blur(20px)
-	-webkit-backdrop-filter: blur(20px)
-	
-	&.show
-		transform: translateY(0)
-		opacity: 1
-		pointer-events: auto
-		
-	&.hide
-		transform: translateY(20px)
-		opacity: 0
-		pointer-events: none
+  .floating-toc-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
+    background-color: rgb(255 255 255 / 0.95);
+    border-color: rgb(0 0 0 / 0.2);
+  }
 
-.toc-content
-	display: flex
-	flex-direction: column
-	gap: 2px
-	position: relative
-	overflow: hidden
-	width: 100%
-	max-width: 100%
-	box-sizing: border-box
-	contain: layout
-	align-items: flex-start
+  :global(.dark) .floating-toc-btn {
+    background-color: var(--card-bg);
+    border: 1px solid rgb(255 255 255 / 0.15);
+    color: var(--primary, #60a5fa);
+  }
 
-/* Gunakan gaya yang konsisten dengan TOC versi sebelumnya */
-.toc-content a
-	display: flex
-	align-items: center
-	text-decoration: none
-	color: inherit
-	border-radius: 0.75rem
-	transition: all 0.2s ease
-	width: 100%
-	min-width: 0
-	flex-shrink: 0
-	max-width: 100%
-	overflow: hidden
-	box-sizing: border-box
-	position: relative
-	
-	&:hover
-		background: var(--toc-btn-hover)
-		
-	&.visible
-		background: var(--toc-btn-active)
+  :global(.dark) .floating-toc-btn:hover {
+    background-color: var(--card-bg);
+    border-color: rgb(255 255 255 / 0.3);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 0.3);
+  }
 
-/* Pastikan teks tidak meluber */
-.toc-content a div:last-child
-	overflow: hidden
-	text-overflow: ellipsis
-	white-space: nowrap
-	min-width: 0
-	flex: 1
-	max-width: calc(100% - 2rem)
-	box-sizing: border-box
+  .floating-toc-panel {
+    transition: all 0.3s ease;
+    transform: translateY(20px);
+    opacity: 0;
+    pointer-events: none;
+    overflow: hidden;
+    box-sizing: border-box;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
 
-/* Lebar badge dibuat tetap */
-.toc-content a div:first-child
-	flex-shrink: 0
-	width: 1.25rem
-	height: 1.25rem
+  .floating-toc-panel.show {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
 
-/* Gaya indikator aktif */
-#floating-active-indicator
-	position: absolute
-	left: 0
-	right: 0
-	background: var(--toc-btn-hover)
-	border-radius: 0.75rem
-	transition: all 0.2s ease
-	z-index: -1
+  .floating-toc-panel.hide {
+    transform: translateY(20px);
+    opacity: 0;
+    pointer-events: none;
+  }
 
-/* Penyesuaian responsif */
-@media (max-width: 1024px)
-	.floating-toc-btn
-		right: 1rem
-		bottom: 10rem
-		
-	.floating-toc-panel
-		right: 1rem !important
-		bottom: calc(10rem + 4rem) !important
-		width: calc(100vw - 2rem)
-		max-width: 20rem
-		max-height: 20rem
+  .toc-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    contain: layout;
+    align-items: flex-start;
+  }
 
-@media (max-width: 768px)
-	.floating-toc-btn
-		right: 0.75rem
-		bottom: 8rem
-		width: 3rem
-		height: 3rem
-		font-size: 1.5rem
-		border-radius: 0.75rem
-		
-	.floating-toc-panel
-		right: 0.75rem !important
-		bottom: calc(8rem + 4rem) !important
-		width: calc(100vw - 1.5rem)
-		max-width: 18rem
-		max-height: 18rem
+  .toc-entry {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 0.75rem;
+    transition: all 0.2s ease;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+    position: relative;
+    padding: 0.55rem 0.65rem;
+    gap: 0.55rem;
+  }
 
-@media (max-width: 480px)
-	.floating-toc-btn
-		right: 0.5rem
-		bottom: 7rem
-		width: 2.5rem
-		height: 2.5rem
-		font-size: 1.25rem
-		border-radius: 0.5rem
-		
-	.floating-toc-panel
-		right: 0.5rem !important
-		bottom: calc(7rem + 4rem) !important
-		width: calc(100vw - 1rem)
-		max-width: 16rem
-		max-height: 16rem
+  .toc-entry:hover {
+    background: var(--toc-btn-hover);
+  }
 
-/* Adaptasi untuk zoom tinggi */
-@media (min-resolution: 2dppx)
-	.floating-toc-btn
-		right: max(0.5rem, 2rem - 2vw)
-		bottom: max(12rem, 16rem - 5vh)
-		
-	.floating-toc-panel
-		right: max(0.5rem, 2rem - 2vw) !important
-		bottom: calc(max(12rem, 16rem - 5vh) + 6rem) !important
+  .toc-entry.visible {
+    background: var(--toc-btn-active);
+    color: var(--primary);
+  }
 
-/* Adaptasi layar sangat kecil */
-@media (max-width: 360px)
-	.floating-toc-btn
-		right: 0.25rem
-		bottom: 6rem
-		width: 2rem
-		height: 2rem
-		font-size: 1rem
-		border-radius: 0.375rem
-		
-	.floating-toc-panel
-		right: 0.25rem !important
-		bottom: calc(6rem + 4rem) !important
-		width: calc(100vw - 0.5rem)
-		max-width: 14rem
-		max-height: 12rem
+  .toc-marker-slot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    flex-shrink: 0;
+  }
 
-/* Adaptasi mode landscape */
-@media (orientation: landscape) and (max-height: 500px)
-	.floating-toc-btn
-		bottom: 4rem
-		right: 0.5rem
-		
-	.floating-toc-panel
-		bottom: calc(4rem + 4rem) !important
-		right: 0.5rem !important
-		max-height: 12rem
+  .toc-shift-1 {
+    margin-left: 0.85rem;
+  }
 
-/* Pastikan tombol selalu berada di area terlihat */
-.floating-toc-btn
-	min-width: 2rem
-	min-height: 2rem
-	padding: 0.25rem
-	max-width: 4rem
-	max-height: 4rem
-	border-radius: 1rem !important
+  .toc-shift-2 {
+    margin-left: 1.7rem;
+  }
 
-/* Optimasi layar high-DPI */
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi)
-	.floating-toc-btn
-		image-rendering: -webkit-optimize-contrast
-		image-rendering: crisp-edges
+  .toc-marker {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    transition: all 0.18s ease;
+  }
 
-/* Adaptasi resolusi sangat rendah */
-@media (max-width: 320px)
-	.floating-toc-btn
-		right: 0.125rem
-		bottom: 5rem
-		width: 1.75rem
-		height: 1.75rem
-		font-size: 0.875rem
-		border-radius: 0.25rem
-		
-	.floating-toc-panel
-		right: 0.125rem !important
-		bottom: calc(5rem + 4rem) !important
-		width: calc(100vw - 0.25rem)
-		max-width: 12rem
-		max-height: 14rem
+  .toc-marker-root {
+    height: 1.5rem;
+    width: 1.5rem;
+    border-radius: 0.7rem;
+    background: color-mix(in srgb, var(--primary) 16%, transparent);
+    color: var(--primary);
+    font-size: 0.72rem;
+    font-weight: 800;
+  }
 
-/* Pastikan tombol tampil benar di dalam container */
-.floating-toc-wrapper
-	overflow: visible
-	z-index: 999
+  .toc-marker-mid {
+    height: 0.48rem;
+    width: 0.48rem;
+    background: color-mix(in srgb, var(--primary) 76%, transparent);
+  }
 
-/* Status aktif tombol */
-.floating-toc-btn:active
-	transform: scale(0.95)
+  .toc-marker-leaf {
+    height: 0.36rem;
+    width: 0.36rem;
+    background: color-mix(in srgb, currentColor 30%, transparent);
+    opacity: 0.75;
+  }
 
-/* Gaya scrollbar */
-.floating-toc-panel::-webkit-scrollbar
-	width: 6px
+  .toc-entry-text {
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.35;
+  }
 
-.floating-toc-panel::-webkit-scrollbar-track
-	background: transparent
-	border-radius: 3px
+  .toc-entry-text-root {
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
 
-.floating-toc-panel::-webkit-scrollbar-thumb
-	background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.2) 100%)
-	border-radius: 3px
-	border: 1px solid rgba(255, 255, 255, 0.1)
-	transition: all 0.2s ease
+  .toc-entry-text-mid {
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
 
-.floating-toc-panel::-webkit-scrollbar-thumb:hover
-	background: linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.3) 100%)
-	border-color: rgba(255, 255, 255, 0.2)
-	transform: scaleX(1.2)
+  .toc-entry-text-leaf {
+    font-size: 0.8rem;
+  }
 
-.floating-toc-panel::-webkit-scrollbar-thumb:active
-	background: linear-gradient(180deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.4) 100%)
-
-/* Efek semi-transparan tema gelap */
-:global(.dark) .floating-toc-panel
-	background-color: rgba(0, 0, 0, 0.6) !important
-	backdrop-filter: blur(20px)
-	-webkit-backdrop-filter: blur(20px)
-
-:global(.dark) .floating-toc-panel .p-4
-	background-color: rgba(0, 0, 0, 0.8) !important
-
-/* Scrollbar tema gelap */
-:global(.dark) .floating-toc-panel::-webkit-scrollbar-thumb
-	background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 100%)
-	border: 1px solid rgba(0, 0, 0, 0.1)
-
-:global(.dark) .floating-toc-panel::-webkit-scrollbar-thumb:hover
-	background: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.3) 100%)
-	border-color: rgba(0, 0, 0, 0.2)
-
-:global(.dark) .floating-toc-panel::-webkit-scrollbar-thumb:active
-	background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.4) 100%)
-
-/* Gaya scrollbar Firefox */
-.floating-toc-panel
-	scrollbar-width: thin
-	scrollbar-color: rgba(0, 0, 0, 0.2) transparent
-
-:global(.dark) .floating-toc-panel
-	scrollbar-color: rgba(255, 255, 255, 0.2) transparent
+  .floating-active-indicator {
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: -1;
+    border: 1px dashed color-mix(in srgb, var(--primary) 24%, transparent);
+    border-radius: 0.75rem;
+    background: color-mix(in srgb, var(--primary) 9%, transparent);
+    transition: top 180ms ease, height 180ms ease, opacity 180ms ease;
+    pointer-events: none;
+  }
 </style>
 
-<script is:raw is:inline>
-  if (typeof window.floatingTOCBtn === "undefined") {
-    window.floatingTOCBtn = null;
-    window.floatingTOCPanel = null;
-    window.tocItems = [];
-    window.activeHeadingId = "";
-    window.observer = null;
-    window.minDepth = 10;
-    window.maxLevel = 3; // Default tampil sampai 3 level heading.
-    window.scrollTimeout = null; // Timer throttle scroll.
-  }
+<script is:inline data-swup-ignore-script>
+  (function bootstrapFloatingTOC() {
+    if (typeof window === "undefined") return;
 
-  // Gunakan variabel global agar tidak dobel inisialisasi.
-  floatingTOCBtn = window.floatingTOCBtn;
-  floatingTOCPanel = window.floatingTOCPanel;
-  tocItems = window.tocItems;
-  activeHeadingId = window.activeHeadingId;
-  observer = window.observer;
-  minDepth = window.minDepth;
-  maxLevel = window.maxLevel;
-  scrollTimeout = window.scrollTimeout;
+    const MIN_WIDTH_PX = 1024;
 
-  if (typeof window.toggleFloatingTOC === "undefined") {
-    window.toggleFloatingTOC = function () {
-      if (!floatingTOCBtn || !floatingTOCPanel) {
-        return;
+    function getNavbarHeight() {
+      const navbar =
+        document.getElementById("navbar") ||
+        document.getElementById("navbar-wrapper") ||
+        document.querySelector("nav");
+      if (navbar instanceof HTMLElement) {
+        const rect = navbar.getBoundingClientRect();
+        if (rect.height > 0) return rect.height;
       }
-
-      const isHidden = floatingTOCPanel.classList.contains("hide");
-
-      if (isHidden) {
-        floatingTOCPanel.classList.remove("hide");
-        floatingTOCPanel.classList.add("show");
-      } else {
-        floatingTOCPanel.classList.remove("show");
-        floatingTOCPanel.classList.add("hide");
-      }
-    };
-
-    function updateActiveHeading() {
-      // Perbarui status TOC aktif berdasarkan heading yang terlihat.
-      updateTOCActiveState();
+      return 80;
     }
 
-    function updateTOCActiveState() {
-      if (!tocItems) return;
-
-      // Hapus semua status aktif lebih dulu.
-      tocItems.forEach((item) => {
-        item.classList.remove("visible");
-      });
-
-      // Ambil semua heading yang sedang terlihat di viewport.
-      const contentContainer =
-        document.querySelector(".custom-md") ||
-        document.querySelector(".prose") ||
-        document.querySelector(".markdown-content");
-
-      if (!contentContainer) return;
-
-      const headings = contentContainer.querySelectorAll(
-        "h1, h2, h3, h4, h5, h6"
-      );
-      const scrollTop = window.scrollY;
-      const windowHeight = window.innerHeight;
-      const offset = 100;
-
-      // Cari semua heading yang sedang terlihat di area layar.
-      const visibleHeadingIds = [];
-      headings.forEach((heading) => {
-        if (heading.id) {
-          const rect = heading.getBoundingClientRect();
-          const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
-
-          if (isVisible) {
-            visibleHeadingIds.push(heading.id);
-          }
-        }
-      });
-
-      // Jika tidak ada heading terlihat, pilih yang paling dekat ke atas layar.
-      if (visibleHeadingIds.length === 0 && headings.length > 0) {
-        let closestHeading = null;
-        let minDistance = Infinity;
-
-        headings.forEach((heading) => {
-          if (heading.id) {
-            const rect = heading.getBoundingClientRect();
-            const distance = Math.abs(rect.top);
-
-            if (distance < minDistance) {
-              minDistance = distance;
-              closestHeading = heading.id;
-            }
-          }
-        });
-
-        if (closestHeading) {
-          visibleHeadingIds.push(closestHeading);
-        }
-      }
-
-      // Tandai item TOC yang sesuai sebagai aktif.
-      const activeItems = tocItems.filter((item) => {
-        const headingId = item.dataset.headingId;
-        return visibleHeadingIds.includes(headingId);
-      });
-
-      // Terapkan status aktif.
-      activeItems.forEach((item) => {
-        item.classList.add("visible");
-      });
-
-      // Perbarui indikator aktif.
-      updateActiveIndicator(activeItems);
+    function getReadingLineOffset() {
+      return Math.round(getNavbarHeight() + 16);
     }
 
-    function updateActiveIndicator(activeItems) {
+    function closePanel(panel) {
+      panel.classList.add("hide");
+      panel.classList.remove("show");
+    }
+
+    function openPanel(panel) {
+      panel.classList.remove("hide");
+      panel.classList.add("show");
+    }
+
+    function isPanelOpen(panel) {
+      return panel.classList.contains("show") && !panel.classList.contains("hide");
+    }
+
+    function init() {
+      if (typeof window.__floatingTocCleanup === "function") {
+        window.__floatingTocCleanup();
+        window.__floatingTocCleanup = null;
+      }
+
+      if (!window.matchMedia(`(min-width: ${MIN_WIDTH_PX}px)`).matches) return;
+
+      const btn = document.getElementById("floating-toc-btn");
+      const panel = document.getElementById("floating-toc-panel");
+      const closeBtn = document.getElementById("floating-toc-close");
+      const content = document.getElementById("floating-toc-content");
       const indicator = document.getElementById("floating-active-indicator");
-      if (!indicator || !tocItems.length) return;
+      const scrollContainer = panel?.querySelector?.("[data-floating-toc-scroll]");
 
-      if (activeItems.length === 0) {
-        indicator.style.opacity = "0";
+      if (
+        !(btn instanceof HTMLElement) ||
+        !(panel instanceof HTMLElement) ||
+        !(closeBtn instanceof HTMLElement) ||
+        !(content instanceof HTMLElement) ||
+        !(indicator instanceof HTMLElement) ||
+        !(scrollContainer instanceof HTMLElement)
+      ) {
         return;
       }
 
-      // Hitung area indikator hanya untuk item aktif yang terlihat.
-      const tocContent = document.getElementById("floating-toc-content");
-      const tocPanel = document.getElementById("floating-toc-panel");
+      const links = Array.from(content.querySelectorAll("a[href^='#']"));
+      if (links.length === 0) {
+        btn.classList.add("hide");
+        closePanel(panel);
+        return;
+      }
 
-      if (!tocContent || !tocPanel) return;
+      btn.classList.remove("hide");
 
-      const contentRect = tocContent.getBoundingClientRect();
-      const panelRect = tocPanel.getBoundingClientRect();
+      const pairs = links
+        .map((link) => {
+          const id = decodeURIComponent(link.hash?.substring(1) || "");
+          const heading = document.getElementById(id);
+          if (!(heading instanceof HTMLElement)) return null;
+          return { id, link, heading };
+        })
+        .filter(Boolean);
 
-      // Hitung area panel yang benar-benar terlihat.
-      const visibleTop = Math.max(0, panelRect.top + 60); // Perhitungkan tinggi header panel.
-      const visibleBottom = panelRect.bottom - 20; // Perhitungkan jarak bawah panel.
+      if (pairs.length === 0) {
+        btn.classList.add("hide");
+        closePanel(panel);
+        return;
+      }
 
-      // Cari item aktif yang berada di area terlihat.
-      const visibleActiveItems = [];
-      activeItems.forEach((item) => {
-        const itemRect = item.getBoundingClientRect();
-        const itemTop = itemRect.top;
-        const itemBottom = itemRect.bottom;
+      let activeIndex = -1;
+      let scheduled = false;
+      let anchorNavTarget = null;
 
-        // Periksa apakah item aktif ada di area terlihat.
-        if (itemTop < visibleBottom && itemBottom > visibleTop) {
-          visibleActiveItems.push({
-            element: item,
-            top: itemTop - contentRect.top,
-            bottom: itemBottom - contentRect.top,
+      function resolveActiveIndex() {
+        const readLine = getReadingLineOffset();
+        let active = 0;
+        for (let i = 0; i < pairs.length; i += 1) {
+          const rect = pairs[i].heading.getBoundingClientRect();
+          if (rect.top <= readLine) {
+            active = i;
+          } else {
+            break;
+          }
+        }
+        return active;
+      }
+
+      function updateIndicator() {
+        if (activeIndex < 0 || activeIndex >= pairs.length) {
+          indicator.style.opacity = "0";
+          return;
+        }
+
+        const entry = pairs[activeIndex].link;
+        indicator.style.top = `${entry.offsetTop}px`;
+        indicator.style.height = `${entry.offsetHeight}px`;
+        indicator.style.opacity = "1";
+      }
+
+      function scrollToActiveEntry() {
+        if (!isPanelOpen(panel)) return;
+        if (activeIndex < 0 || activeIndex >= pairs.length) return;
+
+        const entry = pairs[activeIndex].link;
+        const tocHeight = scrollContainer.clientHeight;
+        const margin = 24;
+
+        const entryTop = entry.offsetTop;
+        const entryBottom = entryTop + entry.offsetHeight;
+        const viewTop = scrollContainer.scrollTop;
+        const viewBottom = viewTop + tocHeight;
+
+        if (entryTop < viewTop + margin) {
+          scrollContainer.scrollTo({
+            top: Math.max(0, entryTop - margin),
+            left: 0,
+            behavior: "smooth",
+          });
+        } else if (entryBottom > viewBottom - margin) {
+          scrollContainer.scrollTo({
+            top: Math.max(0, entryBottom - tocHeight + margin),
+            left: 0,
+            behavior: "smooth",
           });
         }
-      });
-
-      if (visibleActiveItems.length === 0) {
-        indicator.style.opacity = "0";
-        return;
       }
 
-      // Hitung posisi indikator berdasarkan item aktif yang terlihat.
-      const firstVisible = visibleActiveItems[0];
-      const lastVisible = visibleActiveItems[visibleActiveItems.length - 1];
-
-      const top = firstVisible.top;
-      const height = lastVisible.bottom - firstVisible.top;
-
-      indicator.style.top = `${top}px`;
-      indicator.style.height = `${height}px`;
-      indicator.style.opacity = "1";
-
-      // Scroll otomatis ke item aktif.
-      const firstActive = activeItems[0];
-      if (firstActive) {
-        scrollToActiveItem(firstActive, tocContent, tocPanel);
-      }
-    }
-
-    function scrollToActiveItem(activeItem, tocContent, tocPanel) {
-      if (!activeItem || !tocContent) return;
-
-      // Bersihkan timer sebelumnya.
-      if (scrollTimeout) {
-        clearTimeout(scrollTimeout);
-      }
-
-      // Throttle agar scroll tidak terlalu sering.
-      scrollTimeout = setTimeout(() => {
-        // scrollIntoView dipakai karena lebih sederhana dan stabil.
-        activeItem.scrollIntoView({
-          behavior: "smooth",
-          block: "center", // Posisikan item aktif ke tengah panel.
-          inline: "nearest",
+      function applyActive() {
+        pairs.forEach((pair, idx) => {
+          pair.link.classList.toggle("visible", idx === activeIndex);
         });
-      }, 100); // Jeda 100 ms.
-    }
-
-    function setupIntersectionObserver() {
-      // Hanya cari heading di dalam container artikel.
-      const contentContainer =
-        document.querySelector(".custom-md") ||
-        document.querySelector(".prose") ||
-        document.querySelector(".markdown-content");
-
-      if (!contentContainer) return;
-
-      const headings = contentContainer.querySelectorAll(
-        "h1, h2, h3, h4, h5, h6"
-      );
-
-      if (observer) {
-        observer.disconnect();
+        updateIndicator();
+        scrollToActiveEntry();
       }
 
-      observer = new IntersectionObserver(
-        (entries) => {
-          // Saat heading masuk atau keluar dari viewport, perbarui status TOC.
-          updateTOCActiveState();
-        },
-        {
-          rootMargin: "0px 0px 0px 0px",
-          threshold: 0,
-        }
-      );
-
-      headings.forEach((heading) => {
-        if (heading.id) {
-          observer.observe(heading);
-        }
-      });
-    }
-
-    function isPostPage() {
-      return (
-        window.location.pathname.includes("/posts/") ||
-        document.querySelector(".custom-md, .markdown-content") !== null
-      );
-    }
-
-    function generateTOCContent() {
-      const tocContent = document.getElementById("floating-toc-content");
-      if (!tocContent) return;
-
-      // Pastikan ini benar-benar halaman artikel.
-      if (!isPostPage()) {
-        // Jika bukan halaman artikel, kosongkan TOC.
-        tocContent.innerHTML = "";
-        return;
+      function updateActiveState() {
+        activeIndex = resolveActiveIndex();
+        applyActive();
       }
 
-      // Batasi pencarian heading ke area artikel.
-      const contentContainer =
-        document.querySelector(".custom-md") ||
-        document.querySelector(".prose") ||
-        document.querySelector(".markdown-content");
-
-      if (!contentContainer) {
-        tocContent.innerHTML = "";
-        return;
-      }
-
-      const headings = contentContainer.querySelectorAll(
-        "h1, h2, h3, h4, h5, h6"
-      );
-
-      // Hitung depth minimum heading.
-      let currentMinDepth = 10;
-      headings.forEach((heading) => {
-        const depth = parseInt(heading.tagName.charAt(1));
-        currentMinDepth = Math.min(currentMinDepth, depth);
-      });
-      minDepth = currentMinDepth;
-      window.minDepth = minDepth;
-
-      const filteredHeadings = Array.from(headings).filter((heading) => {
-        const depth = parseInt(heading.tagName.charAt(1));
-        return depth < minDepth + maxLevel;
-      });
-
-      if (filteredHeadings.length === 0) {
-        tocContent.innerHTML =
-          '<div class="text-center py-8 text-gray-500 dark:text-gray-400"><p>Halaman ini belum memiliki daftar isi</p></div>';
-        return;
-      }
-
-      let tocHTML = "";
-      let heading1Count = 1;
-      filteredHeadings.forEach((heading) => {
-        const depth = parseInt(heading.tagName.charAt(1));
-        const depthClass =
-          depth === minDepth ? "" : depth === minDepth + 1 ? "pl-4" : "pl-8";
-        const levelClass = `level-${depth}`;
-
-        // Pastikan setiap heading punya ID.
-        if (!heading.id) {
-          return;
-        }
-
-        // Samakan gaya badge dengan TOC versi sebelumnya.
-        const badgeContent =
-          depth === minDepth
-            ? heading1Count++
-            : depth === minDepth + 1
-              ? '<div class="transition w-2 h-2 rounded-[0.1875rem] bg-[var(--toc-badge-bg)]"></div>'
-              : '<div class="transition w-1.5 h-1.5 rounded-sm bg-black/5 dark:bg-white/10"></div>';
-
-        tocHTML += `
-         <a 
-           href="#${heading.id}" 
-           class="px-2 flex gap-2 relative transition w-full min-h-9 rounded-xl hover:bg-[var(--toc-btn-hover)] active:bg-[var(--toc-btn-active)] py-2 ${depthClass}"
-           data-heading-id="${heading.id}"
-           style="width: 100%; max-width: 100%; overflow: hidden; box-sizing: border-box; contain: layout;"
-         >
-           <div class="transition w-5 h-5 shrink-0 rounded-lg text-xs flex items-center justify-center font-bold ${depth === minDepth ? "bg-[var(--toc-badge-bg)] text-[var(--btn-content)]" : ""}" style="flex-shrink: 0; width: 1.25rem; height: 1.25rem; min-width: 1.25rem;">
-             ${badgeContent}
-           </div>
-           <div class="transition text-sm ${depth <= minDepth + 1 ? "text-50" : "text-30"} flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap" style="width: 0; flex: 1; max-width: calc(100% - 1.25rem - 0.5rem); box-sizing: border-box; contain: layout;">${(heading.textContent || "").replace(/#+\s*$/, "")}</div>
-         </a>
-       `;
-      });
-
-      tocContent.innerHTML =
-        tocHTML +
-        '<div id="floating-active-indicator" style="opacity: 0" class="-z-10 absolute bg-[var(--toc-btn-hover)] left-0 right-0 rounded-xl transition-all group-hover:bg-transparent border-2 border-[var(--toc-btn-hover)] group-hover:border-[var(--toc-btn-active)] border-dashed"></div>';
-      tocItems = Array.from(
-        document.querySelectorAll("#floating-toc-content a")
-      );
-      window.tocItems = tocItems;
-    }
-
-    function updateTOCVisibility() {
-      // Pastikan ini halaman artikel.
-      if (!isPostPage()) {
-        floatingTOCBtn.classList.add("hide");
-        return;
-      }
-
-      // Di halaman artikel, tombol selalu ditampilkan.
-      floatingTOCBtn.classList.remove("hide");
-    }
-
-    function handleTOCClick(event) {
-      const anchor = event.target.closest('a[href^="#"]');
-      if (!anchor) return;
-
-      // Tandai ini sebagai navigasi internal TOC agar event lain tidak menutup panel.
-      window.tocInternalNavigation = true;
-
-      event.stopPropagation(); // Hentikan bubbling event.
-      event.preventDefault(); // Cegah perilaku default.
-
-      // Ambil ID dari atribut href.
-      const href = anchor.getAttribute("href");
-      const id = href ? href.substring(1) : "";
-      const targetElement = document.getElementById(id);
-
-      if (targetElement) {
-        // Hitung posisi target dengan memperhitungkan tinggi navbar.
-        const navbarHeight = 80;
-        const targetTop =
-          targetElement.getBoundingClientRect().top +
-          window.pageYOffset -
-          navbarHeight;
-
-        // Gulir halus ke posisi target.
-        window.scrollTo({
-          top: targetTop,
-          behavior: "smooth",
+      function scheduleUpdate() {
+        if (scheduled) return;
+        scheduled = true;
+        requestAnimationFrame(() => {
+          scheduled = false;
+          updateActiveState();
         });
       }
 
-      // Biarkan panel tetap terbuka setelah item TOC diklik.
+      function togglePanel() {
+        if (isPanelOpen(panel)) {
+          closePanel(panel);
+        } else {
+          openPanel(panel);
+          scheduleUpdate();
+        }
+      }
+
+      function onDocClick(event) {
+        if (!isPanelOpen(panel)) return;
+        const target = event.target;
+        if (!(target instanceof Node)) return;
+        if (panel.contains(target) || btn.contains(target)) return;
+        closePanel(panel);
+      }
+
+      function onKeyDown(event) {
+        if (event.key === "Escape") {
+          closePanel(panel);
+        }
+      }
+
+      function onLinkClick(event) {
+        const anchor = event
+          .composedPath()
+          .find((element) => element instanceof HTMLAnchorElement);
+        if (!anchor) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        const id = decodeURIComponent(anchor.hash?.substring(1) || "");
+        const targetElement = document.getElementById(id);
+
+        if (targetElement instanceof HTMLElement) {
+          anchorNavTarget = targetElement;
+          targetElement.scrollIntoView({ behavior: "smooth", block: "start" });
+          history.replaceState(null, "", anchor.hash);
+        }
+
+        const idx = pairs.findIndex((pair) => pair.id === id);
+        if (idx >= 0) {
+          activeIndex = idx;
+          applyActive();
+        }
+
+        window.setTimeout(() => {
+          anchorNavTarget = null;
+        }, 800);
+      }
+
+      function onScroll() {
+        if (anchorNavTarget) return;
+        scheduleUpdate();
+      }
+
+      function onResize() {
+        init();
+      }
+
+      btn.addEventListener("click", togglePanel);
+      closeBtn.addEventListener("click", togglePanel);
+      content.addEventListener("click", onLinkClick, true);
+      window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("resize", onResize);
+      document.addEventListener("click", onDocClick);
+      document.addEventListener("keydown", onKeyDown);
+
+      closePanel(panel);
+      scheduleUpdate();
+
+      window.__floatingTocCleanup = function () {
+        btn.removeEventListener("click", togglePanel);
+        closeBtn.removeEventListener("click", togglePanel);
+        content.removeEventListener("click", onLinkClick, true);
+        window.removeEventListener("scroll", onScroll);
+        window.removeEventListener("resize", onResize);
+        document.removeEventListener("click", onDocClick);
+        document.removeEventListener("keydown", onKeyDown);
+      };
     }
 
-    function initFloatingTOC() {
-      floatingTOCBtn = document.getElementById("floating-toc-btn");
-      floatingTOCPanel = document.getElementById("floating-toc-panel");
+    window.__floatingTocInit = init;
 
-      // Perbarui variabel global.
-      window.floatingTOCBtn = floatingTOCBtn;
-      window.floatingTOCPanel = floatingTOCPanel;
-
-      if (!floatingTOCBtn || !floatingTOCPanel) {
-        return;
-      }
-
-      // Langsung cek apakah ini halaman artikel. Jika bukan, sembunyikan tombol.
-      if (!isPostPage()) {
-        floatingTOCBtn.classList.add("hide");
-        return;
-      }
-
-      // Bangun isi TOC.
-      generateTOCContent();
-
-      // Pasang click handler dengan capture agar diproses lebih dulu.
-      const tocContent = document.getElementById("floating-toc-content");
-      if (tocContent) {
-        tocContent.addEventListener("click", handleTOCClick, { capture: true });
-      }
-
-      // Pasang listener scroll.
-      window.addEventListener("scroll", updateActiveHeading);
-
-      // Pasang intersection observer.
-      setupIntersectionObserver();
-
-      // Inisialisasi status aktif.
-      updateActiveHeading();
-      updateTOCVisibility();
-
-      // Update lagi setelah jeda singkat agar DOM benar-benar siap.
-      setTimeout(() => {
-        updateActiveHeading();
-      }, 100);
-
-      // Aktifkan perilaku auto-close.
-      setupAutoClose();
-    }
-
-    // Tutup TOC otomatis saat halaman berubah.
-    function setupAutoClose() {
-      // Fungsi umum untuk menutup TOC.
-      function closeTOC() {
-        if (floatingTOCPanel && !floatingTOCPanel.classList.contains("hide")) {
-          floatingTOCPanel.classList.add("hide");
-          floatingTOCPanel.classList.remove("show");
-        }
-      }
-
-      // Dengarkan unload halaman.
-      window.addEventListener("beforeunload", closeTOC);
-
-      // Dengarkan saat halaman disembunyikan.
-      document.addEventListener("visibilitychange", () => {
-        if (document.hidden) {
-          closeTOC();
-        }
-      });
-
-      // Dengarkan perubahan route.
-      window.addEventListener("popstate", closeTOC);
-
-      // Dengarkan transisi halaman via Swup.
-      try {
-        if (
-          typeof window.swup !== "undefined" &&
-          window.swup &&
-          typeof window.swup.on === "function"
-        ) {
-          window.swup.on("pageView", closeTOC);
-          window.swup.on("contentReplaced", closeTOC);
-        }
-      } catch (e) {
-        // Swup tidak tersedia.
-      }
-
-      // Dengarkan transisi halaman via Turbo.
-      if (typeof window.Turbo !== "undefined" && window.Turbo) {
-        document.addEventListener("turbo:visit", closeTOC);
-        document.addEventListener("turbo:load", closeTOC);
-      }
-
-      // Dengarkan transisi halaman Astro.
-      document.addEventListener("astro:page-load", closeTOC);
-      document.addEventListener("astro:before-preparation", closeTOC);
-
-      // Tutup TOC saat pindah lewat link non-anchor.
-      document.addEventListener(
-        "click",
-        (e) => {
-          const link = e.target.closest("a");
-          if (link && link.href) {
-            // Anchor internal tidak perlu menutup TOC.
-            const href = link.getAttribute("href");
-            const isExternalLink =
-              href && !href.startsWith("#") && !href.startsWith("javascript:");
-
-            if (!isExternalLink) {
-              return;
-            }
-
-            // Abaikan klik pada link internal TOC sendiri.
-            const tocPanel = document.getElementById("floating-toc-panel");
-            const tocContent = document.getElementById("floating-toc-content");
-
-            if (
-              tocPanel &&
-              tocContent &&
-              (tocPanel.contains(link) || tocContent.contains(link))
-            ) {
-              return;
-            }
-
-            // Abaikan jika ini navigasi internal TOC.
-            if (window.tocInternalNavigation) {
-              return;
-            }
-
-            closeTOC();
-          }
-        },
-        { capture: false }
-      );
-
-      // Tutup TOC saat form dikirim.
-      document.addEventListener("submit", (e) => {
-        const form = e.target;
-        if (form.action) {
-          closeTOC();
-        }
-      });
-
-      // Dengarkan pagehide.
-      window.addEventListener("pagehide", closeTOC);
-
-      // Cek juga perubahan visibilitas halaman.
-      document.addEventListener("visibilitychange", () => {
-        if (document.hidden) {
-          closeTOC();
-        }
-      });
-
-      // Dengarkan unload final.
-      window.addEventListener("unload", closeTOC);
-
-      // Dengarkan hashchange, kecuali dari TOC internal.
-      window.addEventListener("hashchange", (e) => {
-        if (window.tocInternalNavigation) {
-          window.tocInternalNavigation = false; // Reset penanda internal.
-          return;
-        }
-        closeTOC();
-      });
-
-      // Tangani pushState dan replaceState untuk route manual.
-      const originalPushState = history.pushState;
-      const originalReplaceState = history.replaceState;
-
-      history.pushState = function (...args) {
-        closeTOC();
-        return originalPushState.apply(this, args);
-      };
-
-      history.replaceState = function (...args) {
-        closeTOC();
-        return originalReplaceState.apply(this, args);
-      };
-
-      // Pantau perubahan URL sebagai fallback paling aman.
-      let currentUrl = window.location.href;
-      const checkUrlChange = () => {
-        if (window.location.href !== currentUrl) {
-          // Abaikan perubahan URL dari navigasi TOC internal.
-          if (window.tocInternalNavigation) {
-            currentUrl = window.location.href;
-            return;
-          }
-          currentUrl = window.location.href;
-          closeTOC();
-        }
-      };
-
-      // Periksa perubahan URL secara berkala.
-      setInterval(checkUrlChange, 100);
-
-      // Tutup saat kehilangan fokus, kecuali dari interaksi TOC sendiri.
-      window.addEventListener("blur", (e) => {
-        // Abaikan navigasi internal TOC.
-        if (window.tocInternalNavigation) {
-          return;
-        }
-        closeTOC();
-      });
-
-      // Tutup saat focusout, kecuali fokus pindah di dalam TOC.
-      document.addEventListener("focusout", (e) => {
-        // Abaikan jika fokus pindah ke elemen di dalam TOC.
-        const tocPanel = document.getElementById("floating-toc-panel");
-        const tocContent = document.getElementById("floating-toc-content");
-        const relatedTarget = e.relatedTarget;
-
-        if (
-          tocPanel &&
-          tocContent &&
-          relatedTarget &&
-          (tocPanel.contains(relatedTarget) ||
-            tocContent.contains(relatedTarget))
-        ) {
-          return;
-        }
-
-        // Abaikan navigasi internal TOC.
-        if (window.tocInternalNavigation) {
-          return;
-        }
-
-        closeTOC();
-      });
-    }
-
-    // Inisialisasi setelah halaman siap.
-    document.addEventListener("DOMContentLoaded", initFloatingTOC);
-
-    // Jika halaman sudah siap, inisialisasi langsung.
     if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", initFloatingTOC);
+      document.addEventListener("DOMContentLoaded", init, { once: true });
     } else {
-      initFloatingTOC();
+      init();
     }
 
-    // Inisialisasi ulang setelah transisi Swup.
-    if (typeof window !== "undefined" && window.swup) {
-      window.swup.hooks.on("visit:end", () => {
-        setTimeout(() => {
-          initFloatingTOC();
-        }, 100);
+    if (!window.__floatingTocSwupBound) {
+      window.__floatingTocSwupBound = true;
+
+      document.addEventListener("swup:contentReplaced", function () {
+        window.setTimeout(init, 100);
       });
-    } else if (typeof window !== "undefined") {
-      document.addEventListener("swup:enable", () => {
-        window.swup.hooks.on("visit:end", () => {
-          setTimeout(() => {
-            initFloatingTOC();
-          }, 100);
+
+      if (window.swup?.hooks) {
+        window.swup.hooks.on("content:replace", function () {
+          window.setTimeout(init, 100);
         });
+        window.swup.hooks.on("page:view", function () {
+          window.setTimeout(init, 100);
+        });
+      }
+
+      window.addEventListener("pageshow", function (event) {
+        if (event.persisted) window.setTimeout(init, 100);
       });
     }
-  }
+  })();
 </script>
+

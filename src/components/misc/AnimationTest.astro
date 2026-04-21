@@ -1,15 +1,15 @@
 ---
-// 动画测试组件
+// Animation test component (dev-only helper).
 ---
 
 <div class="animation-test-container">
   <div class="test-content transition-slide-in" id="test-content">
-    <h3>动画测试区域</h3>
-    <p>这个区域展示了参考yukina主题实现的滑入滑出动画效果</p>
+    <h3>Animation Test Area</h3>
+    <p>This section previews the slide-in/slide-out transitions.</p>
     <div class="test-buttons">
-      <button class="test-btn" onclick="testSlideIn()">滑入动画</button>
-      <button class="test-btn" onclick="testSlideOut()">滑出动画</button>
-      <button class="test-btn" onclick="resetAnimation()">重置</button>
+      <button class="test-btn" onclick="testSlideIn()">Slide In</button>
+      <button class="test-btn" onclick="testSlideOut()">Slide Out</button>
+      <button class="test-btn" onclick="resetAnimation()">Reset</button>
     </div>
   </div>
 </div>
@@ -59,13 +59,13 @@
 </style>
 
 <script>
-  // 动画测试函数
+  // Animation test helpers
   function testSlideIn() {
     const content = document.getElementById('test-content');
     if (!content) return;
     
     content.className = 'test-content transition-slide-in';
-    content.offsetHeight; // 强制重排
+    content.offsetHeight; // force reflow
     
     setTimeout(() => {
       content.classList.add('is-active');
@@ -90,7 +90,7 @@
     content.className = 'test-content transition-slide-in is-active';
   }
 
-  // 页面加载时自动触发滑入动画
+  // Auto-run once on load.
   document.addEventListener('DOMContentLoaded', () => {
     setTimeout(testSlideIn, 300);
   });

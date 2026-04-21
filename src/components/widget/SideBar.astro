@@ -23,6 +23,8 @@ const { class: className, headings, side = "left", isPostPage = false } = Astro.
 
 const topComponents = widgetManager.getComponentsByPosition("top", side, isPostPage);
 const stickyComponents = widgetManager.getComponentsByPosition("sticky", side, isPostPage);
+// Firefly parity: right rail should keep sticky utilities (stats/toc) above scrollable widgets (calendar).
+const renderStickyFirst = side === "right";
 
 const sidebarConfig = {
   breakpoints: widgetManager.getBreakpoints(),
@@ -79,6 +81,27 @@ function renderComponent(component: WidgetComponentConfig, index: number): Rende
 
 <div id={`sidebar-${side}`} class:list={[className, "w-full"]}>
   {
+    renderStickyFirst &&
+      stickyComponents.length > 0 && (
+        <div
+          id={`sidebar-sticky-${side}`}
+          class:list={[
+            "sticky top-[var(--navbar-clearance)] flex w-full flex-col gap-4 transition-all duration-700",
+            topComponents.length > 0 && "mb-4",
+          ]}
+        >
+          {stickyComponents.map((component, index) => {
+            const renderData = renderComponent(component, index);
+            if (!renderData) return null;
+
+            const { Component, props } = renderData;
+            return <Component {...props} />;
+          })}
+        </div>
+      )
+  }
+
+  {
     topComponents.length > 0 && (
       <div class="mb-4 flex w-full flex-col gap-4">
         {topComponents.map((component, index) => {
@@ -93,20 +116,21 @@ function renderComponent(component: WidgetComponentConfig, index: number): Rende
   }
 
   {
-    stickyComponents.length > 0 && (
-      <div
-        id={`sidebar-sticky-${side}`}
-        class="sticky top-4 flex w-full flex-col gap-4 transition-all duration-700"
-      >
-        {stickyComponents.map((component, index) => {
-          const renderData = renderComponent(component, index);
-          if (!renderData) return null;
+    !renderStickyFirst &&
+      stickyComponents.length > 0 && (
+        <div
+          id={`sidebar-sticky-${side}`}
+          class="sticky top-[var(--navbar-clearance)] flex w-full flex-col gap-4 transition-all duration-700"
+        >
+          {stickyComponents.map((component, index) => {
+            const renderData = renderComponent(component, index);
+            if (!renderData) return null;
 
-          const { Component, props } = renderData;
-          return <Component {...props} />;
-        })}
-      </div>
-    )
+            const { Component, props } = renderData;
+            return <Component {...props} />;
+          })}
+        </div>
+      )
   }
 </div>
 

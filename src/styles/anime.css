@@ -1,6 +1,6 @@
-/* 追番页面专用样式 - 使用页面特定的选择器避免全局影响 */
+﻿
 
-/* 只在包含 anime-page 类的页面中应用这些样式 */
+
 .anime-page .anime-header {
 	background: var(--card-bg);
 	border: 1px solid var(--line-divider);
@@ -8,7 +8,7 @@
 	backdrop-filter: blur(10px);
 }
 
-/* 统计卡片样式 */
+
 .anime-page .stat-card {
 	@apply bg-white/50 dark:bg-white/5 backdrop-blur-sm rounded-xl p-4 flex items-center gap-3 transition-all duration-300 hover:scale-105 hover:shadow-lg;
 	border: 1px solid var(--line-divider);
@@ -41,12 +41,12 @@
 	@apply text-sm text-black/75 dark:text-white/75;
 }
 
-/* 动漫网格布局 */
+
 .anime-page .anime-grid {
 	@apply grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6;
 }
 
-/* 动漫卡片样式 */
+
 .anime-page .anime-card {
 	@apply relative overflow-hidden transition-all duration-500 hover:scale-[1.02];
 	background: var(--card-bg);
@@ -65,7 +65,7 @@
 	@apply p-0;
 }
 
-/* 封面容器 */
+
 .anime-page .anime-cover-container {
 	@apply relative overflow-hidden;
 	aspect-ratio: 16/9;
@@ -107,7 +107,7 @@
 	transform: scale(1.1);
 }
 
-/* 状态标签 */
+
 .anime-page .anime-status {
 	@apply absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 backdrop-blur-sm;
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -121,7 +121,7 @@
 	@apply font-medium;
 }
 
-/* 评分标签 */
+
 .anime-page .anime-rating {
 	@apply absolute top-3 right-3 bg-black/50 backdrop-blur-sm text-white px-2 py-1 rounded-full text-sm flex items-center gap-1;
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
@@ -131,7 +131,7 @@
 	@apply font-medium;
 }
 
-/* 内容区域 */
+
 .anime-page .anime-content {
 	@apply p-6;
 	background: linear-gradient(to bottom, transparent, var(--card-bg)/50);
@@ -157,7 +157,7 @@
 	overflow: hidden;
 }
 
-/* 进度条 */
+
 .anime-page .anime-progress {
 	@apply mb-4;
 }
@@ -185,7 +185,7 @@
 	box-shadow: 0 0 10px var(--primary)/50;
 }
 
-/* 元信息 */
+
 .anime-page .anime-meta {
 	@apply space-y-2 text-sm;
 }
@@ -216,7 +216,7 @@
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* 响应式调整 */
+
 @media (max-width: 768px) {
 	.anime-page .anime-grid {
 		@apply grid-cols-1;
@@ -243,7 +243,7 @@
 	}
 }
 
-/* 暗色主题优化 */
+
 :root.dark .anime-page .anime-card {
 	@apply shadow-lg shadow-black/20;
 	background: linear-gradient(135deg, var(--card-bg), var(--card-bg-transparent));
@@ -258,7 +258,7 @@
 	border-color: var(--line-divider);
 }
 
-/* 动画效果 */
+
 .anime-page .anime-card {
 	animation: fadeInUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 	opacity: 0;
@@ -283,7 +283,7 @@
 	}
 }
 
-/* 统计卡片动画 */
+
 .anime-page .stat-card {
 	animation: slideInLeft 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 	opacity: 0;
@@ -306,7 +306,7 @@
 	}
 }
 
-/* 特殊效果 */
+
 .anime-page .anime-card::before {
 	content: '';
 	position: absolute;
@@ -323,7 +323,7 @@
 	opacity: 1;
 }
 
-/* 毛玻璃效果增强 */
+
 .anime-page .anime-header,
 .anime-page .stat-card,
 .anime-page .anime-card {
@@ -331,7 +331,7 @@
 	-webkit-backdrop-filter: blur(20px) saturate(180%);
 }
 
-/* 渐变边框效果 */
+
 .anime-page .anime-card {
 	position: relative;
 	background: var(--card-bg);

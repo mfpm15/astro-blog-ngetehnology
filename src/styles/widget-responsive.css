@@ -1,51 +1,48 @@
-/**
- * 组件响应式布局样式
- * Widget Responsive Layout Styles
- */
+﻿
 
-/* CSS 自定义属性定义 */
+
 :root {
-  /* 断点变量 */
+  
   --breakpoint-mobile: 768px;
   --breakpoint-tablet: 1024px;
   --breakpoint-desktop: 1025px;
   
-  /* 间距变量 */
+  
   --widget-gap-mobile: 0.75rem;
   --widget-gap-tablet: 1rem;
   --widget-gap-desktop: 1.25rem;
   
-  /* 动画变量 */
+  
   --widget-animation-duration: 0.3s;
   --widget-animation-timing: ease-in-out;
   
-  /* 侧边栏宽度 */
+  
   --sidebar-width-mobile: 100%;
   --sidebar-width-tablet: 280px;
   --sidebar-width-desktop: 320px;
   
-  /* 组件最小高度 */
+  
   --widget-min-height: 60px;
   --widget-max-height-mobile: 200px;
   --widget-max-height-tablet: 300px;
   --widget-max-height-desktop: 400px;
 }
 
-/* 基础侧边栏样式 */
+
 #dynamic-sidebar {
   width: var(--sidebar-width-desktop);
   transition: all var(--widget-animation-duration) var(--widget-animation-timing);
   position: relative;
 }
 
-/* 组件容器基础样式 */
+
 .widget-container {
   min-height: var(--widget-min-height);
   transition: all var(--widget-animation-duration) var(--widget-animation-timing);
   overflow: hidden;
 }
 
-/* 组件悬停效果 */
+
 .widget-container:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -56,7 +53,7 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* 移动端样式 (< 768px) */
+
 @media (max-width: 767px) {
   #dynamic-sidebar {
     width: var(--sidebar-width-mobile);
@@ -72,31 +69,31 @@
     max-height: var(--widget-max-height-mobile);
   }
   
-  /* 移动端隐藏的组件 */
+  
   .widget-container[data-mobile-hidden="true"] {
     display: none;
   }
   
-  /* 移动端特殊布局 */
+  
   .sidebar-sticky-section {
     position: static !important;
     top: auto !important;
   }
   
-  /* 移动端组件简化显示 */
+  
   .widget-container[data-widget-type="announcement"] {
-    order: -1; /* 公告优先显示 */
+    order: -1; 
   }
   
   .widget-container[data-widget-type="categories"],
   .widget-container[data-widget-type="tags"] {
-    /* 分类和标签在移动端可折叠 */
+    
     max-height: 120px;
     overflow-y: auto;
   }
 }
 
-/* 平板端样式 (768px - 1024px) */
+
 @media (min-width: 768px) and (max-width: 1024px) {
   #dynamic-sidebar {
     width: var(--sidebar-width-tablet);
@@ -112,7 +109,7 @@
     max-height: var(--widget-max-height-tablet);
   }
   
-  /* 平板端隐藏的组件 */
+  
   .widget-container[data-tablet-hidden="true"] {
     display: none;
   }
@@ -120,7 +117,7 @@
 
 }
 
-/* 桌面端样式 (> 1024px) */
+
 @media (min-width: 1025px) {
   #dynamic-sidebar {
     width: var(--sidebar-width-desktop);
@@ -136,19 +133,19 @@
     max-height: var(--widget-max-height-desktop);
   }
   
-  /* 桌面端隐藏的组件 */
+  
   .widget-container[data-desktop-hidden="true"] {
     display: none;
   }
   
-  /* 桌面端增强效果 */
+  
   .widget-container:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   }
 }
 
-/* 超宽屏样式 (> 1440px) */
+
 @media (min-width: 1441px) {
   #dynamic-sidebar {
     width: 360px;
@@ -159,24 +156,24 @@
   }
 }
 
-/* 组件位置特定样式 */
+
 .sidebar-top-section {
-  /* 顶部组件区域 */
+  
   margin-bottom: 1rem;
 }
 
 .sidebar-sticky-section {
-  /* 粘性组件区域 */
+  
   position: sticky;
   top: 1rem;
   z-index: 10;
 }
 
-/* 组件类型特定的响应式样式 */
 
-/* Profile 组件 */
+
+
 .widget-container[data-widget-type="profile"] {
-  /* 用户资料组件始终保持固定高度 */
+  
   min-height: 120px;
 }
 
@@ -186,9 +183,9 @@
   }
 }
 
-/* Announcement 组件 */
+
 .widget-container[data-widget-type="announcement"] {
-  /* 公告组件可以动态调整高度 */
+  
   min-height: 80px;
 }
 
@@ -199,10 +196,10 @@
   }
 }
 
-/* Categories 和 Tags 组件 */
+
 .widget-container[data-widget-type="categories"],
 .widget-container[data-widget-type="tags"] {
-  /* 分类和标签组件支持滚动 */
+  
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
@@ -224,9 +221,9 @@
   border-radius: 2px;
 }
 
-/* TOC 组件 */
+
 .widget-container[data-widget-type="toc"] {
-  /* 目录组件在移动端隐藏 */
+  
   max-height: 400px;
   overflow-y: auto;
 }
@@ -239,9 +236,9 @@
 
 
 
-/* 动画效果 */
 
-/* 淡入动画 */
+
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -253,7 +250,7 @@
   }
 }
 
-/* 滑入动画 */
+
 @keyframes slideIn {
   from {
     opacity: 0;
@@ -265,7 +262,7 @@
   }
 }
 
-/* 缩放动画 */
+
 @keyframes scaleIn {
   from {
     opacity: 0;
@@ -277,7 +274,7 @@
   }
 }
 
-/* 动画类 */
+
 .widget-animation-fade {
   animation: fadeIn var(--widget-animation-duration) var(--widget-animation-timing) forwards;
 }
@@ -290,7 +287,7 @@
   animation: scaleIn var(--widget-animation-duration) var(--widget-animation-timing) forwards;
 }
 
-/* 初始状态 */
+
 .widget-container {
   opacity: 0;
 }
@@ -299,7 +296,7 @@
   opacity: 1;
 }
 
-/* 加载状态 */
+
 .widget-loading {
   position: relative;
   overflow: hidden;
@@ -330,7 +327,7 @@
   }
 }
 
-/* 错误状态 */
+
 .widget-error {
   border: 2px dashed #ef4444;
   background-color: #fef2f2;
@@ -343,7 +340,7 @@
   font-size: 0.875rem;
 }
 
-/* 空状态 */
+
 .widget-empty {
   border: 2px dashed #d1d5db;
   background-color: #f9fafb;
@@ -356,7 +353,7 @@
   font-size: 0.875rem;
 }
 
-/* 暗色主题适配 */
+
 @media (prefers-color-scheme: dark) {
   .widget-container:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
@@ -388,7 +385,7 @@
   }
 }
 
-/* 高对比度模式 */
+
 @media (prefers-contrast: high) {
   .widget-container {
     border: 2px solid currentColor;
@@ -399,7 +396,7 @@
   }
 }
 
-/* 减少动画模式 */
+
 @media (prefers-reduced-motion: reduce) {
   .widget-container,
   .widget-animation-fade,
@@ -419,14 +416,14 @@
   }
 }
 
-/* 打印样式 */
+
 @media print {
   #dynamic-sidebar {
     display: none;
   }
 }
 
-/* 容器查询支持 (现代浏览器) */
+
 @supports (container-type: inline-size) {
   #dynamic-sidebar {
     container-type: inline-size;
@@ -450,7 +447,7 @@
   }
 }
 
-/* 工具类 */
+
 .widget-hidden {
   display: none !important;
 }
@@ -469,7 +466,7 @@
   font-size: 1rem !important;
 }
 
-/* 调试样式 (开发环境) */
+
 [data-debug="true"] .widget-container {
   border: 1px solid #3b82f6;
   position: relative;

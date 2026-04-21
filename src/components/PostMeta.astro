@@ -18,7 +18,7 @@ export interface Props {
   slug?: string;
   words?: number;
   minutes?: number;
-  showWordCount?: boolean; // 是否显示字数统计，默认false显示标签
+  showWordCount?: boolean;
 }
 
 const {
@@ -148,7 +148,6 @@ const {
      )
    }
 
-  <!-- Twikoo访问量统计（首页不显示，且文章访问量统计启用时显示） -->
   {
     !isHome &&
       commentConfig.enable &&

@@ -34,7 +34,13 @@ const setPanelVisibility = (show: boolean): void => {
 };
 
 const generateTOC = () => {
-	const headings = document.querySelectorAll("h1, h2, h3, h4, h5, h6");
+	const contentRoot =
+		document.querySelector(".custom-md") ||
+		document.querySelector(".markdown-content") ||
+		document.querySelector(".prose");
+	const headings = contentRoot
+		? contentRoot.querySelectorAll("h1, h2, h3, h4, h5, h6")
+		: document.querySelectorAll("h1, h2, h3, h4, h5, h6");
 	const items: Array<{ id: string; text: string; level: number }> = [];
 
 	headings.forEach((heading) => {
@@ -49,7 +55,6 @@ const generateTOC = () => {
 };
 
 const generatePostList = () => {
-	// Cari semua kartu artikel.
 	const postCards = document.querySelectorAll(".card-base");
 	const items: Array<{
 		title: string;
@@ -59,11 +64,8 @@ const generatePostList = () => {
 	}> = [];
 
 	postCards.forEach((card) => {
-		// Cari link judul.
 		const titleLink = card.querySelector('a[href*="/posts/"].transition.group');
-		// Cari link kategori.
 		const categoryLink = card.querySelector('a[href*="/categories/"].link-lg');
-		// Cari ikon pinned.
 		const pinnedIcon = titleLink?.querySelector('svg[data-icon="mdi:pin"]');
 
 		if (titleLink) {
@@ -88,31 +90,27 @@ const checkIsHomePage = () => {
 
 const scrollToHeading = (id: string) => {
 	const element = document.getElementById(id);
-	if (element) {
-		// Tutup panel.
-		setPanelVisibility(false);
+	if (!element) return;
 
-		// Scroll ke heading sambil memperhitungkan tinggi navbar.
-		const offset = 80;
-		const elementPosition = element.offsetTop - offset;
-
-		window.scrollTo({
-			top: elementPosition,
-			behavior: "smooth",
-		});
-	}
+	setPanelVisibility(false);
+	element.scrollIntoView({ behavior: "smooth", block: "start" });
+	history.replaceState(null, "", `#${encodeURIComponent(id)}`);
 };
 
 const navigateToPost = (url: string) => {
-	// Tutup panel.
 	setPanelVisibility(false);
 
-	// Gunakan helper navigasi supaya perpindahan halaman tetap mulus.
 	navigateToPage(url);
 };
 
 const updateActiveHeading = () => {
-	const headings = document.querySelectorAll("h1, h2, h3, h4, h5, h6");
+	const contentRoot =
+		document.querySelector(".custom-md") ||
+		document.querySelector(".markdown-content") ||
+		document.querySelector(".prose");
+	const headings = contentRoot
+		? contentRoot.querySelectorAll("h1, h2, h3, h4, h5, h6")
+		: document.querySelectorAll("h1, h2, h3, h4, h5, h6");
 	const scrollTop = window.scrollY;
 	const offset = 100;
 
@@ -130,7 +128,13 @@ const updateActiveHeading = () => {
 };
 
 const setupIntersectionObserver = () => {
-	const headings = document.querySelectorAll("h1, h2, h3, h4, h5, h6");
+	const contentRoot =
+		document.querySelector(".custom-md") ||
+		document.querySelector(".markdown-content") ||
+		document.querySelector(".prose");
+	const headings = contentRoot
+		? contentRoot.querySelectorAll("h1, h2, h3, h4, h5, h6")
+		: document.querySelectorAll("h1, h2, h3, h4, h5, h6");
 
 	if (observer) {
 		observer.disconnect();
@@ -159,10 +163,8 @@ const setupIntersectionObserver = () => {
 
 const checkSwupAvailability = () => {
 	if (typeof window !== "undefined") {
-		// Cek apakah Swup sudah aktif.
 		swupReady = !!(window as any).swup;
 
-		// Jika belum aktif, tunggu event enable dari Swup.
 		if (!swupReady) {
 			const checkSwup = () => {
 				if ((window as any).swup) {
@@ -171,10 +173,8 @@ const checkSwupAvailability = () => {
 				}
 			};
 
-			// Dengarkan event saat Swup aktif.
 			document.addEventListener("swup:enable", checkSwup);
 
-			// Fallback timeout untuk pemeriksaan ulang.
 			setTimeout(() => {
 				if ((window as any).swup) {
 					swupReady = true;
@@ -198,10 +198,9 @@ const init = () => {
 };
 
 onMount(() => {
-	// Tunda inisialisasi agar konten halaman sudah siap.
+	// Delay init so the DOM content is ready.
 	setTimeout(init, 100);
 
-	// Dengarkan scroll sebagai fallback.
 	window.addEventListener("scroll", updateActiveHeading);
 
 	return () => {
@@ -212,7 +211,7 @@ onMount(() => {
 	};
 });
 
-// Ekspor fungsi init supaya bisa dipanggil ulang dari luar.
+// Export init so the shell can re-run it after route changes.
 if (typeof window !== "undefined") {
 	(window as any).mobileTOCInit = init;
 }
@@ -249,7 +248,7 @@ if (typeof window !== "undefined") {
 		{#if postItems.length === 0}
 			<div class="text-center py-8 text-black/50 dark:text-white/50">
 				<Icon icon="material-symbols:article-outline" class="text-2xl mb-2" />
-				<p>Belum ada artikel</p>
+				<p>No articles yet</p>
 			</div>
 		{:else}
 			<div class="post-content">
@@ -275,7 +274,7 @@ if (typeof window !== "undefined") {
 		{#if tocItems.length === 0}
 			<div class="text-center py-8 text-black/50 dark:text-white/50">
 				<Icon icon="material-symbols:article-outline" class="text-2xl mb-2" />
-				<p>Halaman ini belum memiliki daftar isi</p>
+				<p>This page has no table of contents yet</p>
 			</div>
 		{:else}
 			<div class="toc-content">
@@ -346,7 +345,7 @@ if (typeof window !== "undefined") {
 		padding-left: 9px;
 	}
 
-	/* Indentasi heading per level */
+	/* Indent headings by level */
 	.toc-item.level-1 {
 		padding-left: 12px;
 		font-weight: 600;
@@ -475,7 +474,7 @@ if (typeof window !== "undefined") {
 		color: rgba(255, 255, 255, 0.75);
 	}
 
-	/* Gaya scrollbar */
+	/* Scrollbar styling */
 	.mobile-toc-panel::-webkit-scrollbar {
 		width: 4px;
 	}
