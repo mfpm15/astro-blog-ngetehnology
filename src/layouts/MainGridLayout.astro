@@ -766,7 +766,7 @@ const showBothSidebarsOnPost = isPostPage && desktopShowLeft && desktopShowRight
         </script>
 
         {
-          showHomeText && (
+          renderHomeText && (
             <div
               class:list={["banner-home-text-overlay absolute inset-0 z-20 flex items-center justify-center", { hidden: !showHomeText }]}
               aria-hidden={showHomeText ? "false" : "true"}
@@ -1073,6 +1073,10 @@ const showBothSidebarsOnPost = isPostPage && desktopShowLeft && desktopShowRight
     height: calc(var(--hero-height-inner) + 1.25rem);
   }
 
+  #banner-wrapper[data-hero-mode="inner"]:not([data-page-kind="post"]) {
+    height: calc(var(--hero-height-home) + var(--hero-extend));
+  }
+
   #banner-wrapper[data-hero-mode="inner"][data-page-kind="post"] {
     height: var(--hero-height-post);
   }
@@ -1085,6 +1089,11 @@ const showBothSidebarsOnPost = isPostPage && desktopShowLeft && desktopShowRight
   #content-shell[data-hero-mode="inner"] {
     top: var(--hero-height-inner);
     min-height: calc(100vh - var(--hero-height-inner));
+  }
+
+  #content-shell[data-hero-mode="inner"]:not([data-page-kind="post"]) {
+    top: calc(var(--hero-height-home) + var(--hero-extend) - var(--hero-overlap));
+    min-height: calc(100vh - (var(--hero-height-home) + var(--hero-extend) - var(--hero-overlap)));
   }
 
   #content-shell[data-hero-mode="inner"][data-page-kind="post"] {

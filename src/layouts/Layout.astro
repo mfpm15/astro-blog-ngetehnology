@@ -950,25 +950,159 @@ const homeHeroRestartWindow = window as Window & {
 	__ngetehHomeHeroRestartRafA?: number | null;
 	__ngetehHomeHeroRestartRafB?: number | null;
 	__ngetehHomeHeroRestartRetry?: number | null;
-	__ngetehTypewriterInit?: (options?: { resetText?: boolean }) => void;
+	__ngetehFallbackTypewriterTimer?: number | null;
+	__ngetehTypewriterInit?: (options?: { resetText?: boolean; retry?: boolean; attempt?: number }) => void;
 	__ngetehTypewriterCleanup?: (resetText?: boolean) => void;
 };
 
+function normalizeHomeTypewriterTexts(value: unknown): string[] {
+	if (Array.isArray(value)) {
+		return value
+			.map((entry) => (typeof entry === 'string' ? entry.trim() : ''))
+			.filter(Boolean);
+	}
+	if (typeof value === 'string' && value.trim()) {
+		return [value.trim()];
+	}
+	return [];
+}
+
+function clearFallbackTypewriter() {
+	if (homeHeroRestartWindow.__ngetehFallbackTypewriterTimer !== null && homeHeroRestartWindow.__ngetehFallbackTypewriterTimer !== undefined) {
+		clearTimeout(homeHeroRestartWindow.__ngetehFallbackTypewriterTimer);
+		homeHeroRestartWindow.__ngetehFallbackTypewriterTimer = null;
+	}
+}
+
+function ensureHomeOverlayForTypewriter() {
+	const bannerWrapper = document.getElementById('banner-wrapper');
+	if (!bannerWrapper) return null;
+
+	let homeTextOverlay = document.querySelector('.banner-home-text-overlay');
+	if (!(homeTextOverlay instanceof HTMLElement)) {
+		const homeText = siteConfig.backgroundWallpaper.banner?.homeText;
+		const title = homeText?.title || siteConfig.title || 'NgetehNology';
+		const texts = normalizeHomeTypewriterTexts(homeText?.subtitle);
+		if (!homeText?.enable || texts.length === 0) return null;
+
+		homeTextOverlay = document.createElement('div');
+		homeTextOverlay.className = 'banner-home-text-overlay absolute inset-0 z-20 flex items-center justify-center';
+		homeTextOverlay.setAttribute('aria-hidden', 'false');
+		homeTextOverlay.style.padding = 'max(clamp(1.5rem, 4vw, 3rem), var(--navbar-clearance)) clamp(1.5rem, 4vw, 3rem) clamp(1.5rem, 4vw, 3rem)';
+		homeTextOverlay.style.textAlign = 'center';
+
+		const outer = document.createElement('div');
+		outer.className = 'w-4/5 text-center lg:w-3/4';
+		const stack = document.createElement('div');
+		stack.className = 'flex flex-col';
+		const titleEl = document.createElement('h1');
+		titleEl.className = 'banner-title mb-2 text-balance font-bold leading-tight text-white lg:mb-4';
+		titleEl.textContent = title;
+		const subtitleEl = document.createElement('div');
+		subtitleEl.className = 'banner-subtitle text-balance leading-snug text-white/90';
+		const typewriterEl = document.createElement('span');
+		typewriterEl.className = 'typewriter';
+		typewriterEl.dataset.text = JSON.stringify(texts);
+		typewriterEl.dataset.speed = String(homeText.typewriter?.speed || 100);
+		typewriterEl.dataset.deleteSpeed = String(homeText.typewriter?.deleteSpeed || 50);
+		typewriterEl.dataset.pauseTime = String(homeText.typewriter?.pauseTime || 2000);
+		subtitleEl.appendChild(typewriterEl);
+		stack.appendChild(titleEl);
+		stack.appendChild(subtitleEl);
+		outer.appendChild(stack);
+		homeTextOverlay.appendChild(outer);
+
+		const postMetaOverlay = document.getElementById('banner-post-meta-overlay');
+		bannerWrapper.insertBefore(homeTextOverlay, postMetaOverlay || null);
+	}
+
+	bannerWrapper.setAttribute('data-hero-mode', 'home');
+	bannerWrapper.setAttribute('data-page-kind', 'home');
+	const contentShell = document.getElementById('content-shell');
+	contentShell?.setAttribute('data-hero-mode', 'home');
+	contentShell?.setAttribute('data-page-kind', 'home');
+	homeTextOverlay.classList.remove('hidden');
+	homeTextOverlay.setAttribute('aria-hidden', 'false');
+	return homeTextOverlay;
+}
+
+function startFallbackTypewriter(resetText: boolean = true) {
+	if (!pathsEqual(window.location.pathname, url('/'))) return;
+
+	const overlay = ensureHomeOverlayForTypewriter();
+	const element = overlay?.querySelector('.typewriter');
+	if (!(element instanceof HTMLElement)) return;
+
+	clearFallbackTypewriter();
+	if (resetText) element.textContent = '';
+
+	const homeText = siteConfig.backgroundWallpaper.banner?.homeText;
+	let texts = normalizeHomeTypewriterTexts(homeText?.subtitle);
+	const encodedText = element.dataset.text;
+	if (encodedText) {
+		try {
+			const parsed = JSON.parse(encodedText);
+			const parsedTexts = normalizeHomeTypewriterTexts(parsed);
+			if (parsedTexts.length > 0) texts = parsedTexts;
+		} catch {
+			// Keep configured text fallback.
+		}
+	}
+	if (texts.length === 0) return;
+
+	const speed = Math.max(Number(homeText?.typewriter?.speed || element.dataset.speed || 100), 16);
+	const deleteSpeed = Math.max(Number(homeText?.typewriter?.deleteSpeed || element.dataset.deleteSpeed || 50), 16);
+	const pauseTime = Math.max(Number(homeText?.typewriter?.pauseTime || element.dataset.pauseTime || 2000), 300);
+	const segmentText = (text: string) => {
+		if (typeof Intl !== 'undefined' && 'Segmenter' in Intl) {
+			const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+			return Array.from(segmenter.segment(text), (segment) => segment.segment);
+		}
+		return Array.from(text);
+	};
+
+	let textIndex = 0;
+	let charIndex = 0;
+	let isDeleting = false;
+	const step = () => {
+		if (!pathsEqual(window.location.pathname, url('/'))) {
+			clearFallbackTypewriter();
+			return;
+		}
+
+		const currentText = texts[textIndex] || '';
+		const segments = segmentText(currentText);
+		if (isDeleting) {
+			charIndex = Math.max(0, charIndex - 1);
+			element.textContent = segments.slice(0, charIndex).join('');
+			if (charIndex === 0) {
+				isDeleting = false;
+				textIndex = (textIndex + 1) % texts.length;
+			}
+			homeHeroRestartWindow.__ngetehFallbackTypewriterTimer = window.setTimeout(step, deleteSpeed);
+			return;
+		}
+
+		charIndex = Math.min(segments.length, charIndex + 1);
+		element.textContent = segments.slice(0, charIndex).join('');
+		if (charIndex >= segments.length && texts.length > 1) {
+			isDeleting = true;
+			homeHeroRestartWindow.__ngetehFallbackTypewriterTimer = window.setTimeout(step, pauseTime);
+			return;
+		}
+		homeHeroRestartWindow.__ngetehFallbackTypewriterTimer = window.setTimeout(step, speed);
+	};
+
+	step();
+}
+
 function restartHomeTypewriter(attempt: number = 0) {
 	if (!pathsEqual(window.location.pathname, url('/'))) {
+		clearFallbackTypewriter();
 		return;
 	}
 
-	const bannerWrapper = document.getElementById('banner-wrapper');
-	const homeTextOverlay = document.querySelector('.banner-home-text-overlay');
-	if (bannerWrapper) {
-		bannerWrapper.setAttribute('data-hero-mode', 'home');
-		bannerWrapper.setAttribute('data-page-kind', 'home');
-	}
-	if (homeTextOverlay instanceof HTMLElement) {
-		homeTextOverlay.classList.remove('hidden');
-		homeTextOverlay.setAttribute('aria-hidden', 'false');
-	}
+	ensureHomeOverlayForTypewriter();
 
 	const typewriterElements = document.querySelectorAll('.banner-home-text-overlay .typewriter');
 	if (typewriterElements.length === 0) {
@@ -976,13 +1110,26 @@ function restartHomeTypewriter(attempt: number = 0) {
 			homeHeroRestartWindow.__ngetehHomeHeroRestartRetry = window.setTimeout(() => {
 				restartHomeTypewriter(attempt + 1);
 			}, 120);
+		} else {
+			startFallbackTypewriter(true);
 		}
 		return;
 	}
 
 	if (typeof homeHeroRestartWindow.__ngetehTypewriterInit === 'function') {
+		clearFallbackTypewriter();
 		homeHeroRestartWindow.__ngetehTypewriterCleanup?.(true);
-		homeHeroRestartWindow.__ngetehTypewriterInit({ resetText: true });
+		homeHeroRestartWindow.__ngetehTypewriterInit({ resetText: true, retry: true });
+		window.setTimeout(() => {
+			const activeTypewriter = document.querySelector('.banner-home-text-overlay .typewriter');
+			if (
+				pathsEqual(window.location.pathname, url('/')) &&
+				activeTypewriter instanceof HTMLElement &&
+				!(activeTypewriter as HTMLElement & { __typewriterInstance?: unknown }).__typewriterInstance
+			) {
+				startFallbackTypewriter(true);
+			}
+		}, 420);
 		return;
 	}
 
@@ -990,6 +1137,8 @@ function restartHomeTypewriter(attempt: number = 0) {
 		homeHeroRestartWindow.__ngetehHomeHeroRestartRetry = window.setTimeout(() => {
 			restartHomeTypewriter(attempt + 1);
 		}, 120);
+	} else {
+		startFallbackTypewriter(true);
 	}
 }
 
