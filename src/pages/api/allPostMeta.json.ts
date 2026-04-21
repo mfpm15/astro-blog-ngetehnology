@@ -25,7 +25,8 @@ export const GET: APIRoute = async () => {
   return new Response(JSON.stringify(payload), {
     headers: {
       "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": "public, max-age=300",
+      // Avoid stale empty payloads during local dev (especially after route swaps / restarts).
+      "Cache-Control": import.meta.env.PROD ? "public, max-age=300" : "no-store",
     },
   });
 };
