@@ -137,11 +137,14 @@ export type BlogPostData = {
   title: string;
   published: Date;
   description: string;
+  slug?: string;
   tags: string[];
   draft?: boolean;
   image?: string;
   category?: string;
   pinned?: boolean;
+  comment?: boolean;
+  passwordHint?: string;
   prevTitle?: string;
   prevSlug?: string;
   nextTitle?: string;

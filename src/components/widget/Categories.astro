@@ -1,41 +1,73 @@
 ---
 import I18nKey from "../../i18n/i18nKey";
 import { i18n } from "../../i18n/translation";
-import type { WidgetComponentConfig } from "../../types/config";
 import { getCategoryList } from "../../utils/content-utils";
 import ButtonLink from "../control/ButtonLink.astro";
 import WidgetLayout from "./WidgetLayout.astro";
-import { getComponentConfig } from "../../utils/widget-manager";
 
-const categories = await getCategoryList();
-
-const COLLAPSED_HEIGHT = "7.5rem";
-
-// 使用统一的组件管理器检查是否应该折叠
 interface Props {
   class?: string;
   style?: string;
-  componentConfig?: WidgetComponentConfig;
 }
+
 const className = Astro.props.class;
 const style = Astro.props.style;
-const categoriesComponent = Astro.props.componentConfig ?? getComponentConfig("categories");
-const isCollapsed = Boolean(
-  categoriesComponent?.responsive?.collapseThreshold &&
-    categories.length >= categoriesComponent.responsive.collapseThreshold
-);
+
+const categories = await getCategoryList();
+const sortedByFrequency = [...categories].sort((a, b) => {
+  if (b.count !== a.count) return b.count - a.count;
+  return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+});
+
+// Widget only: show top 8 categories, with a "More" control revealing 5-8.
+const displayCategories = sortedByFrequency.slice(0, 8);
+const visibleCategories = displayCategories.slice(0, 4);
+const moreCategories = displayCategories.slice(4);
 ---
 
-<WidgetLayout name={i18n(I18nKey.categories)} id="categories" isCollapsed={isCollapsed} collapsedHeight={COLLAPSED_HEIGHT}
-                class={className} style={style}
->
-    {categories.map((c) =>
-        <ButtonLink
-            url={c.url}
-            badge={String(c.count)}
-            label={`View all posts in the ${c.name.trim()} category`}
-        >
-            {c.name.trim()}
-        </ButtonLink>
-    )}
+<WidgetLayout name={i18n(I18nKey.categories)} id="categories" class={className} style={style}>
+  <div class="flex flex-col gap-1">
+    {visibleCategories.map((c) => (
+      <ButtonLink
+        url={c.url}
+        badge={String(c.count)}
+        label={`View all posts in the ${c.name.trim()} category`}
+      >
+        {c.name.trim()}
+      </ButtonLink>
+    ))}
+
+    {
+      moreCategories.length > 0 && (
+        <details class="category-more mt-1">
+          <summary class="btn-plain scale-animation rounded-lg w-full h-9 flex items-center justify-center gap-2 active:scale-95">
+            {i18n(I18nKey.more)}
+            <span class="text-xs opacity-60">({moreCategories.length})</span>
+          </summary>
+          <div class="mt-1 flex flex-col gap-1">
+            {moreCategories.map((c) => (
+              <ButtonLink
+                url={c.url}
+                badge={String(c.count)}
+                label={`View all posts in the ${c.name.trim()} category`}
+              >
+                {c.name.trim()}
+              </ButtonLink>
+            ))}
+          </div>
+        </details>
+      )
+    }
+  </div>
 </WidgetLayout>
+
+<style>
+  .category-more summary {
+    list-style: none;
+  }
+
+  .category-more summary::-webkit-details-marker {
+    display: none;
+  }
+</style>
+

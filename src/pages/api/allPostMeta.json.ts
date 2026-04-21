@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { getCollection } from "astro:content";
-import { getPostSlugFromId } from "../../utils/url-utils";
+import { getPostSlug } from "../../utils/url-utils";
 
 export const prerender = true;
 
@@ -12,7 +12,7 @@ export const GET: APIRoute = async () => {
   const payload = posts
     .map((post) => ({
       id: post.id,
-      slug: getPostSlugFromId(post.id),
+      slug: getPostSlug(post),
       title: post.data.title,
       published: post.data.published.toISOString(),
     }))

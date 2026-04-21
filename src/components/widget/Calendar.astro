@@ -26,6 +26,7 @@ const labels =
         noMonthlyPosts: "No posts in this month yet.",
         noDailyPosts: "No posts on this day.",
         loading: "Loading post calendar...",
+        more: "More",
       }
     : {
         title: "Kalender",
@@ -33,6 +34,7 @@ const labels =
         noMonthlyPosts: "Belum ada artikel di bulan ini.",
         noDailyPosts: "Belum ada artikel di tanggal ini.",
         loading: "Memuat kalender artikel...",
+        more: "More",
       };
 
 const calendarDataUrl = url("/api/allPostMeta.json");
@@ -50,6 +52,7 @@ const postUrlPrefix = url("/posts/");
     data-label-no-monthly-posts={labels.noMonthlyPosts}
     data-label-no-daily-posts={labels.noDailyPosts}
     data-label-loading={labels.loading}
+    data-label-more={labels.more}
   >
     <div class="mb-3 flex items-center justify-between gap-2">
       <button
@@ -132,6 +135,7 @@ const postUrlPrefix = url("/posts/");
       const labelToday = root.dataset.labelToday || "Today";
       const noMonthlyPosts = root.dataset.labelNoMonthlyPosts || "No posts in this month yet.";
       const noDailyPosts = root.dataset.labelNoDailyPosts || "No posts on this day.";
+      const labelMore = root.dataset.labelMore || "More";
 
       const dayView = root.querySelector("[data-calendar-day-view]");
       const monthView = root.querySelector("[data-calendar-month-view]");
@@ -175,7 +179,7 @@ const postUrlPrefix = url("/posts/");
       }
 
       function renderPostList(posts, emptyText) {
-        if (!posts.length) {
+        if (!Array.isArray(posts) || !posts.length) {
           postsWrapper.style.display = "block";
           divider.style.display = "none";
           postsList.innerHTML = `<div class="rounded-xl bg-[var(--btn-plain-bg)] px-3 py-2 text-sm text-neutral-500 dark:text-neutral-400">${emptyText}</div>`;
@@ -184,8 +188,10 @@ const postUrlPrefix = url("/posts/");
 
         postsWrapper.style.display = "block";
         divider.style.display = "block";
-        postsList.innerHTML = posts
-          .map((post) => {
+        const visiblePosts = posts.slice(0, 2);
+        const morePosts = posts.slice(2);
+
+        const renderPostItem = (post) => {
             const date = new Date(post.published);
             const dateText = date.toLocaleDateString(locale, {
               day: "2-digit",
@@ -201,8 +207,27 @@ const postUrlPrefix = url("/posts/");
                 <span class="shrink-0 text-[11px] text-neutral-500 dark:text-neutral-400">${dateText}</span>
               </a>
             `;
-          })
-          .join("");
+          };
+
+        const visibleHtml = visiblePosts.map(renderPostItem).join("");
+        if (!morePosts.length) {
+          postsList.innerHTML = visibleHtml;
+          return;
+        }
+
+        const moreHtml = morePosts.map(renderPostItem).join("");
+        postsList.innerHTML = `
+          ${visibleHtml}
+          <details class="calendar-more mt-1 rounded-xl">
+            <summary class="btn-plain scale-animation rounded-lg w-full h-9 flex items-center justify-center gap-2 active:scale-95">
+              ${labelMore}
+              <span class="text-xs opacity-60">(${morePosts.length})</span>
+            </summary>
+            <div class="mt-1 flex flex-col gap-1">
+              ${moreHtml}
+            </div>
+          </details>
+        `;
       }
 
       function updateHeader() {
@@ -259,8 +284,9 @@ const postUrlPrefix = url("/posts/");
             "sm:min-h-[2.2rem]",
           ];
 
+          classNames.push("cursor-pointer");
           if (posts.length > 0) {
-            classNames.push("cursor-pointer", "text-neutral-900", "dark:text-neutral-100");
+            classNames.push("text-neutral-900", "dark:text-neutral-100");
           } else {
             classNames.push("text-neutral-600", "dark:text-neutral-400");
           }
@@ -296,18 +322,15 @@ const postUrlPrefix = url("/posts/");
           return date.getFullYear() === displayYear && date.getMonth() === displayMonth;
         });
 
-        if (selectedDateKey && postDateMap[selectedDateKey]) {
-          renderPostList(postDateMap[selectedDateKey], noDailyPosts);
+        if (selectedDateKey) {
+          renderPostList(postDateMap[selectedDateKey] || [], noDailyPosts);
         } else {
-          selectedDateKey = "";
           renderPostList(currentMonthPosts, noMonthlyPosts);
         }
 
         grid.querySelectorAll("[data-date]").forEach((button) => {
           button.addEventListener("click", () => {
             const dateKey = button.getAttribute("data-date") || "";
-            const hasPost = button.getAttribute("data-has-post") === "true";
-            if (!hasPost) return;
             if (!dateKey) return;
 
             selectedDateKey = selectedDateKey === dateKey ? "" : dateKey;
@@ -498,3 +521,13 @@ const postUrlPrefix = url("/posts/");
     setTimeout(initAdvancedCalendars, 100);
   });
 </script>
+
+<style>
+  :global(.calendar-more summary) {
+    list-style: none;
+  }
+
+  :global(.calendar-more summary::-webkit-details-marker) {
+    display: none;
+  }
+</style>

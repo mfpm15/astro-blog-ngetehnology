@@ -23,6 +23,9 @@ import {
   HERO_HEIGHT_INNER_MOBILE,
   MAIN_PANEL_OVERLAPS_BANNER_HEIGHT,
 } from "../constants/constants";
+import I18nKey from "../i18n/i18nKey";
+import { i18n } from "../i18n/translation";
+import { formatDateToYYYYMMDD } from "../utils/date-utils";
 import { widgetManager } from "../utils/widget-manager";
 import Layout from "./Layout.astro";
 
@@ -33,7 +36,15 @@ interface Props {
   lang?: string;
   setOGTypeArticle?: boolean;
   postSlug?: string;
+  bannerPostMeta?: {
+    title: string;
+    published: Date;
+    updated?: Date;
+    words?: number;
+    minutes?: number;
+  };
   headings?: MarkdownHeading[];
+  pageLayout?: "auto" | "reading" | "utility";
 }
 
 const normalizeImageValue = (value: unknown): string | null => {
@@ -129,7 +140,9 @@ const {
   lang,
   setOGTypeArticle,
   postSlug,
+  bannerPostMeta,
   headings = [],
+  pageLayout = "auto",
 } = Astro.props;
 
 const customHeroImage = typeof banner === "string" && banner.trim() ? banner.trim() : "";
@@ -208,13 +221,47 @@ const bannerCarouselEnabledDefault =
   siteConfig.backgroundWallpaper.banner?.carousel?.enable ?? heroImages.isMultiple;
 const bannerCarouselSwitchable = siteConfig.backgroundWallpaper.banner?.carousel?.switchable ?? false;
 const bannerCarouselInterval = Math.max(siteConfig.backgroundWallpaper.banner?.carousel?.interval ?? 5000, 3000);
-const showInnerHeroText = heroMode === "inner" && Boolean(title || description);
 const hasHeadings = headings.length > 0;
 const shouldEnableTransparency = isOverlayMode && isBackgroundEnabled;
 const transparentClass = shouldEnableTransparency ? "wallpaper-transparent" : "";
 
 const globalSidebarEnabled = sidebarLayoutConfig.enable;
 const isPostPage = Astro.url.pathname.startsWith("/posts/");
+const resolvedPageLayout =
+  isHomePage
+    ? "home"
+    : pageLayout === "reading"
+      ? "reading"
+      : pageLayout === "utility"
+        ? "utility"
+        : isPostPage
+          ? "reading"
+          : "utility";
+const isReadingPage = resolvedPageLayout === "reading";
+const pageKind = isHomePage ? "home" : isPostPage ? "post" : isReadingPage ? "reading" : "utility";
+const innerHeroDescription = !isPostPage && typeof description === "string" ? description.trim() : "";
+const showInnerHeroText = heroMode === "inner" && !isPostPage && Boolean(title || innerHeroDescription);
+
+const postMetaPublished = bannerPostMeta?.published instanceof Date ? bannerPostMeta.published : undefined;
+const postMetaUpdated =
+  bannerPostMeta?.updated instanceof Date &&
+  postMetaPublished &&
+  bannerPostMeta.updated.getTime() !== postMetaPublished.getTime()
+    ? bannerPostMeta.updated
+    : undefined;
+
+const bannerPostMetaActive = heroMode === "inner" && pageKind === "post" && Boolean(bannerPostMeta?.title);
+const bannerPostMetaTitle = bannerPostMeta?.title ?? "";
+const bannerPostMetaPublishedText = postMetaPublished ? formatDateToYYYYMMDD(postMetaPublished) : "";
+const bannerPostMetaUpdatedText = postMetaUpdated ? formatDateToYYYYMMDD(postMetaUpdated) : "";
+const bannerPostMetaWordsText =
+  typeof bannerPostMeta?.words === "number"
+    ? `${bannerPostMeta.words} ${i18n(bannerPostMeta.words === 1 ? I18nKey.wordCount : I18nKey.wordsCount)}`
+    : "";
+const bannerPostMetaMinutesText =
+  typeof bannerPostMeta?.minutes === "number"
+    ? `${bannerPostMeta.minutes} ${i18n(bannerPostMeta.minutes === 1 ? I18nKey.minuteCount : I18nKey.minutesCount)}`
+    : "";
 const mobileShowSidebar = globalSidebarEnabled && widgetManager.shouldShowSidebar("mobile");
 const tabletShowSidebar = globalSidebarEnabled && widgetManager.shouldShowSidebar("tablet");
 const desktopShowSidebar = globalSidebarEnabled && widgetManager.shouldShowSidebar("desktop");
@@ -228,17 +275,34 @@ const rightHasComponents =
   widgetManager.getComponentsByPosition("top", "right", isPostPage).length > 0 ||
   widgetManager.getComponentsByPosition("sticky", "right", isPostPage).length > 0;
 
-const tabletShowLeft =
+const genericTabletShowLeft =
   tabletShowSidebar && leftHasComponents && widgetManager.shouldShowSidebarSide("tablet", "left", isPostPage);
-const tabletShowRight =
+const genericTabletShowRight =
   tabletShowSidebar && rightHasComponents && widgetManager.shouldShowSidebarSide("tablet", "right", isPostPage);
-const desktopShowLeft =
+const genericDesktopShowLeft =
   desktopShowSidebar && leftHasComponents && widgetManager.shouldShowSidebarSide("desktop", "left", isPostPage);
-const desktopShowRight =
+const genericDesktopShowRight =
   desktopShowSidebar && rightHasComponents && widgetManager.shouldShowSidebarSide("desktop", "right", isPostPage);
 
+const effectiveLeftHasComponents = leftHasComponents;
+const effectiveRightHasComponents = rightHasComponents;
+const tabletShowLeft = isReadingPage ? false : genericTabletShowLeft;
+const tabletShowRight = isReadingPage
+  ? tabletShowSidebar && effectiveRightHasComponents
+  : genericTabletShowRight;
+const desktopShowLeft = isReadingPage
+  ? desktopShowSidebar && effectiveLeftHasComponents
+  : genericDesktopShowLeft;
+const desktopShowRight = isReadingPage
+  ? desktopShowSidebar && effectiveRightHasComponents
+  : genericDesktopShowRight;
+
 const mdGridCols =
-  tabletShowLeft && tabletShowRight
+  isReadingPage
+    ? tabletShowRight
+      ? "md:grid-cols-[minmax(0,1fr)_15rem]"
+      : "md:grid-cols-1"
+    : tabletShowLeft && tabletShowRight
     ? "md:grid-cols-[17.5rem_1fr_17.5rem]"
     : tabletShowLeft
       ? "md:grid-cols-[17.5rem_1fr]"
@@ -247,7 +311,15 @@ const mdGridCols =
         : "md:grid-cols-1";
 
 const xlGridCols =
-  desktopShowLeft && desktopShowRight
+  isReadingPage
+    ? desktopShowLeft && desktopShowRight
+      ? "xl:grid-cols-[17.5rem_minmax(0,1fr)_15.5rem]"
+      : desktopShowLeft
+        ? "xl:grid-cols-[17.5rem_minmax(0,1fr)]"
+        : desktopShowRight
+          ? "xl:grid-cols-[minmax(0,1fr)_15.5rem]"
+          : "xl:grid-cols-1"
+    : desktopShowLeft && desktopShowRight
     ? "xl:grid-cols-[17.5rem_1fr_17.5rem]"
     : desktopShowLeft
       ? "xl:grid-cols-[17.5rem_1fr]"
@@ -272,21 +344,32 @@ const leftSidebarClass = `
   .replace(/\s+/g, " ");
 
 const rightSidebarClass = `
-  onload-animation row-start-2 row-end-3 w-full
+  ${isReadingPage ? "reading-sidebar-column" : ""} onload-animation row-start-2 row-end-3 w-full
   ${mobileShowSidebar ? "block" : "hidden"}
-  ${tabletShowRight ? `md:block md:row-start-1 md:row-end-2 md:max-w-[17.5rem] ${mdRightCol}` : "md:hidden"}
-  ${desktopShowRight ? `xl:block xl:row-start-1 xl:row-end-2 xl:max-w-[17.5rem] ${xlRightCol}` : "xl:hidden"}
+  ${
+    tabletShowRight
+      ? `md:block md:row-start-1 md:row-end-2 ${isReadingPage ? "" : "md:max-w-[17.5rem]"} ${mdRightCol}`
+      : "md:hidden"
+  }
+  ${
+    desktopShowRight
+      ? `xl:block xl:row-start-1 xl:row-end-2 ${isReadingPage ? "" : "xl:max-w-[17.5rem]"} ${xlRightCol}`
+      : "xl:hidden"
+  }
 `
   .trim()
   .replace(/\s+/g, " ");
 
 const mainContentClass = `
-  transition-swup-fade min-w-0 overflow-hidden
+  ${isReadingPage ? "reading-main-column" : ""} min-w-0 overflow-hidden
   ${mdMainCol}
   ${xlMainCol}
 `
   .trim()
   .replace(/\s+/g, " ");
+
+const swupContainerClass = "transition-swup-fade block";
+const contentWrapperClass = `onload-animation transition-leaving${isReadingPage ? " reading-content-wrapper" : ""}`;
 
 const rightTocEnabled = widgetManager
   .getComponentsByPosition("top", "right", isPostPage)
@@ -345,6 +428,7 @@ const showBothSidebarsOnPost = isPostPage && desktopShowLeft && desktopShowRight
       <section
         id="banner-wrapper"
         data-hero-mode={heroMode}
+        data-page-kind={pageKind}
         data-wave-style={waveStyle}
         class="absolute inset-x-0 z-10 overflow-hidden"
       >
@@ -682,8 +766,11 @@ const showBothSidebarsOnPost = isPostPage && desktopShowLeft && desktopShowRight
         </script>
 
         {
-          renderHomeText && (
-            <div class:list={["banner-home-text-overlay absolute inset-0 z-20 flex items-center justify-center", { hidden: !showHomeText }]}>
+          showHomeText && (
+            <div
+              class:list={["banner-home-text-overlay absolute inset-0 z-20 flex items-center justify-center", { hidden: !showHomeText }]}
+              aria-hidden={showHomeText ? "false" : "true"}
+            >
               <div class="w-4/5 text-center lg:w-3/4">
                 <div class="flex flex-col">
                   {
@@ -724,11 +811,56 @@ const showBothSidebarsOnPost = isPostPage && desktopShowLeft && desktopShowRight
             <div class="inner-hero-overlay absolute inset-x-0 bottom-0 z-20">
               <div class="mx-auto flex w-full max-w-[var(--page-width)] flex-col gap-2 px-4 pb-8 pt-20 md:px-6 md:pb-10">
                 {title && <div class="inner-hero-title text-balance">{title}</div>}
-                {description && <p class="inner-hero-description max-w-3xl text-balance">{description}</p>}
+                {innerHeroDescription && <p class="inner-hero-description max-w-3xl text-balance">{innerHeroDescription}</p>}
               </div>
             </div>
           )
         }
+
+        <div
+          id="banner-post-meta-overlay"
+          class="banner-post-meta-overlay absolute inset-0 z-20 items-center justify-center pointer-events-none"
+          data-active={bannerPostMetaActive ? "true" : "false"}
+          aria-hidden={bannerPostMetaActive ? "false" : "true"}
+        >
+          <div class="w-4/5 text-center lg:w-3/4">
+            <div class="flex flex-col items-center gap-3">
+              <div class="banner-post-title font-bold text-white leading-tight" data-banner-post-title>
+                {bannerPostMetaTitle}
+              </div>
+              <div class="banner-post-meta-list flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-white/90 md:text-base">
+                <span class="banner-post-meta-item inline-flex items-center gap-1.5" data-banner-post-item="published" data-visible="true">
+                  <Icon name="material-symbols:calendar-month-outline-rounded" class="text-[1.05em]" />
+                  <span data-banner-post-published>{bannerPostMetaPublishedText}</span>
+                </span>
+                <span
+                  class="banner-post-meta-item inline-flex items-center gap-1.5"
+                  data-banner-post-item="updated"
+                  data-visible={bannerPostMetaUpdatedText ? "true" : "false"}
+                >
+                  <Icon name="material-symbols:edit-calendar-outline-rounded" class="text-[1.05em]" />
+                  <span data-banner-post-updated>{bannerPostMetaUpdatedText}</span>
+                </span>
+                <span
+                  class="banner-post-meta-item inline-flex items-center gap-1.5"
+                  data-banner-post-item="words"
+                  data-visible={bannerPostMetaWordsText ? "true" : "false"}
+                >
+                  <Icon name="material-symbols:notes-rounded" class="text-[1.05em]" />
+                  <span data-banner-post-words>{bannerPostMetaWordsText}</span>
+                </span>
+                <span
+                  class="banner-post-meta-item inline-flex items-center gap-1.5"
+                  data-banner-post-item="minutes"
+                  data-visible={bannerPostMetaMinutesText ? "true" : "false"}
+                >
+                  <Icon name="material-symbols:schedule-outline-rounded" class="text-[1.05em]" />
+                  <span data-banner-post-minutes>{bannerPostMetaMinutesText}</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {
           heroMode !== "none" &&
@@ -776,100 +908,106 @@ const showBothSidebarsOnPost = isPostPage && desktopShowLeft && desktopShowRight
     <div
       id="content-shell"
       data-hero-mode={heroMode}
+      data-layout-mode={resolvedPageLayout}
+      data-page-kind={pageKind}
       data-wave-style={waveStyle}
       class:list={["absolute inset-x-0 z-30 w-full pointer-events-none", transparentClass]}
     >
       <div class="pointer-events-auto relative z-[2] mx-auto w-full max-w-[var(--page-width)] xl:w-[92vw]">
-        <div
-          id="main-grid"
-          class:list={[
-            "transition duration-700 left-0 right-0 mx-auto grid w-full grid-rows-[auto_1fr_auto] gap-4 px-2 md:px-4 lg:grid-rows-[auto]",
-            gridCols,
-          ]}
-          data-sidebar-position={desktopSidebarPosition}
-          data-tablet-sidebar={tabletSidebarPosition}
-          data-show-both-sidebars-on-post={String(showBothSidebarsOnPost)}
-        >
-          {
-            heroMode !== "none" &&
-              creditEnabledOnDesktop && (
-                <a
-                  href={creditUrlDesktop || "#"}
-                  id="banner-credit-desktop"
-                  target={creditUrlDesktop ? "_blank" : "_self"}
-                  rel={creditUrlDesktop ? "noopener" : undefined}
-                  aria-label="Visit image source"
-                  class:list={[
-                    "group absolute right-4 -top-13 hidden h-9 items-center justify-center rounded-full bg-black/60 px-3 text-xs text-white/80 transition-all hover:bg-black/70 active:bg-black/80 md:flex",
-                    { "pr-9": Boolean(creditUrlDesktop) },
-                  ]}
-                >
-                  <Icon class="mr-1 text-[1.25rem] text-white/75" name="material-symbols:copyright-outline-rounded" />
-                  <span>{creditTextDesktop}</span>
-                  {
-                    creditUrlDesktop && (
-                      <Icon
-                        class="absolute right-4 text-[0.75rem] text-[oklch(0.75_0.14_var(--hue))] opacity-0 transition group-hover:opacity-100"
-                        name="fa6-solid:arrow-up-right-from-square"
-                      />
-                    )
-                  }
-                </a>
-              )
-          }
+        <main id="swup-container" class={swupContainerClass} data-layout-mode={resolvedPageLayout}>
+          <div
+            id="main-grid"
+            class:list={[
+              "transition duration-700 left-0 right-0 mx-auto grid w-full grid-rows-[auto_1fr_auto] gap-4 px-2 md:px-4 lg:grid-rows-[auto]",
+              gridCols,
+            ]}
+            data-layout-mode={resolvedPageLayout}
+            data-has-right-sidebar={String(effectiveRightHasComponents)}
+            data-sidebar-position={desktopSidebarPosition}
+            data-tablet-sidebar={tabletSidebarPosition}
+            data-show-both-sidebars-on-post={String(showBothSidebarsOnPost)}
+          >
+            {
+              heroMode !== "none" &&
+                creditEnabledOnDesktop && (
+                  <a
+                    href={creditUrlDesktop || "#"}
+                    id="banner-credit-desktop"
+                    target={creditUrlDesktop ? "_blank" : "_self"}
+                    rel={creditUrlDesktop ? "noopener" : undefined}
+                    aria-label="Visit image source"
+                    class:list={[
+                      "group absolute right-4 -top-13 hidden h-9 items-center justify-center rounded-full bg-black/60 px-3 text-xs text-white/80 transition-all hover:bg-black/70 active:bg-black/80 md:flex",
+                      { "pr-9": Boolean(creditUrlDesktop) },
+                    ]}
+                  >
+                    <Icon class="mr-1 text-[1.25rem] text-white/75" name="material-symbols:copyright-outline-rounded" />
+                    <span>{creditTextDesktop}</span>
+                    {
+                      creditUrlDesktop && (
+                        <Icon
+                          class="absolute right-4 text-[0.75rem] text-[oklch(0.75_0.14_var(--hue))] opacity-0 transition group-hover:opacity-100"
+                          name="fa6-solid:arrow-up-right-from-square"
+                        />
+                      )
+                    }
+                  </a>
+                )
+            }
 
-          {
-            heroMode !== "none" &&
-              creditEnabledOnMobile && (
-                <a
-                  href={creditUrlMobile || "#"}
-                  id="banner-credit-mobile"
-                  target={creditUrlMobile ? "_blank" : "_self"}
-                  rel={creditUrlMobile ? "noopener" : undefined}
-                  aria-label="Visit image source"
-                  class:list={[
-                    "group absolute right-4 -top-13 flex h-9 items-center justify-center rounded-full bg-black/60 px-3 text-xs text-white/80 transition-all hover:bg-black/70 active:bg-black/80 md:hidden",
-                    { "pr-9": Boolean(creditUrlMobile) },
-                  ]}
-                >
-                  <Icon class="mr-1 text-[1.25rem] text-white/75" name="material-symbols:copyright-outline-rounded" />
-                  <span>{creditTextMobile}</span>
-                  {
-                    creditUrlMobile && (
-                      <Icon
-                        class="absolute right-4 text-[0.75rem] text-[oklch(0.75_0.14_var(--hue))] opacity-0 transition group-hover:opacity-100"
-                        name="fa6-solid:arrow-up-right-from-square"
-                      />
-                    )
-                  }
-                </a>
-              )
-          }
+            {
+              heroMode !== "none" &&
+                creditEnabledOnMobile && (
+                  <a
+                    href={creditUrlMobile || "#"}
+                    id="banner-credit-mobile"
+                    target={creditUrlMobile ? "_blank" : "_self"}
+                    rel={creditUrlMobile ? "noopener" : undefined}
+                    aria-label="Visit image source"
+                    class:list={[
+                      "group absolute right-4 -top-13 flex h-9 items-center justify-center rounded-full bg-black/60 px-3 text-xs text-white/80 transition-all hover:bg-black/70 active:bg-black/80 md:hidden",
+                      { "pr-9": Boolean(creditUrlMobile) },
+                    ]}
+                  >
+                    <Icon class="mr-1 text-[1.25rem] text-white/75" name="material-symbols:copyright-outline-rounded" />
+                    <span>{creditTextMobile}</span>
+                    {
+                      creditUrlMobile && (
+                        <Icon
+                          class="absolute right-4 text-[0.75rem] text-[oklch(0.75_0.14_var(--hue))] opacity-0 transition group-hover:opacity-100"
+                          name="fa6-solid:arrow-up-right-from-square"
+                        />
+                      )
+                    }
+                  </a>
+                )
+            }
 
-          {globalSidebarEnabled && leftHasComponents && (
-            <SideBar class={`${leftSidebarClass} ${transparentClass}`} headings={headings} side="left" isPostPage={isPostPage} />
-          )}
+            {globalSidebarEnabled && effectiveLeftHasComponents && (
+              <SideBar class={`${leftSidebarClass} ${transparentClass}`} headings={headings} side="left" isPostPage={isPostPage} />
+            )}
 
-          {globalSidebarEnabled && rightHasComponents && (
-            <SideBar class={`${rightSidebarClass} ${transparentClass}`} headings={headings} side="right" isPostPage={isPostPage} />
-          )}
-
-          <main id="swup-container" class={mainContentClass}>
-            <div id="content-wrapper" class="onload-animation transition-leaving">
-              <slot />
+            <div class={mainContentClass}>
+              <div id="content-wrapper" class={contentWrapperClass} data-layout-mode={resolvedPageLayout}>
+                <slot />
+              </div>
             </div>
-          </main>
 
-          {hasMobileBottomComponents && (
-            <div class="col-span-full md:hidden">
-              <MobileBottomWidgets class="onload-animation" headings={headings} isPostPage={isPostPage} />
+            {globalSidebarEnabled && effectiveRightHasComponents && (
+              <SideBar class={`${rightSidebarClass} ${transparentClass}`} headings={headings} side="right" isPostPage={isPostPage} />
+            )}
+
+            {hasMobileBottomComponents && (
+              <div class="col-span-full md:hidden">
+                <MobileBottomWidgets class="onload-animation" headings={headings} isPostPage={isPostPage} />
+              </div>
+            )}
+
+            <div class="footer onload-animation col-span-full">
+              <Footer />
             </div>
-          )}
-
-          <div class="footer onload-animation col-span-full">
-            <Footer />
           </div>
-        </div>
+        </main>
 
         <BackToTop />
         {spineModelConfig.enable && <SpineModel />}
@@ -889,6 +1027,10 @@ const showBothSidebarsOnPost = isPostPage && desktopShowLeft && desktopShowRight
     heroHeightHomeMobile: `${HERO_HEIGHT_HOME_MOBILE}vh`,
     heroHeightInnerDesktop: `${HERO_HEIGHT_INNER}rem`,
     heroHeightInnerMobile: `${HERO_HEIGHT_INNER_MOBILE}rem`,
+    heroPostExtraDesktop: "4rem",
+    heroPostExtraMobile: "2.25rem",
+    heroPostOffsetDesktop: "2.5rem",
+    heroPostOffsetMobile: "1.5rem",
     heroExtend: `${BANNER_HEIGHT_EXTEND}vh`,
     heroOverlap: `${MAIN_PANEL_OVERLAPS_BANNER_HEIGHT}rem`,
     heroWaveDesktopHeight: waveHeightDesktop,
@@ -898,6 +1040,8 @@ const showBothSidebarsOnPost = isPostPage && desktopShowLeft && desktopShowRight
   #page-shell-vars {
     --hero-height-home: var(--heroHeightHomeDesktop);
     --hero-height-inner: var(--heroHeightInnerDesktop);
+    --hero-post-extra: var(--heroPostExtraDesktop);
+    --hero-post-offset: var(--heroPostOffsetDesktop);
     --hero-extend: var(--heroExtend);
     --hero-overlap: var(--heroOverlap);
     --hero-wave-height: var(--heroWaveDesktopHeight);
@@ -915,6 +1059,8 @@ const showBothSidebarsOnPost = isPostPage && desktopShowLeft && desktopShowRight
     #page-shell-vars {
       --hero-height-home: var(--heroHeightHomeMobile);
       --hero-height-inner: var(--heroHeightInnerMobile);
+      --hero-post-extra: var(--heroPostExtraMobile);
+      --hero-post-offset: var(--heroPostOffsetMobile);
       --hero-wave-height: var(--heroWaveMobileHeight);
       --navbar-shell-height: 5.75rem;
       --navbar-clearance: calc(var(--navbar-shell-height) + 0.5rem);
@@ -931,6 +1077,10 @@ const showBothSidebarsOnPost = isPostPage && desktopShowLeft && desktopShowRight
     height: calc(var(--hero-height-inner) + 1.25rem);
   }
 
+  #banner-wrapper[data-hero-mode="inner"][data-page-kind="post"] {
+    height: calc(var(--hero-height-inner) + var(--hero-post-extra));
+  }
+
   #content-shell[data-hero-mode="home"] {
     top: calc(var(--hero-height-home) + var(--hero-extend) - var(--hero-overlap));
     min-height: calc(100vh - (var(--hero-height-home) + var(--hero-extend) - var(--hero-overlap)));
@@ -939,6 +1089,11 @@ const showBothSidebarsOnPost = isPostPage && desktopShowLeft && desktopShowRight
   #content-shell[data-hero-mode="inner"] {
     top: var(--hero-height-inner);
     min-height: calc(100vh - var(--hero-height-inner));
+  }
+
+  #content-shell[data-hero-mode="inner"][data-page-kind="post"] {
+    top: calc(var(--hero-height-inner) + var(--hero-post-offset));
+    min-height: calc(100vh - (var(--hero-height-inner) + var(--hero-post-offset)));
   }
 
   #content-shell[data-hero-mode="none"] {
@@ -963,6 +1118,27 @@ const showBothSidebarsOnPost = isPostPage && desktopShowLeft && desktopShowRight
   #content-shell[data-hero-mode="inner"] #main-grid,
   #content-shell[data-hero-mode="none"] #main-grid {
     padding-top: 0.75rem;
+  }
+
+  #main-grid[data-layout-mode="reading"] {
+    align-items: start;
+    column-gap: clamp(1rem, 2.2vw, 1.65rem);
+    row-gap: 1rem;
+  }
+
+  #main-grid[data-layout-mode="reading"] .reading-main-column {
+    min-width: 0;
+  }
+
+  #main-grid[data-layout-mode="reading"] .reading-content-wrapper {
+    width: 100%;
+    max-width: min(100%, 72rem);
+  }
+
+  #main-grid[data-layout-mode="reading"] .reading-sidebar-column {
+    width: 100%;
+    min-width: 0;
+    align-self: start;
   }
 
   .hero-image {
@@ -999,6 +1175,16 @@ const showBothSidebarsOnPost = isPostPage && desktopShowLeft && desktopShowRight
     text-align: center;
   }
 
+  #banner-wrapper[data-hero-mode="inner"] .banner-home-text-overlay,
+  #banner-wrapper[data-hero-mode="none"] .banner-home-text-overlay,
+  .banner-home-text-overlay[aria-hidden="true"] {
+    display: none !important;
+  }
+
+  #banner-wrapper[data-hero-mode="home"] .inner-hero-overlay {
+    display: none;
+  }
+
   .inner-hero-overlay {
     padding-top: var(--navbar-clearance);
   }
@@ -1025,6 +1211,35 @@ const showBothSidebarsOnPost = isPostPage && desktopShowLeft && desktopShowRight
     font-size: clamp(0.95rem, 1.8vw, 1.125rem);
     color: rgba(255, 255, 255, 0.9);
     text-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    display: -webkit-box;
+    max-width: min(56rem, 100%);
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  .banner-post-meta-overlay {
+    display: none;
+    padding-top: var(--navbar-clearance);
+  }
+
+  @media (min-width: 1024px) {
+    .banner-post-meta-overlay[data-active="true"] {
+      display: flex;
+    }
+  }
+
+  .banner-post-title {
+    font-size: clamp(2.05rem, 5.2vw, 3.3rem);
+    text-shadow: 0 14px 36px rgba(0, 0, 0, 0.35);
+  }
+
+  .banner-post-meta-list {
+    text-shadow: 0 10px 28px rgba(0, 0, 0, 0.3);
+  }
+
+  .banner-post-meta-item[data-visible="false"] {
+    display: none;
   }
 
   .hero-wave-footer {

@@ -6,7 +6,14 @@
     <title>NgetehNology CMS</title>
     <link rel="icon" href="/assets/images/logos.png" sizes="256x256" />
     <link rel="stylesheet" href="/admin/admin-ui.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.7/dist/purify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/lib/common.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
   </head>
   <body>
     <div id="admin-shell" class="admin-shell" aria-hidden="true">
@@ -67,6 +74,258 @@
           if (typeof asset === "string") return asset;
           if (typeof asset.toString === "function") return asset.toString();
           return "";
+        }
+
+        function escapeAttribute(value) {
+          return escapeHtml(value).replace(/`/g, "&#96;");
+        }
+
+        function prettifyTypeLabel(type) {
+          const labels = {
+            note: "Note",
+            tip: "Tip",
+            important: "Important",
+            warning: "Warning",
+            caution: "Caution",
+          };
+          return labels[type] || "Note";
+        }
+
+        function toArray(value) {
+          if (!value) return [];
+          if (Array.isArray(value)) return value;
+          if (typeof value.toJS === "function") {
+            const plain = value.toJS();
+            return Array.isArray(plain) ? plain : [];
+          }
+          return [];
+        }
+
+        function renderCodeBlock(tokenOrCode, infoString) {
+          const code = typeof tokenOrCode === "object" ? tokenOrCode.text || "" : tokenOrCode || "";
+          const language =
+            typeof tokenOrCode === "object"
+              ? tokenOrCode.lang || ""
+              : ((infoString || "").match(/^\S+/) || [""])[0];
+
+          if (language === "mermaid") {
+            return `
+              <div class="mermaid-diagram-container">
+                <div class="mermaid-wrapper">
+                  <div class="mermaid" data-mermaid-code="${escapeAttribute(code)}">${escapeHtml(code)}</div>
+                </div>
+              </div>
+            `;
+          }
+
+          const className = language ? `language-${escapeAttribute(language)}` : "language-plaintext";
+          return `
+            <pre class="cms-code-block"><code class="${className}">${escapeHtml(code)}</code></pre>
+          `;
+        }
+
+        function normalizePreviewHtml(html) {
+          if (typeof DOMParser === "undefined") return html;
+
+          const doc = new DOMParser().parseFromString(
+            `<div id="cms-preview-root">${html}</div>`,
+            "text/html",
+          );
+          const root = doc.getElementById("cms-preview-root");
+          if (!root) return html;
+
+          root.querySelectorAll("blockquote").forEach(function (blockquote) {
+            const raw = blockquote.innerHTML.trim();
+            const calloutMatch = raw.match(
+              /^<p>\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*([^<]*)?(?:<br\s*\/?>)?([\s\S]*?)<\/p>([\s\S]*)$/i,
+            );
+            if (!calloutMatch) return;
+
+            const type = String(calloutMatch[1] || "note").toLowerCase();
+            const title = (calloutMatch[2] || "").trim() || prettifyTypeLabel(type);
+            const firstParagraphContent = (calloutMatch[3] || "").trim();
+            const remainingContent = (calloutMatch[4] || "").trim();
+            const contentParts = [];
+
+            if (firstParagraphContent) {
+              contentParts.push(`<p>${firstParagraphContent}</p>`);
+            }
+            if (remainingContent) {
+              contentParts.push(remainingContent);
+            }
+
+            blockquote.outerHTML = `
+              <blockquote class="admonition bdm-${escapeAttribute(type)}">
+                <div class="bdm-title">${escapeHtml(title)}</div>
+                <div class="bdm-content">${contentParts.join("")}</div>
+              </blockquote>
+            `;
+          });
+
+          return root.innerHTML;
+        }
+
+        function renderMarkdownHtml(markdown, depth = 0) {
+          const source = String(markdown || "").trim();
+          if (!source) {
+            return '<p class="cms-entry-preview__empty">Mulai menulis. Konten body akan tampil live di preview ini.</p>';
+          }
+
+          const maxDepth = 3;
+          let transformed = source.replace(/::github\{repo="([^"]+)"\}/g, function (_, repo) {
+            const repoName = String(repo || "").trim();
+            return `
+              <a class="card-github cms-card-github" href="https://github.com/${escapeAttribute(repoName)}" target="_blank" rel="noopener noreferrer">
+                <div class="gc-titlebar">
+                  <div class="gc-titlebar-left">
+                    <span class="gc-owner">${escapeHtml((repoName.split("/")[0] || "").trim())}</span>
+                    <span class="gc-repo">${escapeHtml((repoName.split("/")[1] || repoName).trim())}</span>
+                  </div>
+                  <span class="github-logo" aria-hidden="true"></span>
+                </div>
+                <div class="gc-description">GitHub repository preview</div>
+              </a>
+            `;
+          });
+
+          if (depth < maxDepth) {
+            transformed = transformed.replace(/:spoiler\[([\s\S]*?)\]/g, function (_, content) {
+              const innerHtml = renderMarkdownHtml(content || "", depth + 1)
+                .replace(/^<p>/i, "")
+                .replace(/<\/p>$/i, "");
+              return `<spoiler>${innerHtml}</spoiler>`;
+            });
+
+            transformed = transformed.replace(
+              /:::(note|tip|important|warning|caution)(?:\[(.*?)\])?\n([\s\S]*?)\n:::/g,
+              function (_, type, title, body) {
+                const label = title || prettifyTypeLabel(type);
+                const innerHtml = renderMarkdownHtml(body || "", depth + 1);
+                return `
+                  <blockquote class="admonition bdm-${escapeAttribute(type)}">
+                    <div class="bdm-title">${escapeHtml(label)}</div>
+                    <div class="bdm-content">${innerHtml}</div>
+                  </blockquote>
+                `;
+              },
+            );
+          }
+
+          try {
+            const renderer = new window.marked.Renderer();
+            renderer.code = function (tokenOrCode, infoString) {
+              return renderCodeBlock(tokenOrCode, infoString);
+            };
+
+            renderer.image = function (href, title, text) {
+              const imageHref = typeof href === "object" ? href.href || "" : href || "";
+              const imageTitle = typeof href === "object" ? href.title || "" : title || "";
+              const imageText = typeof href === "object" ? href.text || "" : text || "";
+              return `
+                <img
+                  src="${escapeAttribute(imageHref)}"
+                  alt="${escapeAttribute(imageText)}"
+                  ${imageTitle ? `title="${escapeAttribute(imageTitle)}"` : ""}
+                  loading="lazy"
+                />
+              `;
+            };
+
+            const html = window.marked.parse(transformed, {
+              gfm: true,
+              breaks: true,
+              headerIds: false,
+              mangle: false,
+              renderer,
+            });
+
+            const sanitizedHtml = window.DOMPurify
+              ? window.DOMPurify.sanitize(html, {
+                  ADD_TAGS: ["iframe", "details", "summary", "spoiler"],
+                  ADD_ATTR: [
+                    "allow",
+                    "allowfullscreen",
+                    "frameborder",
+                    "scrolling",
+                    "style",
+                    "class",
+                    "data-mermaid-code",
+                    "target",
+                    "rel",
+                    "src",
+                    "href",
+                    "title",
+                    "width",
+                    "height",
+                    "loading",
+                    "alt",
+                  ],
+                  ALLOW_DATA_ATTR: true,
+                })
+              : html;
+
+            return normalizePreviewHtml(sanitizedHtml);
+          } catch (error) {
+            return `<pre class="cms-code-block"><code>${escapeHtml(source)}</code></pre>`;
+          }
+        }
+
+        function enhancePreviewSurface(root) {
+          if (!root) return;
+
+          if (window.renderMathInElement) {
+            try {
+              window.renderMathInElement(root, {
+                delimiters: [
+                  { left: "$$", right: "$$", display: true },
+                  { left: "$", right: "$", display: false },
+                ],
+                ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+                throwOnError: false,
+              });
+            } catch {}
+          }
+
+          if (window.hljs) {
+            root.querySelectorAll("pre code").forEach(function (block) {
+              if (block.dataset.highlighted === "true") return;
+              window.hljs.highlightElement(block);
+              block.dataset.highlighted = "true";
+            });
+          }
+
+          if (window.mermaid && typeof window.mermaid.render === "function") {
+            window.mermaid.initialize({
+              startOnLoad: false,
+              securityLevel: "loose",
+              theme: "default",
+            });
+
+            root.querySelectorAll(".mermaid[data-mermaid-code]").forEach(function (element, index) {
+              if (element.dataset.processed === "true") return;
+
+              const code = element.getAttribute("data-mermaid-code") || element.textContent || "";
+              const renderId = `cms-mermaid-${Date.now()}-${index}`;
+              element.dataset.processed = "pending";
+
+              Promise.resolve(window.mermaid.render(renderId, code))
+                .then(function (result) {
+                  element.innerHTML = result.svg;
+                  element.dataset.processed = "true";
+                })
+                .catch(function () {
+                  element.innerHTML = `<pre class="cms-code-block"><code class="language-mermaid">${escapeHtml(code)}</code></pre>`;
+                  element.dataset.processed = "error";
+                  if (window.hljs) {
+                    element.querySelectorAll("pre code").forEach(function (block) {
+                      if (block.dataset.highlighted === "true") return;
+                      window.hljs.highlightElement(block);
+                      block.dataset.highlighted = "true";
+                    });
+                  }
+                });
+            });
+          }
         }
 
         function registerEditorEnhancements() {
@@ -214,6 +473,46 @@
           });
 
           window.CMS.registerEditorComponent({
+            id: "bilibili",
+            label: "Bilibili",
+            fields: [
+              { name: "bvid", label: "BVID", widget: "string" },
+              {
+                name: "page",
+                label: "Page",
+                widget: "number",
+                value_type: "int",
+                default: 1,
+                min: 1,
+                required: false,
+              },
+            ],
+            pattern:
+              /<iframe[^>]*src="\/\/player\.bilibili\.com\/player\.html\?bvid=([^"&]+)&p=(\d+)&autoplay=0"[\s\S]*?<\/iframe>/m,
+            fromBlock(match) {
+              return {
+                bvid: match[1] || "",
+                page: Number(match[2] || 1),
+              };
+            },
+            toBlock(data) {
+              const bvid = (data.bvid || "").trim();
+              const page = Number(data.page || 1);
+              return `<iframe width="100%" height="468" src="//player.bilibili.com/player.html?bvid=${bvid}&p=${page}&autoplay=0" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>`;
+            },
+            toPreview(data) {
+              return `
+                <div style="overflow:hidden;border-radius:18px;border:1px solid rgba(15,23,42,.12);background:#fff;">
+                  <div style="display:flex;align-items:center;justify-content:center;aspect-ratio:16/9;background:linear-gradient(135deg,#ecfeff,#eff6ff);font-weight:800;color:#1d4ed8;">
+                    Bilibili · ${escapeHtml(data.bvid || "")}
+                  </div>
+                  <div style="padding:14px 16px;font-size:13px;color:#475569;">Embed page ${escapeHtml(String(data.page || 1))}</div>
+                </div>
+              `;
+            },
+          });
+
+          window.CMS.registerEditorComponent({
             id: "github-card",
             label: "GitHub Card",
             fields: [{ name: "repo", label: "owner/repo", widget: "string" }],
@@ -237,15 +536,31 @@
           if (!createClassFn || !hFn) return;
 
           const PreviewShell = createClassFn({
+            componentDidMount() {
+              enhancePreviewSurface(this.previewRoot);
+            },
+            componentDidUpdate() {
+              enhancePreviewSurface(this.previewRoot);
+            },
             render() {
               const title = this.props.title || "Untitled";
               const description = this.props.description || "";
               const cover = this.props.cover || "";
-              const body = this.props.widgetForBody ? this.props.widgetForBody : null;
+              const rawBodyValue = this.props.bodyMarkdown || "";
+              const hasRawBody = String(rawBodyValue).trim().length > 0;
+              const bodyHtml = renderMarkdownHtml(rawBodyValue);
+              const metaItems = toArray(this.props.metaItems).filter(function (item) {
+                return item && item.value;
+              });
 
               return hFn(
                 "main",
-                { className: "cms-entry-preview" },
+                {
+                  className: "cms-entry-preview",
+                  ref: (node) => {
+                    this.previewRoot = node;
+                  },
+                },
                 [
                   cover
                     ? hFn("img", {
@@ -263,9 +578,27 @@
                       description
                         ? hFn("p", { className: "cms-entry-preview__description" }, description)
                         : null,
+                      metaItems.length
+                        ? hFn(
+                            "div",
+                            { className: "cms-entry-preview__meta-list" },
+                            metaItems.map((item) =>
+                              hFn("span", { className: "cms-entry-preview__meta-pill" }, `${item.label}: ${item.value}`),
+                            ),
+                          )
+                        : null,
                     ].filter(Boolean),
                   ),
-                  hFn("article", { className: "cms-entry-preview__body" }, body),
+                  hasRawBody
+                    ? hFn("article", {
+                        className: "cms-entry-preview__body custom-md",
+                        dangerouslySetInnerHTML: { __html: bodyHtml },
+                      })
+                    : hFn(
+                        "article",
+                        { className: "cms-entry-preview__body custom-md cms-entry-preview__body--widget" },
+                        this.props.bodyWidget || hFn("p", { className: "cms-entry-preview__empty" }, "Mulai menulis. Konten body akan tampil live di preview ini."),
+                      ),
                 ].filter(Boolean),
               );
             },
@@ -274,12 +607,22 @@
           const BlogPreview = createClassFn({
             render() {
               const entry = this.props.entry;
+              const tags = toArray(entry.getIn(["data", "tags"]));
+              const slug = String(entry.getIn(["data", "slug"]) || "").trim().toLowerCase();
+              const bodyMarkdown = entry.getIn(["data", "body"]) || entry.get("body") || "";
               return hFn(PreviewShell, {
                 eyebrow: "Blog Preview",
                 title: entry.getIn(["data", "title"]) || "Untitled Post",
                 description: entry.getIn(["data", "description"]) || "",
                 cover: assetUrl(this.props.getAsset(entry.getIn(["data", "image"]))),
-                widgetForBody: this.props.widgetFor("body"),
+                bodyMarkdown,
+                bodyWidget: this.props.widgetFor ? this.props.widgetFor("body") : null,
+                metaItems: [
+                  { label: "Published", value: entry.getIn(["data", "published"]) || "" },
+                  { label: "Category", value: entry.getIn(["data", "category"]) || "" },
+                  { label: "Slug", value: slug },
+                  { label: "Tags", value: tags.join(", ") },
+                ],
               });
             },
           });
@@ -287,12 +630,14 @@
           const PagePreview = createClassFn({
             render() {
               const entry = this.props.entry;
+              const bodyMarkdown = entry.getIn(["data", "body"]) || entry.get("body") || "";
               return hFn(PreviewShell, {
                 eyebrow: "Page Preview",
                 title: entry.getIn(["data", "title"]) || entry.getIn(["data", "name"]) || "Static Page",
                 description: "",
                 cover: "",
-                widgetForBody: this.props.widgetFor("body"),
+                bodyMarkdown,
+                bodyWidget: this.props.widgetFor ? this.props.widgetFor("body") : null,
               });
             },
           });

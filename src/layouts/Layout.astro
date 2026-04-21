@@ -837,8 +837,110 @@ function showBanner() {
 
 
 
+function getShellRouteKind(nextUrl: string) {
+	const resolvedUrl = new URL(nextUrl, window.location.origin);
+	const pathname = resolvedUrl.pathname;
+
+	if (pathsEqual(pathname, url('/'))) {
+		return 'home';
+	}
+
+	if (pathname.startsWith('/posts/')) {
+		return 'post';
+	}
+
+	if (pathname === '/about/' || pathname === '/friends/' || pathname === '/rss/') {
+		return 'reading';
+	}
+
+	return 'utility';
+}
+
+function syncBannerPostMeta(routeKind: string, phase: string) {
+	const overlay = document.getElementById('banner-post-meta-overlay');
+	if (!overlay) return;
+
+	const setActive = (active: boolean) => {
+		overlay.setAttribute('data-active', active ? 'true' : 'false');
+		overlay.setAttribute('aria-hidden', (!active).toString());
+	};
+
+	const clearText = () => {
+		const titleEl = overlay.querySelector('[data-banner-post-title]');
+		const publishedEl = overlay.querySelector('[data-banner-post-published]');
+		const updatedEl = overlay.querySelector('[data-banner-post-updated]');
+		const wordsEl = overlay.querySelector('[data-banner-post-words]');
+		const minutesEl = overlay.querySelector('[data-banner-post-minutes]');
+
+		if (titleEl) titleEl.textContent = '';
+		if (publishedEl) publishedEl.textContent = '';
+		if (updatedEl) updatedEl.textContent = '';
+		if (wordsEl) wordsEl.textContent = '';
+		if (minutesEl) minutesEl.textContent = '';
+
+		overlay.querySelectorAll('[data-banner-post-item]').forEach((item) => {
+			if (item instanceof HTMLElement) {
+				item.setAttribute('data-visible', 'false');
+			}
+		});
+	};
+
+	// Never show during the outgoing transition. Wait for page:view when the new
+	// page content (meta carrier) is already in the DOM.
+	if (phase === 'visit:start') {
+		setActive(false);
+		return;
+	}
+
+	if (routeKind !== 'post') {
+		setActive(false);
+		return;
+	}
+
+	const carrier = document.querySelector('[data-post-hero-meta="true"]');
+	if (!(carrier instanceof HTMLElement)) {
+		setActive(false);
+		return;
+	}
+
+	const title = carrier.dataset.title || '';
+	const published = carrier.dataset.published || '';
+	const updated = carrier.dataset.updated || '';
+	const words = carrier.dataset.words || '';
+	const minutes = carrier.dataset.minutes || '';
+
+	if (!title || !published) {
+		clearText();
+		setActive(false);
+		return;
+	}
+
+	const titleEl = overlay.querySelector('[data-banner-post-title]');
+	const publishedEl = overlay.querySelector('[data-banner-post-published]');
+	if (titleEl) titleEl.textContent = title;
+	if (publishedEl) publishedEl.textContent = published;
+
+	const applyMetaItem = (key: string, value: string, selector: string) => {
+		const wrapper = overlay.querySelector(`[data-banner-post-item="${key}"]`);
+		const valueEl = overlay.querySelector(selector);
+		if (wrapper instanceof HTMLElement) {
+			wrapper.setAttribute('data-visible', value ? 'true' : 'false');
+		}
+		if (valueEl) {
+			valueEl.textContent = value || '';
+		}
+	};
+
+	applyMetaItem('updated', updated, '[data-banner-post-updated]');
+	applyMetaItem('words', words, '[data-banner-post-words]');
+	applyMetaItem('minutes', minutes, '[data-banner-post-minutes]');
+
+	setActive(true);
+}
+
 function syncShellRouteState(nextUrl: string, phase: string = 'manual') {
-	const isHomeRoute = pathsEqual(nextUrl, url('/'));
+	const routeKind = getShellRouteKind(nextUrl);
+	const isHomeRoute = routeKind === 'home';
 	const bodyElement = document.body;
 	const navbarElement = document.getElementById('navbar');
 	const bannerWrapper = document.getElementById('banner-wrapper');
@@ -851,13 +953,18 @@ function syncShellRouteState(nextUrl: string, phase: string = 'manual') {
 	navbarElement?.setAttribute('data-is-home', isHomeRoute.toString());
 	if (bannerWrapper) {
 		bannerWrapper.setAttribute('data-hero-mode', nextHeroMode);
+		bannerWrapper.setAttribute('data-page-kind', routeKind);
 	}
 	if (contentShell) {
 		contentShell.setAttribute('data-hero-mode', nextHeroMode);
+		contentShell.setAttribute('data-page-kind', routeKind);
 	}
 	if (bannerTextOverlay) {
 		bannerTextOverlay.classList.toggle('hidden', !isHomeRoute);
+		bannerTextOverlay.setAttribute('aria-hidden', (!isHomeRoute).toString());
 	}
+
+	syncBannerPostMeta(routeKind, phase);
 
 	heroEngine?.sync?.({
 		route: nextUrl,
@@ -942,8 +1049,10 @@ const setup = () => {
 		if (bannerTextOverlay) {
 			if (isHomePage) {
 				bannerTextOverlay.classList.remove('hidden')
+				bannerTextOverlay.setAttribute('aria-hidden', 'false')
 			} else {
 				bannerTextOverlay.classList.add('hidden')
+				bannerTextOverlay.setAttribute('aria-hidden', 'true')
 			}
 		}
 

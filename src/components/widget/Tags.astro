@@ -1,20 +1,29 @@
 ---
-
 import I18nKey from "../../i18n/i18nKey";
 import { i18n } from "../../i18n/translation";
-import type { WidgetComponentConfig } from "../../types/config";
 import { getTagList } from "../../utils/content-utils";
 import { getTagUrl } from "../../utils/url-utils";
 import ButtonTag from "../control/ButtonTag.astro";
 import WidgetLayout from "./WidgetLayout.astro";
-import { getComponentConfig } from "../../utils/widget-manager";
+
+interface Props {
+  class?: string;
+  style?: string;
+}
+
+const className = Astro.props.class;
+const style = Astro.props.style;
 
 const tags = await getTagList();
 const sortedByFrequency = [...tags].sort((a, b) => {
   if (b.count !== a.count) return b.count - a.count;
   return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
 });
+
+// Widget only: show top 10 tags, with a "More" control revealing tags 6-10.
 const displayTags = sortedByFrequency.slice(0, 10);
+const visibleTags = displayTags.slice(0, 5);
+const moreTags = displayTags.slice(5);
 
 const tagCounts = displayTags.map((tag) => tag.count);
 const maxTagCount = tagCounts.length > 0 ? Math.max(...tagCounts) : 0;
@@ -29,32 +38,200 @@ const getTagFontSize = (count: number) => {
   return minSize + t * (maxSize - minSize);
 };
 
-const COLLAPSED_HEIGHT = "7.5rem";
+const getTagWeight = (count: number) => {
+  if (maxTagCount === minTagCount) return 0.5;
+  return (count - minTagCount) / (maxTagCount - minTagCount);
+};
 
-// 使用统一的组件管理器检查是否应该折叠
-interface Props {
-  class?: string;
-  style?: string;
-  componentConfig?: WidgetComponentConfig;
-}
-const className = Astro.props.class;
-const style = Astro.props.style;
-const tagsComponent = Astro.props.componentConfig ?? getComponentConfig("tags");
-const isCollapsed = Boolean(
-  tagsComponent?.responsive?.collapseThreshold &&
-    displayTags.length >= tagsComponent.responsive.collapseThreshold
-);
+const getTagTier = (count: number) => {
+  const weight = getTagWeight(count);
+  if (weight >= 0.78) return "tag-chip-hero";
+  if (weight >= 0.42) return "tag-chip-strong";
+  return "tag-chip-soft";
+};
 ---
-<WidgetLayout name={i18n(I18nKey.tags)} id="tags" isCollapsed={isCollapsed} collapsedHeight={COLLAPSED_HEIGHT} class={className} style={style}>
-    <div class="flex gap-2 flex-wrap">
-        {displayTags.map(t => (
+
+<WidgetLayout name={i18n(I18nKey.tags)} id="tags" class={className} style={style}>
+  <div class="tag-cloud flex gap-2 flex-wrap">
+    {visibleTags.map((t) => (
+      <ButtonTag
+        href={getTagUrl(t.name)}
+        label={`View all posts with the ${t.name.trim()} tag`}
+        class={`tag-chip ${getTagTier(t.count)}`}
+        style={`font-size: ${getTagFontSize(t.count).toFixed(3)}rem; --tag-weight: ${getTagWeight(t.count).toFixed(3)};`}
+      >
+        <span class="tag-chip-label">{t.name.trim()}</span>
+        <span class="tag-chip-count" aria-hidden="true">
+          {t.count}
+        </span>
+      </ButtonTag>
+    ))}
+  </div>
+
+  {
+    moreTags.length > 0 && (
+      <details class="tag-cloud-more mt-2">
+        <summary class="btn-plain scale-animation rounded-lg w-full h-9 flex items-center justify-center gap-2 active:scale-95">
+          {i18n(I18nKey.more)}
+          <span class="text-xs opacity-60">({moreTags.length})</span>
+        </summary>
+        <div class="tag-cloud mt-2 flex gap-2 flex-wrap">
+          {moreTags.map((t) => (
             <ButtonTag
               href={getTagUrl(t.name)}
               label={`View all posts with the ${t.name.trim()} tag`}
-              style={`font-size: ${getTagFontSize(t.count).toFixed(3)}rem;`}
+              class={`tag-chip ${getTagTier(t.count)}`}
+              style={`font-size: ${getTagFontSize(t.count).toFixed(3)}rem; --tag-weight: ${getTagWeight(t.count).toFixed(3)};`}
             >
-                {t.name.trim()}
+              <span class="tag-chip-label">{t.name.trim()}</span>
+              <span class="tag-chip-count" aria-hidden="true">
+                {t.count}
+              </span>
             </ButtonTag>
-        ))}
-    </div>
+          ))}
+        </div>
+      </details>
+    )
+  }
 </WidgetLayout>
+
+<style>
+  .tag-cloud {
+    align-items: flex-start;
+  }
+
+  .tag-cloud-more summary {
+    list-style: none;
+  }
+
+  .tag-cloud-more summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .tag-cloud :global(.tag-chip) {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    overflow: hidden;
+    border: 1px solid transparent;
+    transition:
+      transform 180ms ease,
+      box-shadow 180ms ease,
+      border-color 180ms ease,
+      background-color 180ms ease;
+  }
+
+  .tag-cloud :global(.tag-chip:hover) {
+    transform: translateY(-1px);
+  }
+
+  .tag-cloud :global(.tag-chip::before) {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(
+      circle at top left,
+      color-mix(in srgb, var(--primary) calc(12% + (var(--tag-weight) * 16%)), transparent),
+      transparent 62%
+    );
+    opacity: 0.9;
+    pointer-events: none;
+  }
+
+  .tag-cloud :global(.tag-chip-hero) {
+    border-color: color-mix(in srgb, var(--primary) 26%, transparent);
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--primary) 18%, transparent),
+      color-mix(in srgb, var(--primary) 8%, var(--btn-regular-bg))
+    );
+    box-shadow: 0 14px 26px color-mix(in srgb, var(--primary) 12%, transparent);
+  }
+
+  .tag-cloud :global(.dark .tag-chip-hero) {
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--primary) 28%, transparent),
+      color-mix(in srgb, var(--primary) 10%, var(--btn-regular-bg))
+    );
+  }
+
+  .tag-cloud :global(.tag-chip-strong) {
+    border-color: color-mix(in srgb, var(--primary) 16%, transparent);
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--primary) 10%, transparent),
+      color-mix(in srgb, var(--primary) 5%, var(--btn-regular-bg))
+    );
+  }
+
+  .tag-cloud :global(.dark .tag-chip-strong) {
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--primary) 16%, transparent),
+      color-mix(in srgb, var(--primary) 7%, var(--btn-regular-bg))
+    );
+  }
+
+  .tag-cloud :global(.tag-chip-soft) {
+    border-color: color-mix(in srgb, black 6%, transparent);
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--btn-regular-bg) 92%, white 8%),
+      var(--btn-regular-bg)
+    );
+  }
+
+  .tag-cloud :global(.dark .tag-chip-soft) {
+    border-color: color-mix(in srgb, white 10%, transparent);
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--btn-regular-bg) 96%, white 4%),
+      var(--btn-regular-bg)
+    );
+  }
+
+  .tag-cloud :global(.tag-chip-label),
+  .tag-cloud :global(.tag-chip-count) {
+    position: relative;
+    z-index: 1;
+  }
+
+  .tag-cloud :global(.tag-chip-label) {
+    max-width: 8rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tag-cloud :global(.tag-chip-count) {
+    display: inline-flex;
+    min-width: 1.4rem;
+    height: 1.4rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    padding: 0 0.35rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    line-height: 1;
+    color: color-mix(in srgb, var(--primary) 86%, black 14%);
+    background: color-mix(in srgb, white 72%, var(--primary) 28%);
+  }
+
+  .tag-cloud :global(.dark .tag-chip-count) {
+    color: white;
+    background: color-mix(in srgb, var(--primary) 44%, white 8%);
+  }
+
+  .tag-cloud :global(.tag-chip-hero .tag-chip-count) {
+    background: color-mix(in srgb, var(--primary) 20%, white 80%);
+  }
+
+  .tag-cloud :global(.dark .tag-chip-hero .tag-chip-count) {
+    background: color-mix(in srgb, var(--primary) 60%, white 10%);
+  }
+</style>
+

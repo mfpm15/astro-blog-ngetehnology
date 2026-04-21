@@ -5,7 +5,8 @@ import type { APIContext, ImageMetadata } from "astro";
 import { parse as htmlParser } from "node-html-parser";
 import { siteConfig } from "../config";
 import { getSortedPosts } from "@/utils/content-utils";
-import { getPostSlugFromId } from "@/utils/url-utils";
+import { getSafePostDescription } from "@/utils/post-description";
+import { getPostSlug } from "@/utils/url-utils";
 
 // Function to sanitize XML content by removing invalid characters
 function sanitizeXmlContent(content: string): string {
@@ -150,9 +151,11 @@ export async function GET(context: APIContext) {
   for (const { post, html } of processedPosts) {
     feed.push({
       title: sanitizeXmlContent(post.data.title),
-      description: sanitizeXmlContent(post.data.description || ""),
+      description: sanitizeXmlContent(
+        getSafePostDescription(post.data.description, post.data.title, 220)
+      ),
       pubDate: post.data.published,
-      link: `/posts/${getPostSlugFromId(post.id)}/`,
+      link: `/posts/${getPostSlug(post)}/`,
       // content:encoded should contain HTML but must be XML-safe
       content: sanitizeHtmlForXml(
         sanitizeHtml(html.toString(), {

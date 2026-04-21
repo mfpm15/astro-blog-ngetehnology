@@ -1,4 +1,6 @@
 import { spawn } from "node:child_process";
+import { watch } from "node:fs";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const isWindows = process.platform === "win32";
@@ -30,6 +32,9 @@ const spawnOptions = {
   stdio: ["inherit", "pipe", "pipe"],
   shell: false,
 };
+let astroDev = null;
+let restartTimer = null;
+const watchers = [];
 
 const cmsProxy = spawn(
   nodeCmd,
@@ -44,12 +49,87 @@ const cmsProxy = spawn(
   },
 );
 
-const astroDev = spawn(nodeCmd, [astroCliPath, "dev", ...forwardedArgs], spawnOptions);
+function pipeChild(child, stdoutPrefix, stderrPrefix) {
+  pipeWithPrefix(child.stdout, process.stdout, stdoutPrefix);
+  pipeWithPrefix(child.stderr, process.stderr, stderrPrefix);
+}
 
-pipeWithPrefix(cmsProxy.stdout, process.stdout, "[cms-proxy] ");
-pipeWithPrefix(cmsProxy.stderr, process.stderr, "[cms-proxy] ");
-pipeWithPrefix(astroDev.stdout, process.stdout, "[astro] ");
-pipeWithPrefix(astroDev.stderr, process.stderr, "[astro] ");
+function startAstroDev() {
+  astroDev = spawn(nodeCmd, [astroCliPath, "dev", ...forwardedArgs], spawnOptions);
+  pipeChild(astroDev, "[astro] ", "[astro] ");
+
+  astroDev.on("error", (error) => {
+    console.error("[dev] Gagal menjalankan Astro dev server:", error.message);
+    shutdown(1);
+  });
+
+  astroDev.on("exit", (code) => {
+    if (!shuttingDown) {
+      shutdown(code ?? 0);
+    }
+  });
+}
+
+function restartAstroDev(reason = "content update") {
+  if (shuttingDown) return;
+  if (restartTimer) clearTimeout(restartTimer);
+
+  restartTimer = setTimeout(() => {
+    restartTimer = null;
+    console.log(`[dev] Restarting Astro dev server (${reason})...`);
+
+    const previous = astroDev;
+    if (!previous || previous.exitCode !== null || previous.killed) {
+      startAstroDev();
+      return;
+    }
+
+    previous.removeAllListeners("exit");
+    previous.once("exit", () => {
+      if (!shuttingDown) {
+        startAstroDev();
+      }
+    });
+    previous.kill("SIGTERM");
+  }, 350);
+}
+
+function shouldRestartOnChange(fileName = "") {
+  const normalized = String(fileName).replace(/\\/g, "/").toLowerCase();
+  if (!normalized) return true;
+  return (
+    normalized.endsWith(".md") ||
+    normalized.endsWith(".mdx") ||
+    normalized.endsWith(".json") ||
+    normalized.endsWith(".yml") ||
+    normalized.endsWith(".yaml")
+  );
+}
+
+function registerWatcher(relativeTarget, label) {
+  const targetPath = path.join(process.cwd(), relativeTarget);
+  try {
+    const watcher = watch(
+      targetPath,
+      { recursive: true },
+      (eventType, fileName) => {
+        if (label === "posts" && eventType !== "rename") return;
+        if (!shouldRestartOnChange(fileName)) return;
+        restartAstroDev(`${label}: ${eventType} ${fileName || ""}`.trim());
+      },
+    );
+    if (typeof watcher.setMaxListeners === "function") {
+      watcher.setMaxListeners(0);
+    }
+    watchers.push(watcher);
+  } catch (error) {
+    console.warn(`[dev] Watcher ${label} tidak aktif: ${error.message}`);
+  }
+}
+
+pipeChild(cmsProxy, "[cms-proxy] ", "[cms-proxy] ");
+startAstroDev();
+registerWatcher(path.join("src", "content", "posts"), "posts");
 
 let shuttingDown = false;
 
@@ -61,7 +141,18 @@ function shutdown(code = 0) {
     cmsProxy.kill("SIGTERM");
   }
 
-  if (!astroDev.killed && astroDev.exitCode === null) {
+  watchers.forEach((watcher) => {
+    try {
+      watcher.close();
+    } catch {}
+  });
+
+  if (restartTimer) {
+    clearTimeout(restartTimer);
+    restartTimer = null;
+  }
+
+  if (astroDev && !astroDev.killed && astroDev.exitCode === null) {
     astroDev.kill("SIGTERM");
   }
 
@@ -81,20 +172,10 @@ cmsProxy.on("error", (error) => {
   console.error("[dev] Gagal menjalankan Decap local backend:", error.message);
   shutdown(1);
 });
-
-astroDev.on("error", (error) => {
-  console.error("[dev] Gagal menjalankan Astro dev server:", error.message);
-  shutdown(1);
-});
-
 cmsProxy.on("exit", (code) => {
   if (!shuttingDown) {
     shutdown(code ?? 1);
   }
-});
-
-astroDev.on("exit", (code) => {
-  shutdown(code ?? 0);
 });
 
 for (const signal of ["SIGINT", "SIGTERM"]) {

@@ -1,57 +1,50 @@
 ---
 import type { MarkdownHeading } from "astro";
 import { siteConfig } from "../../config/siteConfig";
-import { url } from "../../utils/url-utils";
-
-//已弃用，使用FloatingTOC.astro代替
+import I18nKey from "../../i18n/i18nKey";
+import { i18n } from "../../i18n/translation";
+import WidgetLayout from "./WidgetLayout.astro";
 
 interface Props {
   class?: string;
+  style?: string;
   headings: MarkdownHeading[];
 }
 
-let { headings = [] } = Astro.props;
-
-let minDepth = 10;
-for (const heading of headings) {
-  minDepth = Math.min(minDepth, heading.depth);
-}
-
-const className = Astro.props.class;
-// 修复路由判断逻辑，确保在文章页面能正确显示TOC
+const { headings = [], class: className = "", style } = Astro.props;
 const isPostsRoute =
   Astro.url.pathname.includes("/posts/") || headings.length > 0;
-
-const removeTailingHash = (text: string) => {
-  let lastIndexOfHash = text.lastIndexOf("#");
-  if (lastIndexOfHash !== text.length - 1) {
-    return text;
-  }
-
-  return text.substring(0, lastIndexOfHash);
-};
-
-let heading1Count = 1;
-
+const shouldRenderTocWidget = isPostsRoute && headings.length > 0;
 const maxLevel = siteConfig.toc.depth;
 ---
 
-<table-of-contents class:list={[className, "group"]} id="toc">
-  <!-- TOC内容将由JavaScript动态生成 -->
-</table-of-contents>
+{
+  shouldRenderTocWidget && (
+    <WidgetLayout
+      name={i18n(I18nKey.tableOfContents)}
+      id="toc-widget"
+      class={className}
+      style={style}
+    >
+      <div class="toc-widget-shell">
+        <table-of-contents class="toc-widget group" id="toc" data-max-level={String(maxLevel)}></table-of-contents>
+      </div>
+    </WidgetLayout>
+  )
+}
 
-<script>
+<script define:vars={{ maxLevel }}>
   class TableOfContents extends HTMLElement {
-    tocEl: HTMLElement | null = null;
+    tocEl = null;
     visibleClass = "visible";
-    observer: IntersectionObserver;
-    anchorNavTarget: HTMLElement | null = null;
-    headingIdxMap = new Map<string, number>();
-    headings: HTMLElement[] = [];
-    sections: HTMLElement[] = [];
-    tocEntries: HTMLAnchorElement[] = [];
-    active: boolean[] = [];
-    activeIndicator: HTMLElement | null = null;
+    observer;
+    anchorNavTarget = null;
+    headingIdxMap = new Map();
+    headings = [];
+    sections = [];
+    tocEntries = [];
+    active = [];
+    activeIndicator = null;
 
     constructor() {
       super();
@@ -60,7 +53,7 @@ const maxLevel = siteConfig.toc.depth;
       });
     }
 
-    markVisibleSection = (entries: IntersectionObserverEntry[]) => {
+    markVisibleSection = (entries) => {
       entries.forEach((entry) => {
         const id = entry.target.children[0]?.getAttribute("id");
         const idx = id ? this.headingIdxMap.get(id) : undefined;
@@ -69,8 +62,9 @@ const maxLevel = siteConfig.toc.depth;
         if (
           entry.isIntersecting &&
           this.anchorNavTarget == entry.target.firstChild
-        )
+        ) {
           this.anchorNavTarget = null;
+        }
       });
 
       if (!this.active.includes(true)) this.fallback();
@@ -79,8 +73,9 @@ const maxLevel = siteConfig.toc.depth;
 
     toggleActiveHeading = () => {
       let i = this.active.length - 1;
-      let min = this.active.length - 1,
-        max = -1;
+      let min = this.active.length - 1;
+      let max = -1;
+
       while (i >= 0 && !this.active[i]) {
         this.tocEntries[i].classList.remove(this.visibleClass);
         i--;
@@ -95,35 +90,31 @@ const maxLevel = siteConfig.toc.depth;
         this.tocEntries[i].classList.remove(this.visibleClass);
         i--;
       }
+
       if (min > max) {
-        this.activeIndicator?.setAttribute("style", `opacity: 0`);
-      } else {
-        let parentOffset = this.tocEl?.getBoundingClientRect().top || 0;
-        let scrollOffset = this.tocEl?.scrollTop || 0;
-        let top =
+        this.activeIndicator?.setAttribute("style", "opacity: 0");
+      } else if (this.tocEl) {
+        const parentOffset = this.tocEl.getBoundingClientRect().top;
+        const scrollOffset = this.tocEl.scrollTop;
+        const top =
           this.tocEntries[min].getBoundingClientRect().top -
           parentOffset +
           scrollOffset;
-        let bottom =
+        const bottom =
           this.tocEntries[max].getBoundingClientRect().bottom -
           parentOffset +
           scrollOffset;
+
         this.activeIndicator?.setAttribute(
           "style",
-          `top: ${top}px; height: ${bottom - top}px`
+          `top: ${top}px; height: ${bottom - top}px; opacity: 1`,
         );
       }
     };
 
     scrollToActiveHeading = () => {
-      // If the TOC widget can accommodate both the topmost
-      // and bottommost items, scroll to the topmost item.
-      // Otherwise, scroll to the bottommost one.
-
       if (this.anchorNavTarget || !this.tocEl) return;
-      const activeHeading = document.querySelectorAll<HTMLDivElement>(
-        `#toc .${this.visibleClass}`
-      );
+      const activeHeading = this.querySelectorAll(`.${this.visibleClass}`);
       if (!activeHeading.length) return;
 
       const topmost = activeHeading[0];
@@ -135,9 +126,11 @@ const maxLevel = siteConfig.toc.depth;
         bottommost.getBoundingClientRect().bottom -
           topmost.getBoundingClientRect().top <
         0.9 * tocHeight
-      )
-        top = topmost.offsetTop - 32;
-      else top = bottommost.offsetTop - tocHeight * 0.8;
+      ) {
+        top = topmost.offsetTop - 24;
+      } else {
+        top = bottommost.offsetTop - tocHeight * 0.78;
+      }
 
       this.tocEl.scrollTo({
         top,
@@ -149,9 +142,7 @@ const maxLevel = siteConfig.toc.depth;
     update = () => {
       requestAnimationFrame(() => {
         this.toggleActiveHeading();
-        // requestAnimationFrame(() => {
         this.scrollToActiveHeading();
-        // });
       });
     };
 
@@ -159,8 +150,8 @@ const maxLevel = siteConfig.toc.depth;
       if (!this.sections.length) return;
 
       for (let i = 0; i < this.sections.length; i++) {
-        let offsetTop = this.sections[i].getBoundingClientRect().top;
-        let offsetBottom = this.sections[i].getBoundingClientRect().bottom;
+        const offsetTop = this.sections[i].getBoundingClientRect().top;
+        const offsetBottom = this.sections[i].getBoundingClientRect().bottom;
 
         if (
           this.isInRange(offsetTop, 0, window.innerHeight) ||
@@ -168,34 +159,34 @@ const maxLevel = siteConfig.toc.depth;
           (offsetTop < 0 && offsetBottom > window.innerHeight)
         ) {
           this.markActiveHeading(i);
-        } else if (offsetTop > window.innerHeight) break;
+        } else if (offsetTop > window.innerHeight) {
+          break;
+        }
       }
     };
 
-    markActiveHeading = (idx: number) => {
+    markActiveHeading = (idx) => {
       this.active[idx] = true;
     };
 
-    handleAnchorClick = (event: Event) => {
+    handleAnchorClick = (event) => {
       const anchor = event
         .composedPath()
         .find((element) => element instanceof HTMLAnchorElement);
 
       if (anchor) {
-        event.preventDefault(); // 阻止默认的锚点跳转
+        event.preventDefault();
 
         const id = decodeURIComponent(anchor.hash?.substring(1));
         const targetElement = document.getElementById(id);
 
         if (targetElement) {
-          // 计算目标位置，与移动端保持一致
-          const navbarHeight = 80; // 导航栏高度
+          const navbarHeight = 80;
           const targetTop =
             targetElement.getBoundingClientRect().top +
             window.pageYOffset -
             navbarHeight;
 
-          // 使用与移动端相同的滚动方式
           window.scrollTo({
             top: targetTop,
             behavior: "smooth",
@@ -203,20 +194,15 @@ const maxLevel = siteConfig.toc.depth;
         }
 
         const idx = this.headingIdxMap.get(id);
-        if (idx !== undefined) {
-          this.anchorNavTarget = this.headings[idx];
-        } else {
-          this.anchorNavTarget = null;
-        }
+        this.anchorNavTarget = idx !== undefined ? this.headings[idx] : null;
       }
     };
 
-    isInRange(value: number, min: number, max: number) {
+    isInRange(value, min, max) {
       return min < value && value < max;
     }
 
     connectedCallback() {
-      // 优先监听动画结束，兜底定时初始化，确保二次刷新也能正常显示 TOC
       const element =
         document.querySelector(".custom-md") ||
         document.querySelector(".prose") ||
@@ -228,31 +214,27 @@ const maxLevel = siteConfig.toc.depth;
           this.init();
         }
       };
+
       if (element) {
         element.addEventListener("animationend", tryInit, { once: true });
-        // 兜底：无论动画是否触发，300ms后强制初始化一次
         setTimeout(tryInit, 300);
       } else {
-        // 没有动画元素，直接初始化，兜底再延迟一次
         tryInit();
         setTimeout(tryInit, 300);
       }
     }
 
     init() {
-      // 重新生成TOC内容
       this.regenerateTOC();
 
       this.tocEl = this;
-
       this.tocEl.addEventListener("click", this.handleAnchorClick, {
         capture: true,
       });
 
-      this.activeIndicator = document.getElementById("active-indicator");
-
+      this.activeIndicator = this.querySelector("#active-indicator");
       this.tocEntries = Array.from(
-        this.querySelectorAll<HTMLAnchorElement>("a[href^='#']")
+        this.querySelectorAll("a[href^='#']"),
       );
 
       if (this.tocEntries.length === 0) return;
@@ -272,32 +254,29 @@ const maxLevel = siteConfig.toc.depth;
       this.active = new Array(this.tocEntries.length).fill(false);
 
       this.sections.forEach((section) => this.observer.observe(section));
-
       this.fallback();
       this.update();
     }
 
     regenerateTOC(retryCount = 0) {
-      // 检查是否为文章页面
       const isPostPage =
         window.location.pathname.includes("/posts/") ||
         document.querySelector(".custom-md, .markdown-content") !== null;
       if (!isPostPage) {
-        // 如果不是文章页面，隐藏TOC
         this.innerHTML = "";
         return;
       }
-      // 从当前页面重新获取标题
+
       const headings = Array.from(
-        document.querySelectorAll("h1, h2, h3, h4, h5, h6")
+        document.querySelectorAll("h1, h2, h3, h4, h5, h6"),
       )
-        .filter((h) => h.id)
-        .map((h) => ({
-          depth: parseInt(h.tagName.substring(1)),
-          slug: h.id,
-          text: (h.textContent || "").replace(/#+\s*$/, ""),
+        .filter((heading) => heading.id)
+        .map((heading) => ({
+          depth: parseInt(heading.tagName.substring(1), 10),
+          slug: heading.id,
+          text: (heading.textContent || "").replace(/#+\s*$/, "").trim(),
         }));
-      // 如果没有标题，延迟重试最多3次
+
       if (headings.length === 0 && retryCount < 3) {
         setTimeout(() => this.regenerateTOC(retryCount + 1), 120);
         return;
@@ -306,36 +285,40 @@ const maxLevel = siteConfig.toc.depth;
         this.innerHTML = "";
         return;
       }
-      // 重新生成TOC HTML
-      const minDepth = Math.min(...headings.map((h) => h.depth));
-      const maxLevel = 3; // siteConfig.toc.depth
-      let heading1Count = 1;
+
+      const minDepth = Math.min(...headings.map((heading) => heading.depth));
+      let rootHeadingCount = 1;
       const tocHTML = headings
         .filter((heading) => heading.depth < minDepth + maxLevel)
         .map((heading) => {
-          const depthClass =
-            heading.depth === minDepth
-              ? ""
-              : heading.depth === minDepth + 1
-                ? "ml-4"
-                : "ml-8";
-          const badgeContent =
-            heading.depth === minDepth
-              ? heading1Count++
-              : heading.depth === minDepth + 1
-                ? '<div class="transition w-2 h-2 rounded-[0.1875rem] bg-[var(--toc-badge-bg)]"></div>'
-                : '<div class="transition w-1.5 h-1.5 rounded-sm bg-black/5 dark:bg-white/10"></div>';
-          return `<a href="#${heading.slug}" class="px-2 flex gap-2 relative transition w-full min-h-9 rounded-xl hover:bg-[var(--toc-btn-hover)] active:bg-[var(--toc-btn-active)] py-2">
-                    <div class="transition w-5 h-5 shrink-0 rounded-lg text-xs flex items-center justify-center font-bold ${depthClass} ${heading.depth === minDepth ? "bg-[var(--toc-badge-bg)] text-[var(--btn-content)]" : ""}">
-                        ${badgeContent}
-                    </div>
-                    <div class="transition text-sm ${heading.depth <= minDepth + 1 ? "text-50" : "text-30"}">${heading.text}</div>
-                </a>`;
+          const levelOffset = Math.min(Math.max(heading.depth - minDepth, 0), 2);
+          const toneClass =
+            levelOffset === 0
+              ? "toc-entry-text-root"
+              : levelOffset === 1
+                ? "toc-entry-text-mid"
+                : "toc-entry-text-leaf";
+          const marker =
+            levelOffset === 0
+              ? `<span class="toc-marker toc-marker-root">${rootHeadingCount++}</span>`
+              : levelOffset === 1
+                ? '<span class="toc-marker toc-marker-mid"></span>'
+                : '<span class="toc-marker toc-marker-leaf"></span>';
+
+          return `
+            <a href="#${heading.slug}" class="toc-entry toc-depth-${levelOffset}">
+              <span class="toc-marker-slot toc-shift-${levelOffset}">
+                ${marker}
+              </span>
+              <span class="toc-entry-text ${toneClass}">${heading.text}</span>
+            </a>
+          `;
         })
         .join("");
+
       this.innerHTML =
         tocHTML +
-        '<div id="active-indicator" style="opacity: 0" class="-z-10 absolute bg-[var(--toc-btn-hover)] left-0 right-0 rounded-xl transition-all group-hover:bg-transparent border-2 border-[var(--toc-btn-hover)] group-hover:border-[var(--toc-btn-active)] border-dashed"></div>';
+        '<div id="active-indicator" style="opacity: 0" class="toc-active-indicator"></div>';
     }
 
     disconnectedCallback() {
@@ -349,3 +332,172 @@ const maxLevel = siteConfig.toc.depth;
     customElements.define("table-of-contents", TableOfContents);
   }
 </script>
+
+<style>
+  .toc-widget-shell {
+    position: relative;
+  }
+
+  :global(table-of-contents.toc-widget) {
+    position: relative;
+    display: flex;
+    max-height: min(28rem, calc(100vh - 11rem));
+    flex-direction: column;
+    gap: 0.35rem;
+    overflow-y: auto;
+    padding-right: 0.2rem;
+    scroll-behavior: smooth;
+  }
+
+  :global(table-of-contents.toc-widget::-webkit-scrollbar) {
+    width: 4px;
+  }
+
+  :global(table-of-contents.toc-widget::-webkit-scrollbar-track) {
+    background: transparent;
+  }
+
+  :global(table-of-contents.toc-widget::-webkit-scrollbar-thumb) {
+    border-radius: 9999px;
+    background: color-mix(in srgb, var(--primary) 28%, transparent);
+  }
+
+  :global(table-of-contents.toc-widget .toc-entry) {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    width: 100%;
+    align-items: flex-start;
+    gap: 0.75rem;
+    border-radius: 1rem;
+    padding: 0.7rem 0.75rem;
+    text-decoration: none;
+    transition:
+      background-color 180ms ease,
+      color 180ms ease,
+      transform 180ms ease;
+  }
+
+  :global(table-of-contents.toc-widget .toc-entry:hover) {
+    background: color-mix(in srgb, var(--primary) 8%, var(--btn-plain-bg-hover));
+  }
+
+  :global(table-of-contents.toc-widget .toc-entry.visible) {
+    color: var(--primary);
+  }
+
+  :global(table-of-contents.toc-widget .toc-marker-slot) {
+    display: flex;
+    min-height: 1.5rem;
+    width: 1.5rem;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+  }
+
+  :global(table-of-contents.toc-widget .toc-shift-1) {
+    margin-left: 0.85rem;
+  }
+
+  :global(table-of-contents.toc-widget .toc-shift-2) {
+    margin-left: 1.7rem;
+  }
+
+  :global(table-of-contents.toc-widget .toc-marker) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    transition:
+      transform 180ms ease,
+      background-color 180ms ease,
+      opacity 180ms ease;
+  }
+
+  :global(table-of-contents.toc-widget .toc-marker-root) {
+    height: 1.5rem;
+    width: 1.5rem;
+    border-radius: 0.7rem;
+    background: color-mix(in srgb, var(--primary) 16%, transparent);
+    color: var(--primary);
+    font-size: 0.72rem;
+    font-weight: 800;
+  }
+
+  :global(table-of-contents.toc-widget .toc-marker-mid) {
+    height: 0.48rem;
+    width: 0.48rem;
+    background: color-mix(in srgb, var(--primary) 76%, transparent);
+  }
+
+  :global(table-of-contents.toc-widget .toc-marker-leaf) {
+    height: 0.36rem;
+    width: 0.36rem;
+    background: color-mix(in srgb, currentColor 30%, transparent);
+    opacity: 0.75;
+  }
+
+  :global(table-of-contents.toc-widget .toc-entry-text) {
+    min-width: 0;
+    flex: 1;
+    line-height: 1.45;
+    word-break: break-word;
+  }
+
+  :global(table-of-contents.toc-widget .toc-entry-text-root) {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: rgb(23 23 23 / 0.9);
+  }
+
+  :global(.dark table-of-contents.toc-widget .toc-entry-text-root) {
+    color: rgb(245 245 245 / 0.92);
+  }
+
+  :global(table-of-contents.toc-widget .toc-entry-text-mid) {
+    font-size: 0.845rem;
+    font-weight: 600;
+    color: rgb(38 38 38 / 0.78);
+  }
+
+  :global(.dark table-of-contents.toc-widget .toc-entry-text-mid) {
+    color: rgb(229 229 229 / 0.8);
+  }
+
+  :global(table-of-contents.toc-widget .toc-entry-text-leaf) {
+    font-size: 0.8rem;
+    color: rgb(64 64 64 / 0.66);
+  }
+
+  :global(.dark table-of-contents.toc-widget .toc-entry-text-leaf) {
+    color: rgb(212 212 212 / 0.68);
+  }
+
+  :global(table-of-contents.toc-widget .toc-entry.visible .toc-marker-root) {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 10px 20px color-mix(in srgb, var(--primary) 18%, transparent);
+  }
+
+  :global(table-of-contents.toc-widget .toc-entry.visible .toc-marker-mid),
+  :global(table-of-contents.toc-widget .toc-entry.visible .toc-marker-leaf) {
+    transform: scale(1.15);
+    background: var(--primary);
+    opacity: 1;
+  }
+
+  :global(table-of-contents.toc-widget .toc-active-indicator) {
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    border: 1px dashed color-mix(in srgb, var(--primary) 24%, transparent);
+    border-radius: 1rem;
+    background: color-mix(in srgb, var(--primary) 9%, transparent);
+    transition:
+      top 180ms ease,
+      height 180ms ease,
+      opacity 180ms ease;
+    pointer-events: none;
+  }
+</style>

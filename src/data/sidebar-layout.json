@@ -9,6 +9,8 @@
       "enable": true,
       "order": 1,
       "position": "top",
+      "showOnPostPage": true,
+      "showOnNonPostPage": true,
       "class": "onload-animation",
       "animationDelay": 0
     },
@@ -17,6 +19,8 @@
       "enable": true,
       "order": 2,
       "position": "top",
+      "showOnPostPage": true,
+      "showOnNonPostPage": true,
       "class": "onload-animation",
       "animationDelay": 50
     },
@@ -25,6 +29,8 @@
       "enable": true,
       "order": 3,
       "position": "sticky",
+      "showOnPostPage": true,
+      "showOnNonPostPage": true,
       "class": "onload-animation",
       "animationDelay": 100,
       "responsive": {
@@ -36,6 +42,8 @@
       "enable": true,
       "order": 4,
       "position": "sticky",
+      "showOnPostPage": true,
+      "showOnNonPostPage": true,
       "class": "onload-animation",
       "animationDelay": 150,
       "responsive": {
@@ -49,6 +57,8 @@
       "enable": true,
       "order": 1,
       "position": "top",
+      "showOnPostPage": true,
+      "showOnNonPostPage": true,
       "class": "onload-animation",
       "animationDelay": 0
     },
@@ -57,6 +67,8 @@
       "enable": true,
       "order": 2,
       "position": "top",
+      "showOnPostPage": false,
+      "showOnNonPostPage": true,
       "class": "onload-animation",
       "animationDelay": 50
     },
@@ -81,20 +93,20 @@
     }
   ],
   "mobileBottomComponents": [
-    { "type": "profile", "enable": true, "order": 1, "position": "top", "showOnPostPage": true, "showOnNonPostPage": false, "class": "onload-animation", "animationDelay": 0 },
+    { "type": "profile", "enable": true, "order": 1, "position": "top", "showOnPostPage": false, "showOnNonPostPage": false, "class": "onload-animation", "animationDelay": 0 },
     {
       "type": "categories",
       "enable": true,
       "order": 2,
       "position": "top",
-      "showOnPostPage": true,
+      "showOnPostPage": false,
       "responsive": { "collapseThreshold": 5 },
       "showOnNonPostPage": false,
       "class": "onload-animation",
       "animationDelay": 50
     },
     { "type": "stats", "enable": true, "order": 3, "position": "top", "showOnPostPage": true, "showOnNonPostPage": true, "class": "onload-animation", "animationDelay": 100 },
-    { "type": "calendar", "enable": true, "order": 4, "position": "top", "showOnPostPage": true, "showOnNonPostPage": true, "class": "onload-animation", "animationDelay": 150 }
+    { "type": "calendar", "enable": true, "order": 4, "position": "top", "showOnPostPage": false, "showOnNonPostPage": true, "class": "onload-animation", "animationDelay": 150 }
   ],
   "defaultAnimation": {
     "enable": true,

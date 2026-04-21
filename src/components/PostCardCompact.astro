@@ -3,6 +3,7 @@ import { type CollectionEntry, render } from "astro:content";
 import { Icon } from "astro-icon/components";
 import I18nKey from "../i18n/i18nKey";
 import { i18n } from "../i18n/translation";
+import { getSafePostDescription } from "../utils/post-description";
 import { getTagUrl } from "../utils/url-utils";
 import PostMetadata from "./PostMeta.astro";
 
@@ -35,6 +36,11 @@ const {
 const className = Astro.props.class;
 
 const { remarkPluginFrontmatter } = await render(entry);
+const displayDescription = getSafePostDescription(
+  description,
+  remarkPluginFrontmatter.excerpt,
+  160
+);
 ---
 
 <div
@@ -85,7 +91,7 @@ const { remarkPluginFrontmatter } = await render(entry);
 
     <!-- description -->
     <div class="transition text-75 mb-3 pr-4 line-clamp-2">
-      {description || remarkPluginFrontmatter.excerpt}
+      {displayDescription}
     </div>
 
     <!-- tags -->

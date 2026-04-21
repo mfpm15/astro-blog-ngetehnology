@@ -7,6 +7,7 @@ import sharp from "sharp";
 
 import { profileConfig } from "../../config/profileConfig";
 import { siteConfig } from "../../config/siteConfig";
+import { getSafePostDescription } from "../../utils/post-description";
 
 type Weight = 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
 
@@ -128,7 +129,11 @@ export async function GET({
     day: "numeric",
   });
 
-  const description = post.data.description;
+  const description = getSafePostDescription(
+    post.data.description,
+    post.data.title,
+    180
+  );
 
   const template = {
     type: "div",

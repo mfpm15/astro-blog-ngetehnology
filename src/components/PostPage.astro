@@ -1,6 +1,6 @@
 ---
 import type { CollectionEntry } from "astro:content";
-import { getPostSlugFromId, getPostUrlBySlug } from "@utils/url-utils";
+import { getPostSlug, getPostUrlBySlug } from "@utils/url-utils";
 import PostCard from "./PostCard.astro";
 import PostCardCompact from "./PostCardCompact.astro";
 import { siteConfig } from "../config/siteConfig";
@@ -29,7 +29,7 @@ type PostEntry = CollectionEntry<"posts">;
         category={entry.data.category}
         published={entry.data.published}
         updated={entry.data.updated}
-        url={getPostUrlBySlug(getPostSlugFromId(entry.id))}
+        url={getPostUrlBySlug(getPostSlug(entry))}
         image={entry.data.image}
         description={entry.data.description}
         draft={entry.data.draft}

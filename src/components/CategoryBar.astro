@@ -11,6 +11,13 @@ interface Props {
 
 const categories = await getCategoryList();
 const archiveCount = categories.reduce((total, category) => total + category.count, 0);
+const visibleCategories = [...categories]
+  .sort((a, b) => {
+    const diff = b.count - a.count;
+    if (diff !== 0) return diff;
+    return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+  })
+  .slice(0, 4);
 const className = Astro.props.class;
 const style = Astro.props.style;
 const homePath = url("/");
@@ -52,7 +59,7 @@ const currentPostCategory = Astro.props.currentPostCategory ?? "";
         <div class="scroll-fade scroll-fade-left" aria-hidden="true"></div>
         <div class="category-scroll flex gap-2 overflow-x-auto">
           {
-            categories.map((category) => (
+            visibleCategories.map((category) => (
               <a
                 href={category.url}
                 class="category-pill flex items-center justify-center rounded-lg px-3 py-1 text-sm whitespace-nowrap transition-colors duration-150 ease-out"

@@ -9,11 +9,13 @@ const postsCollection = defineCollection({
 		draft: z.boolean().optional().default(false),
 		description: z.string().optional().default(""),
 		image: z.string().optional().default(""),
+		slug: z.string().optional().default(""),
 		tags: z.array(z.string()).optional().default([]),
 		category: z.string().optional().nullable().default(""),
 		lang: z.string().optional().default(""),
 		pinned: z.boolean().optional().default(false),
 		author: z.string().optional().default(""),
+		comment: z.boolean().optional().default(true),
 		sourceLink: z.string().optional().default(""),
 		licenseName: z.string().optional().default(""),
 		licenseUrl: z.string().optional().default(""),
@@ -21,6 +23,7 @@ const postsCollection = defineCollection({
 		/* Page encryption fields */
 		encrypted: z.boolean().optional().default(false),
 		password: z.string().optional().default(""),
+		passwordHint: z.string().optional().default(""),
 
 		series: z.string().optional(),
 

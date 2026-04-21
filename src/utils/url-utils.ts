@@ -16,11 +16,34 @@ export function getPostUrlBySlug(slug: string): string {
 	return url(`/posts/${slug}/`);
 }
 
+type PostSlugSource =
+	| string
+	| {
+			id: string;
+			data?: {
+				slug?: string | null;
+			};
+	  };
+
+export function normalizePostSlug(slug?: string | null): string {
+	return String(slug || "")
+		.trim()
+		.replace(/^\/+|\/+$/g, "")
+		.toLowerCase();
+}
+
 export function getPostSlugFromId(id: string): string {
 	return id
 		.replace(/\\/g, "/")
 		.replace(/\.(md|mdx)$/i, "")
 		.replace(/\/index$/i, "");
+}
+
+export function getPostSlug(source: PostSlugSource, explicitSlug?: string | null): string {
+	const fallbackId = typeof source === "string" ? source : source.id;
+	const configuredSlug =
+		explicitSlug ?? (typeof source === "string" ? "" : source.data?.slug || "");
+	return normalizePostSlug(configuredSlug) || getPostSlugFromId(fallbackId);
 }
 
 export function getTagUrl(tag: string): string {
