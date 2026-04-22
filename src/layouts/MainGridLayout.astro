@@ -8,7 +8,6 @@ import Live2DWidget from "@components/widget/Live2DWidget.astro";
 import type { MarkdownHeading } from "astro";
 import { Icon } from "astro-icon/components";
 import FullscreenWallpaper from "../components/misc/FullscreenWallpaper.astro";
-import IconifyLoader from "../components/misc/IconifyLoader.astro";
 import ImageWrapper from "../components/misc/ImageWrapper.astro";
 import TypewriterText from "../components/TypewriterText.astro";
 import FloatingTOC from "../components/widget/FloatingTOC.astro";
@@ -401,8 +400,6 @@ const showBothSidebarsOnPost = isPostPage && desktopShowLeft && desktopShowRight
         />
       )
     }
-
-    <IconifyLoader />
 
     {
       shouldEnableTransparency && (

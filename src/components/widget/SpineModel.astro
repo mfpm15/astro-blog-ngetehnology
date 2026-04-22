@@ -23,7 +23,7 @@ import { spineModelConfig } from "../../config/pioConfig";
 }
 
 <script define:vars={{ spineModelConfig }}>
-  // Muat CSS Spine secara dinamis dengan fallback lokal.
+  // Load Spine CSS locally (CSP-friendly).
   function loadSpineCSS() {
     if (!spineModelConfig.enable) return;
 
@@ -31,33 +31,14 @@ import { spineModelConfig } from "../../config/pioConfig";
     const existingLink = document.querySelector('link[href*="spine-player"]');
     if (existingLink) return;
 
-    // Coba muat stylesheet dari CDN lebih dulu.
-    const cdnLink = document.createElement("link");
-    cdnLink.rel = "stylesheet";
-    cdnLink.href =
-      "https://unpkg.com/@esotericsoftware/spine-player@4.2.*/dist/spine-player.min.css";
-
-    // Jika gagal, fallback ke file lokal.
-    cdnLink.onerror = function () {
-      console.warn("⚠️ Spine CSS CDN failed, trying local fallback...");
-
-      // Hapus link CDN yang gagal.
-      if (cdnLink.parentNode) {
-        cdnLink.parentNode.removeChild(cdnLink);
-      }
-
-      // Pasang stylesheet fallback lokal.
-      const localLink = document.createElement("link");
-      localLink.rel = "stylesheet";
-      localLink.href = "/pio/static/spine-player.min.css";
-      localLink.onerror = function () {
-        console.error("❌ Failed to load Spine CSS");
-      };
-
-      document.head.appendChild(localLink);
+    const localLink = document.createElement("link");
+    localLink.rel = "stylesheet";
+    localLink.href = "/pio/static/spine-player.min.css";
+    localLink.onerror = function () {
+      console.error("Failed to load Spine CSS");
     };
 
-    document.head.appendChild(cdnLink);
+    document.head.appendChild(localLink);
   }
 
   // Track the active bubble and timers.
@@ -630,28 +611,13 @@ import { spineModelConfig } from "../../config/pioConfig";
           return;
         }
 
-        console.log("📦 Loading Spine runtime...");
         const script = document.createElement("script");
-        script.src =
-          "https://unpkg.com/@esotericsoftware/spine-player@4.2.*/dist/iife/spine-player.min.js";
+        script.src = "/pio/static/spine-player.min.js";
         script.onload = () => {
-          console.log("✅ Spine runtime loaded from CDN");
           resolve();
         };
-        script.onerror = (error) => {
-          console.warn("⚠️ CDN failed, trying local fallback...");
-
-          // Coba fallback lokal.
-          const fallbackScript = document.createElement("script");
-          fallbackScript.src = "/pio/static/spine-player.min.js";
-          fallbackScript.onload = () => {
-            console.log("✅ Spine runtime loaded from local fallback");
-            resolve();
-          };
-          fallbackScript.onerror = () => {
-            reject(new Error("Failed to load Spine runtime"));
-          };
-          document.head.appendChild(fallbackScript);
+        script.onerror = () => {
+          reject(new Error("Failed to load Spine runtime"));
         };
         document.head.appendChild(script);
       });

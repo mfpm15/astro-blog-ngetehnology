@@ -1,7 +1,7 @@
 ---
 import { i18n } from "../../i18n/translation";
 import I18nKey from "../../i18n/i18nKey";
-import Icon from "../misc/Icon.astro";
+import { Icon } from "astro-icon/components";
 
 export interface Props {
 	skill: {
@@ -116,14 +116,11 @@ const skillColor = skill.color || "#3B82F6";
   <div class={sizeClasses.container}>
     <div class="flex items-start gap-4">
       {showIcon && skill.icon && (
-        <div class={`rounded-lg flex items-center justify-center shrink-0 ${sizeClasses.icon}`} style={`background-color: ${skillColor}20`}>
-          <Icon 
-            icon={skill.icon} 
-            class={sizeClasses.iconText} 
-            color={skillColor}
-            fallback={skill.name.charAt(0)}
-            loading="eager"
-          />
+        <div
+          class={`rounded-lg flex items-center justify-center shrink-0 ${sizeClasses.icon}`}
+          style={`background-color: ${skillColor}20; color: ${skillColor}`}
+        >
+          <Icon name={skill.icon} class={sizeClasses.iconText} />
         </div>
       )}
       
@@ -201,16 +198,3 @@ const skillColor = skill.color || "#3B82F6";
     overflow: hidden;
   }
 </style>
-
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const skillCard = document.currentScript?.parentElement;
-    if (skillCard) {
-      skillCard.classList.add('skill-card');
-      
-      skillCard.addEventListener('iconify-ready', () => {
-        skillCard.classList.add('icons-loaded');
-      });
-    }
-  });
-</script>

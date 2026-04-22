@@ -1,5 +1,4 @@
 <script lang="ts">
-import Icon from "@iconify/svelte";
 import { onMount } from "svelte";
 import I18nKey from "../i18n/i18nKey";
 import { i18n } from "../i18n/translation";
@@ -224,7 +223,9 @@ if (typeof window !== "undefined") {
 	id="mobile-toc-switch"
 	class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90 lg:!hidden"
 >
-	<Icon icon="material-symbols:format-list-bulleted" class="text-[1.25rem]" />
+	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="text-[1.25rem]" aria-hidden="true">
+		<path fill="currentColor" d="M9 19v-2h12v2zm0-6v-2h12v2zm0-6V5h12v2zM5 20q-.825 0-1.412-.587T3 18t.588-1.412T5 16t1.413.588T7 18t-.587 1.413T5 20m0-6q-.825 0-1.412-.587T3 12t.588-1.412T5 10t1.413.588T7 12t-.587 1.413T5 14m0-6q-.825 0-1.412-.587T3 6t.588-1.412T5 4t1.413.588T7 6t-.587 1.413T5 8" />
+	</svg>
 </button>
 
 <!-- Mobile TOC Panel -->
@@ -240,14 +241,18 @@ if (typeof window !== "undefined") {
 			aria-label="Close TOC"
 			class="btn-plain rounded-lg h-8 w-8 active:scale-90"
 		>
-			<Icon icon="material-symbols:close" class="text-[1rem]" />
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="text-[1rem]" aria-hidden="true">
+				<path fill="currentColor" d="M6.4 19L5 17.6l5.6-5.6L5 6.4L6.4 5l5.6 5.6L17.6 5L19 6.4L13.4 12l5.6 5.6l-1.4 1.4l-5.6-5.6z" />
+			</svg>
 		</button>
 	</div>
 
 	{#if isHomePage}
 		{#if postItems.length === 0}
 			<div class="text-center py-8 text-black/50 dark:text-white/50">
-				<Icon icon="material-symbols:article-outline" class="text-2xl mb-2" />
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="text-2xl mb-2" aria-hidden="true">
+					<path fill="currentColor" d="M7 17h7v-2H7zm0-4h10v-2H7zm0-4h10V7H7zM5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h14q.825 0 1.413.588T21 5v14q0 .825-.587 1.413T19 21zm0-2h14V5H5zM5 5v14z" />
+				</svg>
 				<p>No articles yet</p>
 			</div>
 		{:else}
@@ -259,7 +264,9 @@ if (typeof window !== "undefined") {
 					>
 						<div class="post-title">
 							{#if post.pinned}
-								<Icon icon="mdi:pin" class="pinned-icon" />
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="pinned-icon" aria-hidden="true">
+									<path fill="currentColor" d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2z" />
+								</svg>
 							{/if}
 							{post.title}
 						</div>
@@ -273,7 +280,9 @@ if (typeof window !== "undefined") {
 	{:else}
 		{#if tocItems.length === 0}
 			<div class="text-center py-8 text-black/50 dark:text-white/50">
-				<Icon icon="material-symbols:article-outline" class="text-2xl mb-2" />
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="text-2xl mb-2" aria-hidden="true">
+					<path fill="currentColor" d="M7 17h7v-2H7zm0-4h10v-2H7zm0-4h10V7H7zM5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h14q.825 0 1.413.588T21 5v14q0 .825-.587 1.413T19 21zm0-2h14V5H5zM5 5v14z" />
+				</svg>
 				<p>This page has no table of contents yet</p>
 			</div>
 		{:else}
