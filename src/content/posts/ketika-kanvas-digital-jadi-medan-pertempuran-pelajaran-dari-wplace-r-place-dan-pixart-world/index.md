@@ -2,10 +2,8 @@
 title: "Ketika Kanvas Digital Jadi Medan Pertempuran: Pelajaran dari Wplace,
   r/place, dan Pixart.world"
 published: 2026-04-23
-description: Dari r/place hingga Wplace, seni piksel kolaboratif menunjukkan
-  bagaimana kreativitas internet bisa tumbuh sekaligus hancur. Artikel ini
-  membahas masalah vandalisme digital, ide karya yang tidak bisa dirusak, dan
-  pelajaran penting untuk membangun platform komunitas yang sehat.
+updated: 2026-04-23
+description: ""
 draft: false
 pinned: false
 lang: id
